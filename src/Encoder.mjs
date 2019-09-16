@@ -1,10 +1,11 @@
 const path = require('path');
 const spawn = require('child_process').spawn;
-var stream = require('stream');
+const stream = require('stream');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
 // thx https://dzone.com/articles/creating-video-on-the-server-in-nodejs
+// https://stackoverflow.com/questions/37957994/how-to-create-a-video-from-image-buffers-using-fluent-ffmpeg
 
 module.exports = class Encoder {
     secsPerImage = 0.25;
@@ -13,6 +14,7 @@ module.exports = class Encoder {
 
     constructor() {
         this.imagesStream = new stream.PassThrough();
+        this.outputFilename = path.resolve('./output.mp4');
     }
 
     init() {
@@ -20,18 +22,20 @@ module.exports = class Encoder {
             const framerate = '1/' + this.secsPerImage;
             const videosize = `${this.width}x${this.height}`;
             // var audiotrack = path.join(AUDIO_ROOT, options.audio.track);
-            const outputFilename = path.join(path.join('./output.mp4'));
 
-            var childProcess = spawn(ffmpegPath, ['-y', '-f', 'image2pipe',
-                '-s', videosize,
-                '-framerate', framerate,
-                '-pix_fmt', 'yuv420p',
-                '-i', '-',
-                // '-i', audiotrack,
-                '-vcodec', 'mpeg4',
-                '-shortest',
-                outputFilename
-            ]);
+            var childProcess = spawn(ffmpegPath,
+                [
+                    '-y', '-f', 'image2pipe',
+                    '-s', videosize,
+                    '-framerate', framerate,
+                    '-pix_fmt', 'yuv420p',
+                    '-i', '-',
+                    // '-i', audiotrack,
+                    '-vcodec', 'mpeg4',
+                    '-shortest',
+                    this.outputFilename
+                ]
+            );
 
             childProcess.stdout.on('data', data => console.log(data.toString()));
             childProcess.stderr.on('data', data => console.log(data.toString()));

@@ -15,10 +15,12 @@
   "license": "UNLICENCED",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
-    "fluent-ffmpeg": "^2.1.2"
+    "fluent-ffmpeg": "^2.1.2",
+    "jimp": "^0.8.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "mocha": "^6.2.0",
     "tmp": "^0.1.0"
   }
