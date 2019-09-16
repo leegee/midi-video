@@ -1,0 +1,16 @@
+{
+  "name": "midi-graph",
+  "version": "1.0.0",
+  "description": "Visualise MIDI data",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha src/**/*.spec.js"
+  },
+  "keywords": [
+    "midi",
+    "visualisation",
+    "graph"
+  ],
+  "author": "Lee Goddard",
+  "license": "UNLICENCED"
+}
