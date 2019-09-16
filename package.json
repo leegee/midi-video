@@ -12,5 +12,14 @@
     "graph"
   ],
   "author": "Lee Goddard",
-  "license": "UNLICENCED"
+  "license": "UNLICENCED",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "tmp": "^0.1.0"
+  }
 }
