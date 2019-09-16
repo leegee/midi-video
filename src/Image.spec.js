@@ -6,8 +6,8 @@ const Jimp = require('jimp');
 
 const Image = require("./Image.mjs");
 
-describe('init', () => {
-    it('buffer', async () => {
+describe('Image', () => {
+    it('getBuffer', async () => {
         const image = new Image();
         expect(image).to.be.an.instanceOf(Image);
         const rv = await image.create({ width: 10, height: 10 });
