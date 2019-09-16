@@ -20,6 +20,10 @@ describe('Encoder', () => {
         fs.unlinkSync(encoder.outputPath);
     });
 
+    afterEach( () => {
+        fs.unlinkSync(encoder.outputPath);
+    });
+
     it('create video', () => {
         expect(encoder).to.be.an.instanceOf(Encoder);
 
