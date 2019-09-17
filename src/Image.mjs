@@ -2,10 +2,14 @@ const Jimp = require('jimp');
 
 module.exports = class Image {
     jimp = null;
+    options = {};
 
-    async create(args) {
+    async create(options) {
+        this.options = Object.assign({}, this.options, options);
+        this.log = options.verbose ? console.log : () => { };
+
         return new Promise((resolve, reject) => {
-            new Jimp(args.width, args.height, (err, image) => {
+            new Jimp(options.width, options.height, (err, image) => {
                 if (err) {
                     console.error(err);
                     reject(err);
