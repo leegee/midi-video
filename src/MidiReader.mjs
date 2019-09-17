@@ -1,63 +1,65 @@
-const MidiPlayer = require('midi-player-js');
+const MidiParser = require('midi-parser-js/src/midi-parser');
+const fs = require('fs');
+
+const NOTE_ON = 9;
+const NOTE_OFF = 8;
 
 module.exports = class {
-    options = {};
+    options = {
+        verbose: false
+    };
+    midi = null;
+    totalMidiDurationInSeconds = 0;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
         this.log = options.verbose ? console.log : () => { };
 
-        this.player = new MidiPlayer.Player();
-        this.player.loadFile(options.filepath);
+        if (!options.bpm) {
+            throw new TypeError('Expected supplied option bpm');
+        }
+        if (!options.filepath) {
+            throw new TypeError('Expected supplied option filepath');
+        }
 
-        this.player.on('fileLoaded', () => {
-        });
-
-        this.player.on('playing', (currentTick) => {
-        });
-
-        this.player.on('midiEvent', (event) => {
-        });
-
-        this.player.on('endOfFile', () => {
-        });
-
-        this.player.play();
-    }
-
-    process() {
-        const midi = MidiParser.parse(fs.readFileSync(options.midi)); // , 'base64'
-        const ppq = midi.timeDivision;
+        this.midi = MidiParser.parse(fs.readFileSync(options.filepath));
+        const ppq = this.midi.timeDivision;
         const timeFactor = (60000 / (options.bpm * ppq) / 1000);
 
-        this.log('BPM:%d, PPQ: %d', options.bpm, ppq);
-        this.log('MIDI.timeDivision:', midi.timeDivision);
-        this.log('timeFactor:', timeFactor);
+        this.log('MIDI.timeDivision: %d, timeFactor: %d, PPQ: %d, BPM: %d',
+            this.midi.timeDivision, timeFactor, options.bpm, ppq
+        );
 
         let noteDur = 0;
-        let totalMidiDurationInSeconds = 0; // public for tests only
 
-        // Just the track 1 note on events for any channel
-        this.chunkSeconds = midi.track[0].event
-            .filter(v => {
-                if (v.type === NOTE_ON) {
-                    noteDur = v.deltaTime;
-                    this.log('on', noteDur, v);
-                }
-                else if (v.type === NOTE_OFF) {
-                    noteDur += v.deltaTime;
-                    v.noteDur = noteDur;
-                    this.log('off', noteDur, v);
-                }
-                return v.type === NOTE_OFF;
-            })
-            .map(v => {
-                const t = v.noteDur * timeFactor;
-                totalMidiDurationInSeconds += t;
-                this.log(v.noteDur, ':', t);
-                return t;
-            });
+        this.log('Total tracks: ', this.midi.track.length);
 
-        return totalMidiDurationInSeconds;
+        this.midi.track.forEach(midiTrack => {
+            let totalMidiDurationInSeconds = 0;
+            midiTrack.event
+                .filter(v => {
+                    if (v.type === NOTE_ON) {
+                        noteDur = v.deltaTime;
+                        // this.log('on', noteDur, v);
+                        if (v.velocity === 0) {
+                            v.type = NOTE_OFF;
+                        }
+                    }
+                    if (v.type === NOTE_OFF) {
+                        noteDur += v.deltaTime;
+                        v.noteDur = noteDur;
+                        // this.log('off', noteDur, v);
+                    }
+                    return v.type === NOTE_OFF;
+                })
+                .map(v => {
+                    const t = v.noteDur * timeFactor;
+                    totalMidiDurationInSeconds += t;
+                    // this.log(v.noteDur, ':', t);
+                    return t;
+                });
+
+            this.totalMidiDurationInSeconds = totalMidiDurationInSeconds > this.totalMidiDurationInSeconds ? totalMidiDurationInSeconds : this.totalMidiDurationInSeconds;
+        });
     }
 }

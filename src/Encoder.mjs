@@ -14,7 +14,7 @@ module.exports = class Encoder {
         width: 1920,
         height: 1080,
         outputPath: path.resolve('./output.mp4'),
-        verbose: false,
+        verbose: true,
     };
     totalImagesAdded = 0;
 
