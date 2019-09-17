@@ -16,7 +16,8 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "fluent-ffmpeg": "^2.1.2",
-    "jimp": "^0.8.2"
+    "jimp": "^0.8.2",
+    "midi-player-js": "^2.0.5"
   },
   "devDependencies": {
     "chai": "^4.2.0",

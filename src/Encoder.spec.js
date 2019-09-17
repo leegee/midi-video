@@ -40,6 +40,7 @@ describe('Encoder', () => {
 
         p.then(() => {
             expect(encoder.options.outputPath).to.be.a.path();
+            expect(encoder.totalImagesAdded).to.be(4);
         });
     });
 

@@ -15,10 +15,11 @@ module.exports = class Encoder {
         height: 1080,
         outputPath: path.resolve('./output.mp4')
     };
+    totalImagesAdded = 0;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        console.log('xxx', this.options);
+        console.log('New Encoder', this.options);
     }
 
     init() {
@@ -60,7 +61,8 @@ module.exports = class Encoder {
 
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
-        console.log('Done addImage');
+        this.totalImagesAdded ++;
+        console.log('Done addImage', this.totalImagesAdded);
     }
 
     finally() {
