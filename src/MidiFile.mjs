@@ -10,7 +10,7 @@ module.exports = class MidiFile {
         bpm: null,
         filepath: null
     };
-    music = null;
+    channels = null;
     totalMidiDurationInSeconds = 0;
 
     constructor(options = {}) {
@@ -36,33 +36,41 @@ module.exports = class MidiFile {
 
         this.log('Total tracks: ', midi.track.length);
 
+
         midi.track.forEach(midiTrack => {
+            let noteDur;
+            let currentTime = 0;
+
             let totalMidiDurationInSeconds = 0;
             midiTrack.event
-                .filter(v => {
-                    if (v.type === MidiFile.NOTE_ON) {
-                        noteDur = v.deltaTime;
-                        if (v.velocity === 0) {
-                            v.type = MidiFile.NOTE_OFF;
+                .filter(event => {
+                    let useThisEvent = false;
+                    if (event.type === MidiFile.NOTE_ON) {
+                        useThisEvent = true;
+                        if (event.velocity === 0) {
+                            event.type = MidiFile.NOTE_OFF;
                         } else {
-                            this.log('on', noteDur, v);
-                            // this.music
+                            noteDur = v.deltaTime;
+                            this.log('on', noteDur, event);
                         }
                     }
-                    if (v.type === MidiFile.NOTE_OFF) {
-                        noteDur += v.deltaTime;
-                        v.noteDur = noteDur;
-                        this.log('off', noteDur, v);
+                    if (event.type === MidiFile.NOTE_OFF) {
+                        v.noteDur = noteDur + v.deltaTime;
+                        useThisEvent = true;
+                        this.log('off', noteDur, event);
                     }
-                    return v.type === MidiFile.NOTE_OFF;
-                })
-                .map(v => {
-                    const t = v.noteDur * timeFactor;
-                    totalMidiDurationInSeconds += t;
-                    // this.log(v.noteDur, ':', t);
-                    return t;
+
+                    if (useThisEvent) {
+                        currentTime += event.deltaTime;
+                        const t = v.noteDur * timeFactor;
+                        totalMidiDurationInSeconds += t;
+                        this.log('At ', t, ' duration ', v.noteDur);
+
+                        // this.channels[event.channel] ...
+                    }
                 });
 
+            this.log('This track totalMidiDurationInSeconds = ', totalMidiDurationInSeconds);
             this.totalMidiDurationInSeconds = totalMidiDurationInSeconds > this.totalMidiDurationInSeconds ? totalMidiDurationInSeconds : this.totalMidiDurationInSeconds;
         });
     }
