@@ -9,10 +9,13 @@ const REQ_ARGS = {
 
 module.exports = class Integrater {
     options = {
-        verbose: false,
+        verbose: true,
         bpm: null,
         filepath: null,
-        outputpath: 'output.mp4'
+        outputpath: 'output.mp4',
+        width: 1920,
+        height: 1080,
+        secsPerImage: Math.floor(1 / 30)
     };
     totalImagesAdded = 0;
 
@@ -21,6 +24,16 @@ module.exports = class Integrater {
         this.log = options.verbose ? console.log : () => { };
 
         this.assertOptions();
+
+
+        this.midiFile = new MidiFile({
+            bpm: this.options.bpm,
+            filepath: this.options.filepath,
+            verbose: this.options.verbose
+        })
+        this.encoder = new Encoder({
+            outputpath: this.options.outputpath
+        });
     }
 
     assertOptions() {
@@ -36,49 +49,9 @@ module.exports = class Integrater {
     }
 
     async integrate() {
-        const midiFile = new MidiFile({
-            bpm: this.options.bpm,
-            filepath: this.options.filepath
-        })
-        const encoder = new Encoder({
-            outputpath: this.options.outputpath
-        });
-        const finished = encoder.init();
+        const promiseResolvesWhenFileWritten = encoder.init();
 
-        midiFile.midi.track.forEach(midiTrack => {
-            let totalMidiDurationInSeconds = 0;
-            midiTrack.event
-                .filter(v => {
-                    console.log(v);
-                    if (v.type === midiFile.NOTE_ON) {
-                        noteDur = v.deltaTime;
-                        // this.log('on', noteDur, v);
-                        if (v.velocity === 0) {
-                            v.type = midiFile.NOTE_OFF;
-                        }
-                    }
-                    if (v.type === midiFile.NOTE_OFF) {
-                        noteDur += v.deltaTime;
-                        v.noteDur = noteDur;
-                        // this.log('off', noteDur, v);
-                    }
-                    return v.type === midiFile.NOTE_OFF;
-                })
-                .map(v => {
-                    const t = v.noteDur * timeFactor;
-                    totalMidiDurationInSeconds += t;
-                    // this.log(v.noteDur, ':', t);
-                    return t;
-                });
-
-            this.totalMidiDurationInSeconds = totalMidiDurationInSeconds > this.totalMidiDurationInSeconds ? totalMidiDurationInSeconds : this.totalMidiDurationInSeconds;
-        });
-
-        //     encoder.addImage(new Image().getBuffer());
-
-        encoder.finalise();
-        finished.then(() => {
-            this.log('Done ', this.options.outputpath);
-        });
+        this.encoder.finalise();
+        return promiseResolvesWhenFileWritten;
     }
 }

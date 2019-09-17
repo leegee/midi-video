@@ -27,19 +27,18 @@ describe('Encoder', () => {
 
     afterEach(() => {
         if (fs.existsSync(integrater.options.outputpath)) {
-            fs.unlinkSync(integrater.options.outputpath);
+            // fs.unlinkSync(integrater.options.outputpath);
         }
     });
 
-    it('create video', () => {
+    it('create video', async () => {
         expect(integrater).to.be.an.instanceOf(Integrater);
 
-        const p = integrater.integrate();
-        expect(p).to.be.an.instanceOf(Promise);
+        const promiseResolvesWhenFileWritten = integrater.integrate();
+        expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
-        p.then(() => {
-            expect(integrater.options.outputpath).to.be.a.path();
-        });
+        await promiseResolvesWhenFileWritten;
+        expect(integrater.options.outputpath).to.be.a.path();
     });
 
 });

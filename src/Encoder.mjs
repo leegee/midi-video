@@ -10,9 +10,9 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 module.exports = class Encoder {
     imagesStream = new stream.PassThrough();
     options = {
-        secsPerImage: 0.25,
-        width: 1920,
-        height: 1080,
+        secsPerImage: null,
+        width: null,
+        height: null,
         outputpath: path.resolve('./output.mp4'),
         verbose: true,
     };

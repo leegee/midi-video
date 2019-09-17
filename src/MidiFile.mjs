@@ -4,13 +4,13 @@ const fs = require('fs');
 module.exports = class MidiFile {
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
-    
+
     options = {
         verbose: false,
         bpm: null,
         filepath: null
     };
-    midi = null;
+    music = null;
     totalMidiDurationInSeconds = 0;
 
     constructor(options = {}) {
@@ -24,33 +24,35 @@ module.exports = class MidiFile {
             throw new TypeError('Expected supplied option filepath');
         }
 
-        this.midi = MidiParser.parse(fs.readFileSync(options.filepath));
-        const ppq = this.midi.timeDivision;
+        const midi = MidiParser.parse(fs.readFileSync(options.filepath));
+        const ppq = midi.timeDivision;
         const timeFactor = (60000 / (options.bpm * ppq) / 1000);
 
         this.log('MIDI.timeDivision: %d, timeFactor: %d, PPQ: %d, BPM: %d',
-            this.midi.timeDivision, timeFactor, options.bpm, ppq
+            midi.timeDivision, timeFactor, ppq, options.bpm
         );
 
         let noteDur = 0;
 
-        this.log('Total tracks: ', this.midi.track.length);
+        this.log('Total tracks: ', midi.track.length);
 
-        this.midi.track.forEach(midiTrack => {
+        midi.track.forEach(midiTrack => {
             let totalMidiDurationInSeconds = 0;
             midiTrack.event
                 .filter(v => {
                     if (v.type === MidiFile.NOTE_ON) {
                         noteDur = v.deltaTime;
-                        // this.log('on', noteDur, v);
                         if (v.velocity === 0) {
                             v.type = MidiFile.NOTE_OFF;
+                        } else {
+                            this.log('on', noteDur, v);
+                            // this.music
                         }
                     }
                     if (v.type === MidiFile.NOTE_OFF) {
                         noteDur += v.deltaTime;
                         v.noteDur = noteDur;
-                        // this.log('off', noteDur, v);
+                        this.log('off', noteDur, v);
                     }
                     return v.type === MidiFile.NOTE_OFF;
                 })

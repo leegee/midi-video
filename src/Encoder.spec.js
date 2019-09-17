@@ -13,7 +13,9 @@ let encoder;
 
 describe('Encoder', () => {
     beforeEach(() => {
-        encoder = new Encoder();
+        encoder = new Encoder({
+            secsPerImage: 0.25
+        });
         if (fs.existsSync(encoder.options.outputpath)) {
             fs.unlinkSync(encoder.options.outputpath);
         }
