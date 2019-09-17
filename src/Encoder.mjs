@@ -8,17 +8,24 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 // https://stackoverflow.com/questions/37957994/how-to-create-a-video-from-image-buffers-using-fluent-ffmpeg
 
 module.exports = class Encoder {
-    secsPerImage = 0.25;
-    width = 1920;
-    height = 1080;
-    outputPath = path.resolve('./output.mp4');
     imagesStream = new stream.PassThrough();
+    options = {
+        secsPerImage: 0.25,
+        width: 1920,
+        height: 1080,
+        outputPath: path.resolve('./output.mp4')
+    };
+
+    constructor(options = {}) {
+        this.options = Object.assign({}, this.options, options);
+        console.log('xxx', this.options);
+    }
 
     init() {
         console.log('Enter Encoder.create');
         return new Promise((resolve, reject) => {
-            const framerate = '1/' + this.secsPerImage;
-            const videosize = `${this.width}x${this.height}`;
+            const framerate = '1/' + this.options.secsPerImage;
+            const videosize = `${this.options.width}x${this.options.height}`;
             // var audiotrack = path.join(AUDIO_ROOT, options.audio.track);
 
             console.log('pre-spawn');
@@ -32,7 +39,7 @@ module.exports = class Encoder {
                     // '-i', audiotrack,
                     '-vcodec', 'mpeg4',
                     '-shortest',
-                    this.outputPath
+                    this.options.outputPath
                 ]
             );
 

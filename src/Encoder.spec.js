@@ -15,13 +15,17 @@ const base64image = "R0lGODlhPQBEAPeoAJosM//AwO/AwHVYZ/z595kzAP/s7P+goOXMv8+fhw/
 let encoder;
 
 describe('Encoder', () => {
-    beforeEach( () => {
+    beforeEach(() => {
         encoder = new Encoder();
-        fs.unlinkSync(encoder.outputPath);
+        if (fs.existsSync(encoder.options.outputPath)) {
+            fs.unlinkSync(encoder.options.outputPath);
+        }
     });
 
-    afterEach( () => {
-        fs.unlinkSync(encoder.outputPath);
+    afterEach(() => {
+        if (fs.existsSync(encoder.options.outputPath)) {
+            fs.unlinkSync(encoder.options.outputPath);
+        }
     });
 
     it('create video', () => {
@@ -29,12 +33,14 @@ describe('Encoder', () => {
 
         const p = encoder.init();
         expect(p).to.be.an.instanceOf(Promise);
-        encoder.addImage(
-            new Buffer(base64image, 'base64')
-        );
+        for (let i = 0; i < 5; i++) {
+            encoder.addImage(new Buffer(base64image, 'base64'));
+        }
         encoder.finally();
 
-        expect(encoder.outputPath).to.be.a.path();
+        p.then(() => {
+            expect(encoder.options.outputPath).to.be.a.path();
+        });
     });
 
 });
