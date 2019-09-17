@@ -2,7 +2,10 @@ const Jimp = require('jimp');
 
 module.exports = class Image {
     jimp = null;
-    options = {};
+    options = {
+        width: 1920,
+        height: 1080
+    };
 
     async create(options) {
         this.options = Object.assign({}, this.options, options);

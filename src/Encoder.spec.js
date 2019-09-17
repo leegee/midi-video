@@ -14,14 +14,14 @@ let encoder;
 describe('Encoder', () => {
     beforeEach(() => {
         encoder = new Encoder();
-        if (fs.existsSync(encoder.options.outputPath)) {
-            fs.unlinkSync(encoder.options.outputPath);
+        if (fs.existsSync(encoder.options.outputpath)) {
+            fs.unlinkSync(encoder.options.outputpath);
         }
     });
 
     afterEach(() => {
-        if (fs.existsSync(encoder.options.outputPath)) {
-            fs.unlinkSync(encoder.options.outputPath);
+        if (fs.existsSync(encoder.options.outputpath)) {
+            fs.unlinkSync(encoder.options.outputpath);
         }
     });
 
@@ -36,10 +36,10 @@ describe('Encoder', () => {
             encoder.addImage(new Buffer(base64image, 'base64'));
             addedImage ++;
         }
-        encoder.finally();
+        encoder.finalise();
 
         p.then(() => {
-            expect(encoder.options.outputPath).to.be.a.path();
+            expect(encoder.options.outputpath).to.be.a.path();
             expect(encoder.totalImagesAdded).to.equal(addedImage);
         });
     });

@@ -6,7 +6,9 @@ const NOTE_OFF = 8;
 
 module.exports = class {
     options = {
-        verbose: false
+        verbose: false,
+        bpm: null,
+        filepath: null
     };
     midi = null;
     totalMidiDurationInSeconds = 0;

@@ -13,7 +13,7 @@ module.exports = class Encoder {
         secsPerImage: 0.25,
         width: 1920,
         height: 1080,
-        outputPath: path.resolve('./output.mp4'),
+        outputpath: path.resolve('./output.mp4'),
         verbose: true,
     };
     totalImagesAdded = 0;
@@ -42,7 +42,7 @@ module.exports = class Encoder {
                     // '-i', audiotrack,
                     '-vcodec', 'mpeg4',
                     '-shortest',
-                    this.options.outputPath
+                    this.options.outputpath
                 ]
             );
             this.log('post-spawn ffmpeg');
@@ -66,9 +66,9 @@ module.exports = class Encoder {
         this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
-    finally() {
+    finalise() {
         this.imagesStream.end();
-        this.log('Done Encoder.finally');
+        this.log('Done Encoder.finalise');
     }
 }
 
