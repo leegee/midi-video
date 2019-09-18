@@ -49,7 +49,7 @@ module.exports = class Integrater {
     }
 
     async integrate() {
-        const promiseResolvesWhenFileWritten = encoder.init();
+        const promiseResolvesWhenFileWritten = this.encoder.init();
 
         this.encoder.finalise();
         return promiseResolvesWhenFileWritten;

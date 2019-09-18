@@ -1,22 +1,20 @@
 const MidiParser = require('midi-parser-js/src/midi-parser');
 const fs = require('fs');
+const Note = require('./Note.mjs');
 
 module.exports = class MidiFile {
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
 
     options = {
-        verbose: false,
+        verbose: true,
         bpm: null,
         filepath: null
     };
-    channels = null;
-    totalMidiDurationInSeconds = 0;
+    tracks = [];
+    totalMidiDurationInSeconds = null;
 
     constructor(options = {}) {
-        this.options = Object.assign({}, this.options, options);
-        this.log = options.verbose ? console.log : () => { };
-
         if (!options.bpm) {
             throw new TypeError('Expected supplied option bpm');
         }
@@ -24,54 +22,77 @@ module.exports = class MidiFile {
             throw new TypeError('Expected supplied option filepath');
         }
 
-        const midi = MidiParser.parse(fs.readFileSync(options.filepath));
-        const ppq = midi.timeDivision;
-        const timeFactor = (60000 / (options.bpm * ppq) / 1000);
+        this.options = Object.assign({}, this.options, options);
+        this.log = options.verbose ? console.log : () => { };
 
-        this.log('MIDI.timeDivision: %d, timeFactor: %d, PPQ: %d, BPM: %d',
-            midi.timeDivision, timeFactor, ppq, options.bpm
+        this._parse();
+    }
+
+    _parse() {
+        const midi = MidiParser.parse(fs.readFileSync(this.options.filepath));
+
+        this.timeFactor = 60000 / (this.options.bpm * midi.timeDivision) / 1000;
+
+        this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d, total tracks: %d',
+            midi.timeDivision, this.timeFactor,  this.options.bpm, midi.tracks
         );
 
-        let noteDur = 0;
+        for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
+            let currentTick = 0;
+            let playingNotes = {};
 
-        this.log('Total tracks: ', midi.track.length);
+            this.tracks.push({
+                notes: [],
+                name: null,
+            });
 
+            midi.track[trackNumber].event.forEach(event => {
 
-        midi.track.forEach(midiTrack => {
-            let noteDur;
-            let currentTime = 0;
+                console.log(event);
 
-            let totalMidiDurationInSeconds = 0;
-            midiTrack.event
-                .filter(event => {
-                    let useThisEvent = false;
-                    if (event.type === MidiFile.NOTE_ON) {
-                        useThisEvent = true;
-                        if (event.velocity === 0) {
-                            event.type = MidiFile.NOTE_OFF;
-                        } else {
-                            noteDur = v.deltaTime;
-                            this.log('on', noteDur, event);
+                currentTick += event.deltaTime;
+
+                if (event.type === MidiFile.META && event.metaType === 3) {
+                    this.tracks[this.track.length - 1].name = event.data;
+                }
+
+                if (event.type === MidiFile.NOTE_ON) {
+                    if (event.data[1] === 0) {
+                        event.type = MidiFile.NOTE_OFF;
+                    } else {
+                        playingNotes[event.data[0]] = {
+                            startTick: currentTick
                         }
                     }
-                    if (event.type === MidiFile.NOTE_OFF) {
-                        v.noteDur = noteDur + v.deltaTime;
-                        useThisEvent = true;
-                        this.log('off', noteDur, event);
-                    }
+                }
 
-                    if (useThisEvent) {
-                        currentTime += event.deltaTime;
-                        const t = v.noteDur * timeFactor;
-                        totalMidiDurationInSeconds += t;
-                        this.log('At ', t, ' duration ', v.noteDur);
+                if (event.type === MidiFile.NOTE_OFF) {
+                    this.tracks[trackNumber].notes.push(
+                        new Note({
+                            channel: event.channel,
+                            pitch: event.data[0],
+                            startTick: playingNotes[event.data[0]].startTick,
+                            endTick: currentTick
+                        })
+                    );
 
-                        // this.channels[event.channel] ...
-                    }
-                });
+                    delete playingNotes[event.data[0]];
+                }
+            });
 
-            this.log('This track totalMidiDurationInSeconds = ', totalMidiDurationInSeconds);
-            this.totalMidiDurationInSeconds = totalMidiDurationInSeconds > this.totalMidiDurationInSeconds ? totalMidiDurationInSeconds : this.totalMidiDurationInSeconds;
-        });
+            const trackDurationTicks = currentTick;
+            const trackDurationSecs = this.ticksToSeconds(trackDurationTicks);
+            this.totalMidiDurationInSeconds = trackDurationSecs > this.totalMidiDurationInSeconds ? trackDurationSecs : this.totalMidiDurationInSeconds;
+
+            this.log('Track %d ticks: %d, seconds: %d',
+                trackNumber, trackDurationTicks, trackDurationSecs
+            );
+        }
+        this.log(this.tracks);
     }
+
+    ticksToSeconds( delta ) {
+        return delta * this.timeFactor;
+    }
+
 }
