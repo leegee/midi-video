@@ -19,8 +19,9 @@ module.exports = class Encoder {
         verbose: true,
     };
     totalImagesAdded = 0;
-    errOut = '';
-    stdOut = '';
+    stderr = '';
+    stdout = '';
+    encoded = {};
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -59,15 +60,18 @@ module.exports = class Encoder {
             this.log('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
-                this.log(data.toString());
-                this.stdOut += data.toString() + '\n';
+                const str = data.toString();
+                // this.log(str);
+                this.stdout += str + '\n';
             });
             childProcess.stderr.on('data', data => {
-                this.log(data.toString());
-                this.errOut += data.toString() + '\n';
+                const str = data.toString();
+                this.log(str);
+                this.stderr += str + '\n';
             });
             childProcess.on('close', code => {
                 this.log(`Done: (${code})`);
+                this.parseOutput();
                 resolve(code);
             });
 
@@ -76,6 +80,16 @@ module.exports = class Encoder {
         });
     }
 
+    parseOutput() {
+        this.log('='.repeat(100));
+        this.log(this.stderr);
+        this.log('^'.repeat(100));
+
+        // frame=    5 fps=0.0 q=2.0 Lsize=       4kB time=00:00:01.78 bitrate=  16.6kbits/s speed= 255x
+        this.encoded.frame = Number( this.stderr.match(/frame=\s*(\d+)/s)[1] );
+        this.encoded.time = this.stderr.match(/\s+time=(\d{2}:\d{2}:\d{2}.\d+)/s)[1];
+
+    }
 
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
