@@ -42,9 +42,10 @@ describe('Encoder', () => {
         }
         encoder.finalise();
 
-        p.then(() => {
+        p.then((encoderFinalCode) => {
             expect(encoder.totalImagesAdded).to.equal(addedImage);
             expect(encoder.options.outputpath).to.be.a.path();
+            expect(encoderFinalCode).to.equal(0);
         });
     });
 

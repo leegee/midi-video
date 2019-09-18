@@ -25,11 +25,11 @@ describe('Integrater', () => {
         }
     });
 
-    // afterEach(() => {
-    //     if (fs.existsSync(integrater.options.outputpath)) {
-    //         // fs.unlinkSync(integrater.options.outputpath);
-    //     }
-    // });
+    afterEach(() => {
+        if (fs.existsSync(integrater.options.outputpath)) {
+            fs.unlinkSync(integrater.options.outputpath);
+        }
+    });
 
     it('creates a video file', async () => {
         expect(integrater).to.be.an.instanceOf(Integrater);
@@ -37,8 +37,9 @@ describe('Integrater', () => {
         const promiseResolvesWhenFileWritten = integrater.integrate();
         expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
-        await promiseResolvesWhenFileWritten;
-        console.log('Promise resolved');
+        const encoderExitStatus = await promiseResolvesWhenFileWritten;
+        expect(encoderExitStatus).to.equal(0);
+        
         expect(
             path.resolve(integrater.options.outputpath)
         ).to.be.a.path();

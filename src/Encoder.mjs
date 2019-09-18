@@ -19,6 +19,8 @@ module.exports = class Encoder {
         verbose: true,
     };
     totalImagesAdded = 0;
+    errOut = '';
+    stdOut = '';
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -56,11 +58,17 @@ module.exports = class Encoder {
             );
             this.log('post-spawn ffmpeg');
 
-            childProcess.stdout.on('data', data => this.log(data.toString()));
-            childProcess.stderr.on('data', data => this.log(data.toString()));
+            childProcess.stdout.on('data', data => {
+                this.log(data.toString());
+                this.stdOut += data.toString() + '\n';
+            });
+            childProcess.stderr.on('data', data => {
+                this.log(data.toString());
+                this.errOut += data.toString() + '\n';
+            });
             childProcess.on('close', code => {
                 this.log(`Done: (${code})`);
-                resolve();
+                resolve(code);
             });
 
             this.imagesStream.pipe(childProcess.stdin);
@@ -71,7 +79,7 @@ module.exports = class Encoder {
 
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
-        this.totalImagesAdded ++;
+        this.totalImagesAdded++;
         this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
