@@ -38,6 +38,7 @@ describe('Integrater', () => {
         expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
         await promiseResolvesWhenFileWritten;
+        console.log('Promise resolved');
         expect(
             path.resolve(integrater.options.outputpath)
         ).to.be.a.path();
