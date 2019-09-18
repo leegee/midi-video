@@ -1,11 +1,14 @@
-module.exports = (requiredArgs) => {
+module.exports = (options, requiredArgs) => {
     let errMsgs = [];
     Object.keys(requiredArgs).forEach(key => {
-        if (!this.options[key]) {
+        if (typeof options[key] === undefined) {
             errMsgs.push(requiredArgs[key]);
         }
     });
     if (errMsgs.length) {
-        throw new TypeError('Missing argument' + (errMsgs.length > 1 ? 's' : '') + ':\n' + errMsgs.join('\n\t'));
+        console.error('\nSupplied options: ', options);
+        throw new TypeError(
+            'Missing argument' + (errMsgs.length > 1 ? 's' : '') + ':\n' + errMsgs.join('\n\t')
+        );
     }
-}
+};

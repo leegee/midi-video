@@ -1,7 +1,7 @@
 const MidiFile = require('./MidiFile.mjs');
 const Encoder = require('./Encoder.mjs');
 const Image = require('./Image.mjs');
-const assertOptions = require('./assertOptions.mjs');
+const assertOptions= require('./assertOptions.mjs');
 
 module.exports = class Integrater {
     options = {
@@ -11,7 +11,7 @@ module.exports = class Integrater {
         outputpath: 'output.mp4',
         width: 1920,
         height: 1080,
-        secsPerImage: Math.floor(1 / 30)
+        secsPerImage: 1 / 30
     };
     totalImagesAdded = 0;
 
@@ -21,7 +21,7 @@ module.exports = class Integrater {
 
         this.log('Create new  Integrater');
 
-        assertOptions({
+        assertOptions(this.options, {
             bpm: '"bpm" as a number representing the MIDI bpm',
             filepath: '"filepath" should be the path to the MIDI file to parse'
         });
@@ -33,9 +33,7 @@ module.exports = class Integrater {
             verbose: this.options.verbose
         })
         this.log('Integrater.new create Encoder');
-        this.encoder = new Encoder({
-            outputpath: this.options.outputpath
-        });
+        this.encoder = new Encoder(this.options);
         this.log('Integrater.new done');
     }
 
@@ -48,3 +46,4 @@ module.exports = class Integrater {
         return promiseResolvesWhenFileWritten;
     }
 }
+

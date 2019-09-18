@@ -25,9 +25,9 @@ module.exports = class Encoder {
         this.log = this.options.verbose ? console.log : () => { };
         this.log('New Encoder', this.options);
 
-        assertOptions({
+        assertOptions(this.options, {
             secsPerImage: '"secsPerImage" as a number',
-            filepath: '"filepath" should be the path to the MIDI file to parse'
+            // filepath: '"filepath" should be the path to the MIDI file to parse'
         });
     }
 
@@ -69,7 +69,7 @@ module.exports = class Encoder {
 
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
-        this.totalImagesAdded++;
+        this.totalImagesAdded ++;
         this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
