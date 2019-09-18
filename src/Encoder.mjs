@@ -4,6 +4,8 @@ const stream = require('stream');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
+const assertOptions = require('./assertOptions.mjs');
+
 // thx https://dzone.com/articles/creating-video-on-the-server-in-nodejs
 // https://stackoverflow.com/questions/37957994/how-to-create-a-video-from-image-buffers-using-fluent-ffmpeg
 
@@ -22,6 +24,11 @@ module.exports = class Encoder {
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.verbose ? console.log : () => { };
         this.log('New Encoder', this.options);
+
+        assertOptions({
+            secsPerImage: '"secsPerImage" as a number',
+            filepath: '"filepath" should be the path to the MIDI file to parse'
+        });
     }
 
     init() {
@@ -62,7 +69,7 @@ module.exports = class Encoder {
 
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
-        this.totalImagesAdded ++;
+        this.totalImagesAdded++;
         this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
