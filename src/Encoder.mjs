@@ -20,7 +20,7 @@ module.exports = class Encoder {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = options.verbose ? console.log : () => { };
+        this.log = this.options.verbose ? console.log : () => { };
         this.log('New Encoder', this.options);
     }
 

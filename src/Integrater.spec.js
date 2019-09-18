@@ -1,10 +1,10 @@
+const path = require('path');
+const fs = require('fs');
+// const tmp = require('tmp');
 const chai = require("chai");
 const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
-
-const fs = require('fs');
-// const tmp = require('tmp');
 
 const Integrater = require("./Integrater.mjs");
 
@@ -12,12 +12,12 @@ const Integrater = require("./Integrater.mjs");
 
 const options = {
     bpm: 107,
-    filepath: 'fixtures/boo.mid'
+    filepath: 'fixtures/one.mid'
 };
 
 let integrater;
 
-xdescribe('Integrater', () => {
+describe('Integrater', () => {
     beforeEach(() => {
         integrater = new Integrater(options);
         if (fs.existsSync(integrater.options.outputpath)) {
@@ -31,14 +31,16 @@ xdescribe('Integrater', () => {
     //     }
     // });
 
-    it('create video', async () => {
+    it('creates a video file', async () => {
         expect(integrater).to.be.an.instanceOf(Integrater);
 
-        // const promiseResolvesWhenFileWritten = integrater.integrate();
-        // expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
+        const promiseResolvesWhenFileWritten = integrater.integrate();
+        expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
-        // await promiseResolvesWhenFileWritten;
-        // expect(integrater.options.outputpath).to.be.a.path();
+        await promiseResolvesWhenFileWritten;
+        expect(
+            path.resolve(integrater.options.outputpath)
+        ).to.be.a.path();
     });
 
 });

@@ -21,19 +21,23 @@ module.exports = class Integrater {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = options.verbose ? console.log : () => { };
+        this.log = this.options.verbose ? console.log : () => { };
+        
+        this.log('Create new  Integrater');
 
         this.assertOptions();
 
-
+        this.log('Integrater.new create MidiFIle');
         this.midiFile = new MidiFile({
             bpm: this.options.bpm,
             filepath: this.options.filepath,
             verbose: this.options.verbose
         })
+        this.log('Integrater.new create Encoder');
         this.encoder = new Encoder({
             outputpath: this.options.outputpath
         });
+        this.log('Integrater.new done');
     }
 
     assertOptions() {
@@ -48,10 +52,12 @@ module.exports = class Integrater {
         }
     }
 
-    async integrate() {
+    integrate() {
+        this.log('Enter Integrater.integrate');
         const promiseResolvesWhenFileWritten = this.encoder.init();
-
+        this.log('Call Encoder.finalise');
         this.encoder.finalise();
+        this.log('Called Encoder.finalise');
         return promiseResolvesWhenFileWritten;
     }
 }

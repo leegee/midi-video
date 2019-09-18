@@ -9,7 +9,7 @@ module.exports = class Image {
 
     async create(options) {
         this.options = Object.assign({}, this.options, options);
-        this.log = options.verbose ? console.log : () => { };
+        this.log = this.options.verbose ? console.log : () => { };
 
         return new Promise((resolve, reject) => {
             new Jimp(options.width, options.height, (err, image) => {

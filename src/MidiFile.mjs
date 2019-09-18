@@ -15,15 +15,15 @@ module.exports = class MidiFile {
     totalMidiDurationInSeconds = null;
 
     constructor(options = {}) {
-        if (!options.bpm) {
+        this.options = Object.assign({}, this.options, options);
+        this.log = this.options.verbose ? console.log : () => { };
+
+        if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
         }
-        if (!options.filepath) {
+        if (!this.options.filepath) {
             throw new TypeError('Expected supplied option filepath');
         }
-
-        this.options = Object.assign({}, this.options, options);
-        this.log = options.verbose ? console.log : () => { };
 
         this._parse();
     }
@@ -34,7 +34,7 @@ module.exports = class MidiFile {
         this.timeFactor = 60000 / (this.options.bpm * midi.timeDivision) / 1000;
 
         this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d, total tracks: %d',
-            midi.timeDivision, this.timeFactor,  this.options.bpm, midi.tracks
+            midi.timeDivision, this.timeFactor, this.options.bpm, midi.tracks
         );
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
@@ -72,7 +72,9 @@ module.exports = class MidiFile {
                             channel: event.channel,
                             pitch: event.data[0],
                             startTick: playingNotes[event.data[0]].startTick,
-                            endTick: currentTick
+                            endTick: currentTick,
+                            startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
+                            endTick: this.ticksToSeconds(currentTick)
                         })
                     );
 
@@ -91,7 +93,7 @@ module.exports = class MidiFile {
         this.log(this.tracks);
     }
 
-    ticksToSeconds( delta ) {
+    ticksToSeconds(delta) {
         return delta * this.timeFactor;
     }
 
