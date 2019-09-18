@@ -14,7 +14,9 @@ let encoder;
 describe('Encoder', () => {
     beforeEach(() => {
         encoder = new Encoder({
-            secsPerImage: 0.25
+            secsPerImage: 0.25,
+            width: 500,
+            height: 500
         });
         if (fs.existsSync(encoder.options.outputpath)) {
             fs.unlinkSync(encoder.options.outputpath);
@@ -41,8 +43,8 @@ describe('Encoder', () => {
         encoder.finalise();
 
         p.then(() => {
-            expect(encoder.options.outputpath).to.be.a.path();
             expect(encoder.totalImagesAdded).to.equal(addedImage);
+            expect(encoder.options.outputpath).to.be.a.path();
         });
     });
 

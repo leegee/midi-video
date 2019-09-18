@@ -50,7 +50,7 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                console.log(event);
+                this.log('EVENT', event);
 
                 currentTick += event.deltaTime;
 

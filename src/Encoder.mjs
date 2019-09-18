@@ -12,9 +12,9 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Encoder {
     imagesStream = new stream.PassThrough();
     options = {
-        secsPerImage: null,
-        width: null,
-        height: null,
+        secsPerImage: undefined,
+        width: undefined,
+        height: undefined,
         outputpath: path.resolve('./output.mp4'),
         verbose: true,
     };
@@ -27,6 +27,8 @@ module.exports = class Encoder {
 
         assertOptions(this.options, {
             secsPerImage: '"secsPerImage" as a number',
+            width: 'number',
+            height: 'number'
             // filepath: '"filepath" should be the path to the MIDI file to parse'
         });
     }
