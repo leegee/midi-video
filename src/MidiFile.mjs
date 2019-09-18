@@ -5,6 +5,7 @@ const Note = require('./Note.mjs');
 module.exports = class MidiFile {
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
+    static META = 255;
 
     options = {
         verbose: true,
@@ -13,6 +14,7 @@ module.exports = class MidiFile {
     };
     tracks = [];
     totalMidiDurationInSeconds = null;
+    timeSignature = null;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -52,8 +54,15 @@ module.exports = class MidiFile {
 
                 currentTick += event.deltaTime;
 
-                if (event.type === MidiFile.META && event.metaType === 3) {
-                    this.tracks[this.track.length - 1].name = event.data;
+                if (event.type === MidiFile.META) {
+                    if (event.metaType === 3) {
+                        this.tracks[this.tracks.length - 1].name = event.data;
+                    } else if (event.metaType === 88) {
+                        if (this.timeSignature !== null) {
+                            throw new Error("Multiple timesignatures not yet supported");
+                        }
+                        this.timeSignature = event.data[0];
+                    }
                 }
 
                 if (event.type === MidiFile.NOTE_ON) {

@@ -10,8 +10,7 @@ module.exports = class Integrater {
         filepath: null,
         outputpath: 'output.mp4',
         width: 1920,
-        height: 1080,
-        secsPerImage: 1 / 30
+        height: 1080
     };
     totalImagesAdded = 0;
 
@@ -32,8 +31,20 @@ module.exports = class Integrater {
             filepath: this.options.filepath,
             verbose: this.options.verbose
         })
+
         this.log('Integrater.new create Encoder');
-        this.encoder = new Encoder(this.options);
+        this.log('Time signature: ', this.midiFile.timeSignature);
+        this.log('BPM: ', this.options.bpm);
+        
+        this.secsPerImage = this.options.bpm / 60 / this.midiFile.timeSignature;
+
+        this.log('Integrater.new Set secsPerImage:', this.secsPerImage);
+        
+        this.encoder = new Encoder({
+            secsPerImage: this.secsPerImage,
+             ...this.options
+        });
+        
         this.log('Integrater.new done');
     }
 

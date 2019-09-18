@@ -13,6 +13,11 @@ describe('MidiFile', () => {
             verbose: true
         });
         expect(reader).to.be.an.instanceOf(MidiFile);
+
+        expect(reader.timeSignature).to.equal(4);
+        expect(reader.tracks.length).to.equal(1);
+        expect(reader.tracks[0].name).to.equal('Polysynth');
+
         expect(reader.totalMidiDurationInSeconds).to.be.greaterThan(
             2.389
         );
