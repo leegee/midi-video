@@ -57,6 +57,10 @@ module.exports = class Integrater {
             this.encoder.addImage(new Buffer(base64image, 'base64'));
             addedImage++;
         }
+
+        console.log(
+            this.midiFile
+        );
     }
 }
 
