@@ -4,10 +4,11 @@ const expect = chai.expect;
 const Note = require("./Note.mjs").verbose();
 
 describe('Note', () => {
-    it('inits', async () => {
+    it('saves to memory db', async () => {
         expect(Note.dbh).to.not.be.null;
         expect(Note.statements.insert).to.be.undefined;
         Note.init();
+        expect(Note.ready).to.be.ok;
 
         const note = new Note({
             startSeconds: 0,
@@ -21,17 +22,6 @@ describe('Note', () => {
 
         const notes = await Note.readRange(0, 3);
         expect(notes.length).to.equal(1);
-
-
-        // const promiseResolvesWhenFileWritten = integrater.integrate();
-        // expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
-
-        // const encoderExitStatus = await promiseResolvesWhenFileWritten;
-        // expect(encoderExitStatus).to.equal(0);
-
-        // expect(
-        //     path.resolve(integrater.options.outputpath)
-        // ).to.be.a.path();
     });
 
 });

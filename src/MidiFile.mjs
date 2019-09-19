@@ -3,6 +3,8 @@ const MidiParser = require('midi-parser-js/src/midi-parser');
 const fs = require('fs');
 const Note = require('./Note.mjs');
 
+Note.init();
+
 module.exports = class MidiFile {
     static NOTE_ON = 9;
     static NOTE_OFF = 8;

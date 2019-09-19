@@ -2,6 +2,9 @@
   "name": "midi-video",
   "version": "0.0.1",
   "description": "Visualise MIDI data in video",
+  "repository": {
+    "url": "https://github.com/leegee/midi-video.git"
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "mocha src/**/*.spec.js"

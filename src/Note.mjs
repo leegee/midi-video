@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 
 module.exports = class Note {
+    static ready = false;
     static dbFields = ['startSeconds', 'endSeconds', 'pitch', 'channel', 'track'];
     static statements = {
         insert: undefined,
@@ -39,6 +40,8 @@ module.exports = class Note {
             Note.statements.insert = Note.dbh.prepare(insert);
             Note.statements.readRange = Note.dbh.prepare(readRange);
         });
+
+        Note.ready = true;
     }
 
     static readRange(from, to) {

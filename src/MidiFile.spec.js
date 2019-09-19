@@ -3,6 +3,7 @@ const chai = require("chai");
 const expect = chai.expect;
 
 const MidiFile = require("./MidiFile.mjs");
+const Note = require("./Note.mjs").verbose();
 
 describe('MidiFile', () => {
     
@@ -24,6 +25,11 @@ describe('MidiFile', () => {
         expect(reader.totalMidiDurationInSeconds).to.be.lessThan(
             2.42
         );
+
+        expect(Note.ready).to.be.ok;
+        const notes = await Note.readRange(0, 3);
+        expect(notes.length).to.equal(1);
+
     });
 
 });
