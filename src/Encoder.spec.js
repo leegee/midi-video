@@ -49,6 +49,7 @@ describe('Encoder', () => {
             expect(encoder.options.outputpath).to.be.a.path();
             expect(encoderExitStatus).to.equal(0);
             expect(encoder.encoded.frame).to.equal(totalImagesAdded);
+            // expect(encoder.encoded.fps).to.equal( 4 );
 
             expect(encoder.encoded.time).to.match(/^00:00:(49|50)\.\d+$/);
 

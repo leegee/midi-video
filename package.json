@@ -17,7 +17,8 @@
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "fluent-ffmpeg": "^2.1.2",
     "jimp": "^0.8.2",
-    "midi-parser-js": "*"
+    "midi-parser-js": "*",
+    "sqlite3": "^4.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

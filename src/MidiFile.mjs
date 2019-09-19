@@ -1,3 +1,4 @@
+
 const MidiParser = require('midi-parser-js/src/midi-parser');
 const fs = require('fs');
 const Note = require('./Note.mjs');
@@ -76,17 +77,16 @@ module.exports = class MidiFile {
                 }
 
                 if (event.type === MidiFile.NOTE_OFF) {
-                    this.tracks[trackNumber].notes.push(
-                        new Note({
-                            channel: event.channel,
-                            pitch: event.data[0],
-                            startTick: playingNotes[event.data[0]].startTick,
-                            endTick: currentTick,
-                            startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
-                            endTick: this.ticksToSeconds(currentTick)
-                        })
-                    );
+                    const note = new Note({
+                        channel: event.channel,
+                        pitch: event.data[0],
+                        startTick: playingNotes[event.data[0]].startTick,
+                        endTick: currentTick,
+                        startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
+                        endSeconds: this.ticksToSeconds(currentTick)
+                    });
 
+                    this.tracks[trackNumber].notes.push(note);
                     delete playingNotes[event.data[0]];
                 }
             });
@@ -107,3 +107,18 @@ module.exports = class MidiFile {
     }
 
 }
+
+
+
+
+
+
+// db.serialize(function() {
+
+
+//   db.each("SELECT rowid AS id, info FROM lorem", function(err, row) {
+//       console.log(row.id + ": " + row.info);
+//   });
+
+//  stmt.finalize();
+// db.close();

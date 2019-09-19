@@ -64,20 +64,23 @@ module.exports = class Integrater {
     }
 
     async createImages() {
+        let lastTime = 0;
         let currentTime = 0;
         const noteHeight = Math.floor(this.options.height / 88);
         const noteWidth = Math.floor(this.options.width / this.options.beatsOnScreen);
 
         let addedImage = 0;
         for (let i = 0; i < 5; i++) {
+            this.log('--> T = ', currentTime);
             await this.imageMaker.create();
             const image = await this.imageMaker.getBuffer();
-            this.encoder.addImage(image);
+            this.encoder.addImage(image);                                                                                                                                                                                                                           
             addedImage++;
-            currentTime += this.encoder.encoded.fps;
+            lastTime = currentTime;
+            currentTime += this.secsPerImage;
         }
 
-        // console.log( this.midiFile );
+        console.log( this.midiFile.tracks[0].notes );
 
     }
 }
