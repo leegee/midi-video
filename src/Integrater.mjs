@@ -1,4 +1,5 @@
 const MidiFile = require('./MidiFile.mjs');
+const Note = require("./Note.mjs").verbose();
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
 const assertOptions = require('./assertOptions.mjs');
@@ -14,6 +15,7 @@ module.exports = class Integrater {
         height: 1080
     };
     totalImagesAdded = 0;
+    beatsOnScreen = undefined;
     imageMaker = new ImageMaker();
 
     constructor(options = {}) {
@@ -29,21 +31,26 @@ module.exports = class Integrater {
         });
     }
 
-    async init(){
+    async init() {
         this.log('Integrater.new create MidiFIle');
-        this.midiFile = await new MidiFile({
+        
+        await Note.init();
+        
+        this.midiFile = new MidiFile({
             bpm: this.options.bpm,
             filepath: this.options.filepath,
             verbose: this.options.verbose
         });
 
+        await this.midiFile.parse();
+
+        this.secsPerImage = this.options.bpm / 60 / this.midiFile.timeSignature;
+        this.beatsOnScreen = this.midiFile.timeSignature * 3;
+
         this.log('Integrater.new create Encoder');
         this.log('Time signature: ', this.midiFile.timeSignature);
         this.log('BPM: ', this.options.bpm);
-
-        this.secsPerImage = this.options.bpm / 60 / this.midiFile.timeSignature;
-
-        this.log('Integrater.new Set secsPerImage:', this.secsPerImage);
+        this.log('secsPerImage:', this.secsPerImage);
 
         this.encoder = new Encoder({
             secsPerImage: this.secsPerImage,
@@ -70,19 +77,25 @@ module.exports = class Integrater {
         let currentTime = 0;
         const noteHeight = Math.floor(this.options.height / 88);
         const noteWidth = Math.floor(this.options.width / this.options.beatsOnScreen);
-
         let addedImage = 0;
-        for (let i = 0; i < 5; i++) {
-            this.log('--> T = ', currentTime);
+
+        console.log('='.repeat(50));
+        console.log('Begin adding images');
+        console.log('='.repeat(50));
+
+        for (let t = 0; t <= this.midiFile.durationSeconds; t += this.encoder.encoded.fps ) {
+            const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
+
             await this.imageMaker.create();
+
             const image = await this.imageMaker.getBuffer();
-            this.encoder.addImage(image);                                                                                                                                                                                                                           
-            addedImage++;
+            this.encoder.addImage(image);
+
+            console.log('T/N/I', currentTime, notes, image);
+
             lastTime = currentTime;
             currentTime += this.secsPerImage;
         }
-
-        console.log( this.midiFile.tracks[0].notes );
 
     }
 }

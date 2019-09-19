@@ -17,7 +17,9 @@ const options = {
 
 let integrater;
 
-describe('Integrater', () => {
+describe('Integrater', function () {
+    this.timeout(5000); 
+
     beforeEach(async () => {
         integrater = new Integrater(options);
         await integrater.init();

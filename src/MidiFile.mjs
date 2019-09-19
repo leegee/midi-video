@@ -13,7 +13,7 @@ module.exports = class MidiFile {
         filepath: null
     };
     tracks = [];
-    totalMidiDurationInSeconds = null;
+    durationSeconds = null;
     timeSignature = null;
 
     constructor(options = {}) {
@@ -92,14 +92,21 @@ module.exports = class MidiFile {
 
             const trackDurationTicks = currentTick;
             const trackDurationSecs = this.ticksToSeconds(trackDurationTicks);
-            this.totalMidiDurationInSeconds = trackDurationSecs > this.totalMidiDurationInSeconds ? trackDurationSecs : this.totalMidiDurationInSeconds;
+            this.durationSeconds = trackDurationSecs > this.durationSeconds ? trackDurationSecs : this.durationSeconds;
 
             this.log('Track %d ticks: %d, seconds: %d: ',
                 trackNumber, trackDurationTicks, trackDurationSecs
             );
         }
         this.log(this.tracks);
-        this.log('Time Signature', this.timeSignature);
+        
+        if (this.timeSignature === null) {
+            throw new Error('Failed to parse time signature from MIDI file');
+        } else {
+            this.log('Time Signature', this.timeSignature);
+        }
+        
+        this.log('MidiFile.parse - leave ------------');
     }
 
     ticksToSeconds(delta) {

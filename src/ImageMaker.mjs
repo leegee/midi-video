@@ -13,7 +13,7 @@ module.exports = class ImageMaker {
         this.log = this.options.verbose ? console.log : () => { };
     }
 
-    async createBlankImage() {
+    createBlankImage() {
         return new Promise((resolve, reject) => {
             new Jimp(this.options.width, this.options.height, (err, image) => {
                 if (err) {
@@ -34,7 +34,7 @@ module.exports = class ImageMaker {
     }
 
     async getBuffer() {
-        return await this.image.getBufferAsync(Jimp.MIME_PNG);
+        return this.image.getBufferAsync(Jimp.MIME_PNG);
     }
 
 }

@@ -23,10 +23,10 @@ describe('MidiFile', () => {
         expect(midiReader.tracks.length).to.equal(1);
         expect(midiReader.tracks[0].name).to.equal('Polysynth');
 
-        expect(midiReader.totalMidiDurationInSeconds).to.be.greaterThan(
+        expect(midiReader.durationSeconds).to.be.greaterThan(
             2.389
         );
-        expect(midiReader.totalMidiDurationInSeconds).to.be.lessThan(
+        expect(midiReader.durationSeconds).to.be.lessThan(
             2.42
         );
 

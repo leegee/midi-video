@@ -18,7 +18,8 @@ describe('Encoder', () => {
         encoder = new Encoder({
             secsPerImage,
             width: 500,
-            height: 500
+            height: 500,
+            verbose: true
         });
         if (fs.existsSync(encoder.options.outputpath)) {
             fs.unlinkSync(encoder.options.outputpath);
