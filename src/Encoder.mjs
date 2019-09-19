@@ -93,6 +93,9 @@ module.exports = class Encoder {
     }
 
     addImage(buffer) {
+        if (!(buffer instanceof Buffer)) {
+            throw new TypeError('addImage requires a Buffer, received ' + buffer);
+        }
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
         // this.log('Done Encoder.addImage', this.totalImagesAdded);

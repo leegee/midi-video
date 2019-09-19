@@ -14,6 +14,7 @@ module.exports = class Integrater {
         height: 1080
     };
     totalImagesAdded = 0;
+    imageMaker = new ImageMaker();
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -50,11 +51,11 @@ module.exports = class Integrater {
         this.log('Integrater.new done');
     }
 
-    integrate() {
+    async integrate() {
         this.log('Enter Integrater.integrate');
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
-        this.createImages();
+        await this.createImages();
 
         this.log('Call Encoder.finalise');
         this.encoder.finalise();
@@ -62,14 +63,15 @@ module.exports = class Integrater {
         return promiseResolvesWhenFileWritten;
     }
 
-    createImages() {
+    async createImages() {
         let currentTime = 0;
         const noteHeight = Math.floor(this.options.height / 88);
         const noteWidth = Math.floor(this.options.width / this.options.beatsOnScreen);
 
         let addedImage = 0;
         for (let i = 0; i < 5; i++) {
-            const image = new ImageMaker();
+            await this.imageMaker.create();
+            const image = await this.imageMaker.getBuffer();
             this.encoder.addImage(image);
             addedImage++;
             currentTime += this.encoder.encoded.fps;
