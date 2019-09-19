@@ -49,11 +49,13 @@ describe('Encoder', () => {
             expect(encoder.options.outputpath).to.be.a.path();
             expect(encoderExitStatus).to.equal(0);
             expect(encoder.encoded.frame).to.equal(totalImagesAdded);
-            expect(encoder.encoded.time).to.equal('00:00:01.78');
 
-            expect(encoder.encoded.time).to.equal('00:00:' + (
-                totalImagesToMake * secsPerImage
-            ) + '.00');
+            expect(encoder.encoded.time).to.match(/^00:00:(49|50)\.\d+$/);
+
+            const t = Math.ceil(Number(
+                encoder.encoded.time.match(/^00:00:(\d+\.\d+)$/)[1]
+            ));
+            expect(t).to.equal( totalImagesToMake * secsPerImage);
 
 
         });
