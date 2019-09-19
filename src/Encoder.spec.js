@@ -11,7 +11,7 @@ const base64image = "R0lGODlhPQBEAPeoAJosM//AwO/AwHVYZ/z595kzAP/s7P+goOXMv8+fhw/
 
 let encoder;
 const secsPerImage = 0.25;
-const totalImagesToMake = 4;
+const totalImagesToMake = 200;
 
 describe('Encoder', () => {
     beforeEach(() => {
@@ -49,9 +49,9 @@ describe('Encoder', () => {
             expect(encoder.options.outputpath).to.be.a.path();
             expect(encoderExitStatus).to.equal(0);
             expect(encoder.encoded.frame).to.equal(totalImagesAdded);
-            expect(encoder.encoded.time).to.equal('00:00:01.00');
+            expect(encoder.encoded.time).to.equal('00:00:01.78');
 
-            expect(encoder.encoder.time).to.equal('00:00:' + (
+            expect(encoder.encoded.time).to.equal('00:00:' + (
                 totalImagesToMake * secsPerImage
             ) + '.00');
 

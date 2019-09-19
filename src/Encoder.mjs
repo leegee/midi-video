@@ -81,12 +81,13 @@ module.exports = class Encoder {
     }
 
     parseOutput() {
-        this.log('='.repeat(100));
-        this.log(this.stderr);
-        this.log('^'.repeat(100));
+        // this.log('='.repeat(100));
+        // this.log(this.stderr);
+        // this.log('^'.repeat(100));
 
         // frame=    5 fps=0.0 q=2.0 Lsize=       4kB time=00:00:01.78 bitrate=  16.6kbits/s speed= 255x
         this.encoded.frame = Number( this.stderr.match(/frame=\s*(\d+)/s)[1] );
+        this.encoded.fps = this.stderr.match(/\s+fps=(\S+)/s)[1];
         this.encoded.time = this.stderr.match(/\s+time=(\d{2}:\d{2}:\d{2}.\d+)/s)[1];
 
     }
@@ -94,7 +95,7 @@ module.exports = class Encoder {
     addImage(buffer) {
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-        this.log('Done Encoder.addImage', this.totalImagesAdded);
+        // this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
     finalise() {
