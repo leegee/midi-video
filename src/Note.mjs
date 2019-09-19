@@ -9,7 +9,7 @@ module.exports = class Note {
     };
     static dbh = new sqlite3.Database(':memory:');
     static log = () => { }
-    fields = Note.dbFields.reduce((acc, key) => ({ ...acc, [key]: undefined }), {});
+    // fields = Note.dbFields.reduce((acc, key) => ({ ...acc, [key]: undefined }), {});
 
     static verbose() {
         Note.log = console.log;
@@ -17,6 +17,9 @@ module.exports = class Note {
     }
 
     static async init() {
+        if (Note.ready) {
+            return;
+        }
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields
                 .map(field => '\t' + field + ' TEXT')

@@ -18,8 +18,9 @@ const options = {
 let integrater;
 
 describe('Integrater', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         integrater = new Integrater(options);
+        await integrater.init();
         if (fs.existsSync(integrater.options.outputpath)) {
             fs.unlinkSync(integrater.options.outputpath);
         }

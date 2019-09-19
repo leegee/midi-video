@@ -1,9 +1,6 @@
-
-const MidiParser = require('midi-parser-js/src/midi-parser');
+const MidiParser = require('midi-parser-js');
 const fs = require('fs');
 const Note = require('./Note.mjs');
-
-Note.init();
 
 module.exports = class MidiFile {
     static NOTE_ON = 9;
@@ -29,11 +26,11 @@ module.exports = class MidiFile {
         if (!this.options.filepath) {
             throw new TypeError('Expected supplied option filepath');
         }
-
-        this._parse();
     }
 
-    _parse() {
+    async parse() {
+        await Note.init();
+
         const midi = MidiParser.parse(fs.readFileSync(this.options.filepath));
 
         this.timeFactor = 60000 / (this.options.bpm * midi.timeDivision) / 1000;
@@ -87,7 +84,7 @@ module.exports = class MidiFile {
                         startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
                         endSeconds: this.ticksToSeconds(currentTick)
                     });
-
+                    note.save();
                     this.tracks[trackNumber].notes.push(note);
                     delete playingNotes[event.data[0]];
                 }
@@ -97,11 +94,12 @@ module.exports = class MidiFile {
             const trackDurationSecs = this.ticksToSeconds(trackDurationTicks);
             this.totalMidiDurationInSeconds = trackDurationSecs > this.totalMidiDurationInSeconds ? trackDurationSecs : this.totalMidiDurationInSeconds;
 
-            this.log('Track %d ticks: %d, seconds: %d',
+            this.log('Track %d ticks: %d, seconds: %d: ',
                 trackNumber, trackDurationTicks, trackDurationSecs
             );
         }
         this.log(this.tracks);
+        this.log('Time Signature', this.timeSignature);
     }
 
     ticksToSeconds(delta) {

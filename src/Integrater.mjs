@@ -27,9 +27,11 @@ module.exports = class Integrater {
             beatsOnScreen: '"beatsOnScreen" a number representing the number of measure on the screen at once',
             filepath: '"filepath" should be the path to the MIDI file to parse'
         });
+    }
 
+    async init(){
         this.log('Integrater.new create MidiFIle');
-        this.midiFile = new MidiFile({
+        this.midiFile = await new MidiFile({
             bpm: this.options.bpm,
             filepath: this.options.filepath,
             verbose: this.options.verbose

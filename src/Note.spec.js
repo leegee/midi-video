@@ -6,8 +6,8 @@ const Note = require("./Note.mjs").verbose();
 describe('Note', () => {
     it('saves to memory db', async () => {
         expect(Note.dbh).to.not.be.null;
-        expect(Note.statements.insert).to.be.undefined;
-        Note.init();
+        await Note.init();
+        expect(Note.statements.insert).not.to.be.undefined;
         expect(Note.ready).to.be.ok;
 
         const note = new Note({
