@@ -12,7 +12,8 @@ const Integrater = require("./Integrater.mjs");
 
 const options = {
     bpm: 60,
-    filepath: 'fixtures/boo4.mid',
+    midiFilepath: 'fixtures/4bars.mid',
+    audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5
 };
 

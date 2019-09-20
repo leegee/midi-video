@@ -33,7 +33,7 @@ module.exports = class Encoder {
             fps: '"fps" integer',
             width: 'number',
             height: 'number'
-            // filepath: '"filepath" should be the path to the MIDI file to parse'
+            // midiFilepath: '"midiFilepath" should be the path to the MIDI file to parse'
         });
     }
 
@@ -49,8 +49,8 @@ module.exports = class Encoder {
                 '-framerate', this.options.fps,
                 '-pix_fmt', 'yuv420p',
                 '-i', '-'];
-            if (this.options.audiopath) {
-                args.push('-i', this.options.audiopath);
+            if (this.options.audioFilepath) {
+                args.push('-i', this.options.audioFilepath);
             }
             args.push(
                 '-vcodec', 'mpeg4',

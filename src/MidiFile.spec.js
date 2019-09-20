@@ -9,7 +9,7 @@ describe('MidiFile', () => {
 
     it('reads MIDI', async () => {
         const midiReader = new MidiFile({
-            filepath: path.resolve('fixtures/one.mid'),
+            midiFilepath: path.resolve('fixtures/one.mid'),
             bpm: 100,
             verbose: true
         });

@@ -8,13 +8,13 @@ module.exports = class Integrater {
     options = {
         verbose: true,
         bpm: null,
-        filepath: null,
+        midiFilepath: null,
         outputpath: 'output.mp4',
         width: 1920,
         height: 1080,
         fps: 30,
-        beatsOnScreen: 4,
-        midiNoteRange: 88
+        beatsOnScreen: 8,
+        midiNoteRange: 127
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -31,7 +31,7 @@ module.exports = class Integrater {
 
         assertOptions(this.options, {
             bpm: '"bpm" as a number representing the MIDI bpm',
-            filepath: '"filepath" should be the path to the MIDI file to parse'
+            midiFilepath: '"midiFilepath" should be the path to the MIDI file to parse'
         });
     }
 
@@ -66,7 +66,9 @@ module.exports = class Integrater {
         );
         console.log('='.repeat(50));
 
-        for (let currentTime = 0; currentTime <= this.midiFile.durationSeconds; currentTime += 1 / this.options.fps) {
+        const timeFrame = 1 / this.options.fps;
+        for (let currentTime = 0; currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen/2); currentTime += timeFrame) {
+            // const notes = await Note.readRange(currentTime - timeFrame, currentTime + timeFrame);
             const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
 
             this.imageMaker.addNotes(notes);
@@ -74,8 +76,6 @@ module.exports = class Integrater {
 
             const image = await this.imageMaker.renderAsBuffer(currentTime);
             this.encoder.addImage(image);
-
-            console.log('T/N/I', currentTime, notes.length, image);
         }
 
         this.log('Call Encoder.finalise');

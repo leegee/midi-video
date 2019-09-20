@@ -33,8 +33,8 @@ module.exports = class ImageMaker {
 
     addNotes(notes) {
         notes.forEach(note => {
-            this.seconds2notesPlaying[note.startSeconds] = this.seconds2notesPlaying[note.startSeconds] || [];
-            this.seconds2notesPlaying[note.startSeconds].push(note);
+            this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.startSeconds] || [];
+            this.seconds2notesPlaying[note.endSeconds].push(note);
         });
     }
 
@@ -64,23 +64,42 @@ module.exports = class ImageMaker {
         }
     }
 
+    // todo midi startSeconds is 1 based, prefer 0?
     _drawNote(currentTime, note) {
-
-        const x = // (this.options.width/2) + 
-            (currentTime - note.startSeconds) * this.options.secondWidth
+        // console.log('Enter draw: %d %d %d %d',
+        //     currentTime, note.startSeconds, this.options.secondWidth,
+        //     (currentTime - note.startSeconds) * this.options.secondWidth
+        // );
+        let x = // (this.options.width/2) + 
+            (note.startSeconds - currentTime) * this.options.secondWidth
             ;
 
-        const y = note.pitch * this.options.noteHeight;
-        const colour = Jimp.cssColorToHex("yellow");
+        let noteWidth = (note.endSeconds - note.startSeconds) * this.options.secondWidth;
 
-        this.debug('PLAYING ', x, y);
+        if (noteWidth < 0) {
+            console.error(currentTime, note);
+            throw new Error('zero width note?');
+        }
+        if (x < 1) { // 0?
+            x = 1;  // 0?
+        }
+        if (x + noteWidth > this.options.width) {
+            noteWidth = this.options.width - x;
+        }
+
+        const y = note.pitch * this.options.noteHeight;
+
+        const colour = Jimp.cssColorToHex("yellow"); // from track/channel
+
+        // this.debug('DRAWING pitch %d at x %d y %d w %d start %d end %d', note.pitch, x, y, noteWidth, note.startSeconds, note.endSeconds);
 
         this.image.scan(
             x,
             y,
-            (note.endSeconds - note.startSeconds) * this.options.secondWidth,
+            noteWidth,
             this.options.noteHeight,
             function (x, y, offset) {
+                // console.log('F: ', x, y, this.bitmap.width, this.bitmap.height);
                 this.bitmap.data.writeUInt32BE(colour, offset, true);
             }
         );

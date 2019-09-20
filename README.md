@@ -8,6 +8,8 @@
 ## Yet to do
 
 * Account for tempo changes.
+* Reverse and flip display
+* Offset 'now'
 
 ## Notes
 

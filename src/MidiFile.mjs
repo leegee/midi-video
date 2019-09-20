@@ -10,7 +10,7 @@ module.exports = class MidiFile {
     options = {
         verbose: true,
         bpm: null,
-        filepath: null
+        midiFilepath: null
     };
     tracks = [];
     durationSeconds = null;
@@ -23,15 +23,15 @@ module.exports = class MidiFile {
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
         }
-        if (!this.options.filepath) {
-            throw new TypeError('Expected supplied option filepath');
+        if (!this.options.midiFilepath) {
+            throw new TypeError('Expected supplied option midiFilepath');
         }
     }
 
     async parse() {
         await Note.init();
 
-        const midi = MidiParser.parse(fs.readFileSync(this.options.filepath));
+        const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
         this.timeFactor = 60000 / (this.options.bpm * midi.timeDivision) / 1000;
 
