@@ -50,7 +50,7 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                this.log('EVENT', event);
+                // this.log('EVENT', event);
 
                 currentTick += event.deltaTime;
 
@@ -78,12 +78,14 @@ module.exports = class MidiFile {
                 if (event.type === MidiFile.NOTE_OFF) {
                     const note = new Note({
                         channel: event.channel,
+                        track: trackNumber,
                         pitch: event.data[0],
                         startTick: playingNotes[event.data[0]].startTick,
                         endTick: currentTick,
                         startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
                         endSeconds: this.ticksToSeconds(currentTick)
                     });
+                    this.log(note);
                     note.save();
                     this.tracks[trackNumber].notes.push(note);
                     delete playingNotes[event.data[0]];

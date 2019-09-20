@@ -11,14 +11,15 @@ const Integrater = require("./Integrater.mjs");
 // const tempDir = tmp.dirSync().name;
 
 const options = {
-    bpm: 107,
-    filepath: 'fixtures/one.mid'
+    bpm: 60,
+    filepath: 'fixtures/boo4.mid',
+    fps: 1
 };
 
 let integrater;
 
 describe('Integrater', function () {
-    this.timeout(5000); 
+    this.timeout(1000 * 30); 
 
     beforeEach(async () => {
         integrater = new Integrater(options);
@@ -30,7 +31,7 @@ describe('Integrater', function () {
 
     afterEach(() => {
         if (fs.existsSync(integrater.options.outputpath)) {
-            fs.unlinkSync(integrater.options.outputpath);
+            // fs.unlinkSync(integrater.options.outputpath);
         }
     });
 

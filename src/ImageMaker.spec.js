@@ -7,12 +7,12 @@ const Jimp = require('jimp');
 const ImageMaker = require("./ImageMaker.mjs");
 
 describe('ImageMaker', () => {
-    it('getBuffer', async () => {
+    it('get', async () => {
         const imageMaker = new ImageMaker({ width: 10, height: 10 });
         expect(imageMaker).to.be.an.instanceOf(ImageMaker);
-        await imageMaker.create();
+        await imageMaker.addNotes();
         expect(imageMaker.image).to.be.an.instanceOf(Jimp);
-        expect(imageMaker.getBuffer()).to.eventually.be.an.instanceOf(Buffer);
+        expect(imageMaker.render()).to.eventually.be.an.instanceOf(Buffer);
     });
 
 });

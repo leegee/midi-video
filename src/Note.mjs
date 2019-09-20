@@ -22,7 +22,7 @@ module.exports = class Note {
         }
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields
-                .map(field => '\t' + field + ' TEXT')
+                .map(field => '\t' + field + (field.match(/seconds/i) ? ' DECIMAL' : ' TEXT'))
                 .join(',\n')
             + '\n)';
 
@@ -48,12 +48,21 @@ module.exports = class Note {
     }
 
     static readRange(from, to) {
+        if (from < 0) {
+            from = 0;
+        }
+        if (to < 0) {
+            to = 0;
+        }
         return new Promise((resolve, reject) => {
             const rows = [];
             Note.dbh.serialize(() => {
                 Note.statements.readRange.each(from, to).each(
                     (err, row) => err ? reject(err) : rows.push(row),
-                    () => resolve(rows)
+                    () => {
+                        this.log('readRange from %d to %d: %d results', from, to, rows.length);
+                        resolve(rows)
+                    }
                 );
             });
         });

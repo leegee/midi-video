@@ -12,7 +12,7 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Encoder {
     imagesStream = new stream.PassThrough();
     options = {
-        secsPerImage: undefined,
+        fps: undefined,
         width: undefined,
         height: undefined,
         outputpath: path.resolve('./output.mp4'),
@@ -22,6 +22,7 @@ module.exports = class Encoder {
     stderr = '';
     stdout = '';
     encoded = {};
+    fps = undefined;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -29,7 +30,7 @@ module.exports = class Encoder {
         this.log('New Encoder', this.options);
 
         assertOptions(this.options, {
-            secsPerImage: '"secsPerImage" as a number',
+            fps: '"fps" integer',
             width: 'number',
             height: 'number'
             // filepath: '"filepath" should be the path to the MIDI file to parse'
@@ -39,19 +40,17 @@ module.exports = class Encoder {
     init() {
         this.log('Enter Encoder.create');
         return new Promise((resolve, reject) => {
-            const framerate = '1/' + this.options.secsPerImage;
-            const videosize = `${this.options.width}x${this.options.height}`;
-            // var audiotrack = path.join(AUDIO_ROOT, options.audio.track);
+            const videosize = [this.options.width, this.options.height].join('x');
 
             this.log('pre-spawn ffmpeg');
             const childProcess = spawn(ffmpegPath,
                 [
                     '-y', '-f', 'image2pipe',
                     '-s', videosize,
-                    '-framerate', framerate,
+                    '-framerate', this.options.fps,
                     '-pix_fmt', 'yuv420p',
                     '-i', '-',
-                    // '-i', audiotrack,
+                    // '-i', this.options.audiopath),
                     '-vcodec', 'mpeg4',
                     '-shortest',
                     this.options.outputpath

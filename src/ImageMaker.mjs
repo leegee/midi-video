@@ -8,6 +8,8 @@ module.exports = class ImageMaker {
         height: 1080
     };
 
+    seconds2notesPlaying = {};
+
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.verbose ? console.log : () => { };
@@ -26,15 +28,37 @@ module.exports = class ImageMaker {
         });
     }
 
-    async create() {
-        if (ImageMaker.Blank === null){
+    addNotes(notes) {
+        notes.forEach(note => {
+            this.seconds2notesPlaying[note.startSeconds] = this.seconds2notesPlaying[note.startSeconds] || [];
+            this.seconds2notesPlaying[note.startSeconds].push(note);
+        });
+    }
+
+    removeNotes(maxTime) {
+        Object.keys(this.seconds2notesPlaying)
+            .sort()
+            .filter(t => t < maxTime)
+            .forEach(t => delete this.seconds2notesPlaying[t]);
+    }
+
+    async render() {
+        if (ImageMaker.Blank === null) {
             await this.createBlankImage();
         }
         this.image = ImageMaker.Blank.clone();
+
+        this._render();
+
+        return this.image.getBufferAsync(Jimp.MIME_PNG);
     }
 
-    async getBuffer() {
-        return this.image.getBufferAsync(Jimp.MIME_PNG);
+    _render() {
+        for (let startSeconds in this.seconds2notesPlaying) {
+            this.seconds2notesPlaying[startSeconds].forEach(note => {
+                this.log('PLAYING ', note);
+            });
+        }
     }
 
 }
