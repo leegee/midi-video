@@ -13,7 +13,7 @@ const Integrater = require("./Integrater.mjs");
 const options = {
     bpm: 60,
     filepath: 'fixtures/boo4.mid',
-    fps: 1
+    fps: 5
 };
 
 let integrater;
