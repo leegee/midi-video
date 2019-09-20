@@ -10,9 +10,8 @@ describe('ImageMaker', () => {
     it('get', async () => {
         const imageMaker = new ImageMaker({ width: 10, height: 10 });
         expect(imageMaker).to.be.an.instanceOf(ImageMaker);
-        await imageMaker.addNotes();
-        expect(imageMaker.image).to.be.an.instanceOf(Jimp);
-        expect(imageMaker.render()).to.eventually.be.an.instanceOf(Buffer);
+        await imageMaker.renderAsBuffer();
+        expect(imageMaker.renderAsBuffer()).to.eventually.be.an.instanceOf(Buffer);
     });
 
 });

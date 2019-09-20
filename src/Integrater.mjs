@@ -72,7 +72,7 @@ module.exports = class Integrater {
             this.imageMaker.addNotes(notes);
             this.imageMaker.removeNotes(currentTime);
 
-            const image = await this.imageMaker.render(currentTime);
+            const image = await this.imageMaker.renderAsBuffer(currentTime);
             this.encoder.addImage(image);
 
             console.log('T/N/I', currentTime, notes.length, image);
