@@ -43,24 +43,26 @@ module.exports = class Encoder {
             const videosize = [this.options.width, this.options.height].join('x');
 
             this.log('pre-spawn ffmpeg');
-            const childProcess = spawn(ffmpegPath,
-                [
-                    '-y', '-f', 'image2pipe',
-                    '-s', videosize,
-                    '-framerate', this.options.fps,
-                    '-pix_fmt', 'yuv420p',
-                    '-i', '-',
-                    // '-i', this.options.audiopath),
-                    '-vcodec', 'mpeg4',
-                    '-shortest',
-                    this.options.outputpath
-                ]
+            const args = [
+                '-y', '-f', 'image2pipe',
+                '-s', videosize,
+                '-framerate', this.options.fps,
+                '-pix_fmt', 'yuv420p',
+                '-i', '-'];
+            if (this.options.audiopath) {
+                args.push('-i', this.options.audiopath);
+            }
+            args.push(
+                '-vcodec', 'mpeg4',
+                '-shortest',
+                this.options.outputpath
             );
+            const childProcess = spawn(ffmpegPath, args);
             this.log('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
                 const str = data.toString();
-                // this.log(str);
+                this.log(str);
                 this.stdout += str + '\n';
             });
             childProcess.stderr.on('data', data => {
@@ -80,7 +82,6 @@ module.exports = class Encoder {
     }
 
     parseOutput() {
-        // frame=    5 fps=0.0 q=2.0 Lsize=       4kB time=00:00:01.78 bitrate=  16.6kbits/s speed= 255x
         try {
             this.encoded.frame = Number(this.stderr.match(/frame=\s*(\d+)/s)[1]);
             this.encoded.fps = this.stderr.match(/\s+fps=(\S+)/s)[1];
@@ -100,7 +101,6 @@ module.exports = class Encoder {
         }
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-        // this.log('Done Encoder.addImage', this.totalImagesAdded);
     }
 
     finalise() {

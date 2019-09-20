@@ -5,7 +5,8 @@ module.exports = class ImageMaker {
 
     options = {
         width: 1920,
-        height: 1080
+        height: 1080,
+        bg: Jimp.cssColorToHex('#ffffff')
     };
 
     seconds2notesPlaying = {};
@@ -23,6 +24,7 @@ module.exports = class ImageMaker {
                     console.error(err);
                     reject(err);
                 }
+                image.background(this.options.bg);
                 ImageMaker.Blank = image;
                 resolve(this);
             });
@@ -57,20 +59,28 @@ module.exports = class ImageMaker {
     _render(currentTime) {
         for (let startSeconds in this.seconds2notesPlaying) {
             this.seconds2notesPlaying[startSeconds].forEach(note => {
-                this.debug('PLAYING ', note);
+                this._drawNote(currentTime, note);
             });
         }
     }
 
-    _makeIteratorThatFillsWithColor(color) {
-        return (x, y, offset) => {
-            this.bitmap.data.writeUInt32BE(color, offset, true);
-        }
-    }
+    _drawNote(currentTime, note) {
+        
+        const x = (this.options.width/2) + currentTime - note.startSeconds;
+        const y = note.pitch * this.options.noteHeight; 
+        const colour = Jimp.cssColorToHex("yellow");
+        
+        this.debug('PLAYING ', x, y);
 
-    _drawNote(x, y) {
-        // x, y, w, h, f
-        this.image.scan(x, y, width, height, _makeIteratorThatFillsWithColor(0x00000040));
+        this.image.scan(
+            x,
+            y,
+            this.options.secondWidth,
+            this.options.noteHeight,
+            function (x, y, offset) {
+                this.bitmap.data.writeUInt32BE(colour, offset, true);
+            }
+        );
     }
 };
 

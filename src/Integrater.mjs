@@ -18,7 +18,10 @@ module.exports = class Integrater {
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
-    imageMaker = new ImageMaker();
+    imageMaker = new ImageMaker({
+        noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
+        secondWidth: Math.floor(this.options.width / this.options.beatsOnScreen)
+    });
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -30,9 +33,6 @@ module.exports = class Integrater {
             bpm: '"bpm" as a number representing the MIDI bpm',
             filepath: '"filepath" should be the path to the MIDI file to parse'
         });
-
-        this.beatHeight = Math.floor(this.options.height / this.options.midiNoteRange);
-        this.beatWidth = Math.floor(this.options.width / this.options.beatsOnScreen);
     }
 
     async init() {

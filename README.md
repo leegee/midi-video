@@ -8,3 +8,6 @@
 ## Yet to do
 
 * Account for tempo changes.
+
+## Notes
+
