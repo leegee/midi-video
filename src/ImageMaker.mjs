@@ -65,17 +65,20 @@ module.exports = class ImageMaker {
     }
 
     _drawNote(currentTime, note) {
-        
-        const x = (this.options.width/2) + currentTime - note.startSeconds;
-        const y = note.pitch * this.options.noteHeight; 
+
+        const x = // (this.options.width/2) + 
+            (currentTime - note.startSeconds) * this.options.secondWidth
+            ;
+
+        const y = note.pitch * this.options.noteHeight;
         const colour = Jimp.cssColorToHex("yellow");
-        
+
         this.debug('PLAYING ', x, y);
 
         this.image.scan(
             x,
             y,
-            this.options.secondWidth,
+            (note.endSeconds - note.startSeconds) * this.options.secondWidth,
             this.options.noteHeight,
             function (x, y, offset) {
                 this.bitmap.data.writeUInt32BE(colour, offset, true);
