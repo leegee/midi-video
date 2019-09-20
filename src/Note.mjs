@@ -16,10 +16,14 @@ module.exports = class Note {
         return Note;
     }
 
-    static async init() {
+    static async init(options) {
         if (Note.ready) {
             return;
         }
+
+        this.options = Object.assign({}, this.options, options);
+        this.log = this.options.verbose ? console.log : Note.log;
+
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields
                 .map(field => '\t' + field + (field.match(/seconds/i) ? ' DECIMAL' : ' TEXT'))
@@ -79,7 +83,6 @@ module.exports = class Note {
             Note.statements.insert.run(values);
         });
     }
-
 
 }
 
