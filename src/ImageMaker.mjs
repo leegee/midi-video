@@ -110,11 +110,10 @@ module.exports = class ImageMaker {
 
         this.image.scan(
             x,
-            y,
+            this.height - y,
             noteWidth,
             this.options.noteHeight,
             function (x, y, offset) {
-                // console.log('F: ', x, y, this.bitmap.width, this.bitmap.height);
                 this.bitmap.data.writeUInt32BE(colour, offset, true);
             }
         );
