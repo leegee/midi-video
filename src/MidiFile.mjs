@@ -50,13 +50,14 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                // this.log('EVENT', event);
+                this.log('EVENT', event);
 
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
                     if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
+                        this.log('Parsing track named ', event.data);
                     } else if (event.metaType === 88) {
                         if (this.timeSignature !== null) {
                             throw new Error("Multiple timesignatures not yet supported");
@@ -101,18 +102,32 @@ module.exports = class MidiFile {
             );
         }
         this.log(this.tracks);
-        
+
         if (this.timeSignature === null) {
             throw new Error('Failed to parse time signature from MIDI file');
         } else {
             this.log('Time Signature', this.timeSignature);
         }
-        
-        this.log('MidiFile.parse - leave ------------');
+
+        this.log('MidiFile.parse - leave');
     }
 
     ticksToSeconds(delta) {
         return delta * this.timeFactor;
+    }
+
+    mapTrackNames2Colours(trackColours) {
+        const mapped = [];
+
+        this.tracks.forEach(track => {
+            if (trackColours[track.name]) {
+                mapped.push(
+                    trackColours[track.name]
+                )
+            }
+        });
+
+        return mapped;
     }
 
 }

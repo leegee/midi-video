@@ -13,7 +13,9 @@ module.exports = class Integrater {
         width: 1920,
         height: 1080,
         fps: 30,
-        midiNoteRange: 127
+        midiNoteRange: 127,
+        trackColours: undefined,
+        defaultColour: 'blue',
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -43,6 +45,8 @@ module.exports = class Integrater {
         this.beatsOnScreen = this.midiFile.timeSignature * 3;
 
         this.imageMaker = new ImageMaker({
+            trackColours: this.midiFile.mapTrackNames2Colours(this.options.trackColours),
+            defaultColour: this.options.defaultColour,
             width: this.options.width,
             height: this.options.height,
             noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
@@ -71,8 +75,8 @@ module.exports = class Integrater {
 
         const timeFrame = 1 / this.options.fps;
         for (
-            let currentTime = 0; 
-            currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen * 2); 
+            let currentTime = 0;
+            currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen * 2);
             currentTime += timeFrame
         ) {
             // const notes = await Note.readRange(currentTime - timeFrame, currentTime + timeFrame);

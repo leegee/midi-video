@@ -10,7 +10,9 @@ module.exports = class ImageMaker {
         width: undefined, // 1920,
         height: undefined, // 1080,
         noteHeight: undefined,
-        bg: Jimp.cssColorToHex('#ffffff')
+        trackColours: undefined,
+        bg: 'black',
+        defaultColour: 'yellow'
     };
 
     seconds2notesPlaying = {};
@@ -19,14 +21,25 @@ module.exports = class ImageMaker {
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
 
+        this.options.defaultColour = Jimp.cssColorToHex(this.options.defaultColour);
+        this.options.bg = Jimp.cssColorToHex(this.options.bg);
+
+        if (this.options.trackColours) {
+            this.options.trackColours = this.options.trackColours.map(
+                key => Jimp.cssColorToHex(key)
+            );
+        }
+
         assertOptions(this.options, {
             noteHeight: 'integer, the pixel height of a single note',
             secondWidth: 'integer, being the number of pixels representing a second of time',
             width: 'integer, being the video display  width',
-            height: 'integer, being the video display  height'
+            height: 'integer, being the video display  height',
+            defaultColour: 'a CSS colour value for the notes',
+            bg: 'a CSS colour value for the background'
         });
 
-        ['width', 'height', 'secondWidth'].forEach( _ => this.options[_] = Math.floor(this.options[_]));
+        ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -47,7 +60,7 @@ module.exports = class ImageMaker {
 
     addNotes(notes) {
         notes.forEach(note => {
-            if (!this.uniqueNotesPlaying[note.md5]){
+            if (!this.uniqueNotesPlaying[note.md5]) {
                 this.uniqueNotesPlaying[note.md5] = true;
                 this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.endSeconds] || [];
                 this.seconds2notesPlaying[note.endSeconds].push(note);
@@ -117,10 +130,11 @@ module.exports = class ImageMaker {
 
         y = this.options.height - y;
 
-        const colour = Jimp.cssColorToHex("yellow"); // from track/channel
+        const colour = this.options.trackColours && this.options.trackColours[note.track] ?
+            this.options.trackColours[note.track] : this.options.defaultColour;
 
-        this.debug('DRAWING pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
+        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+            note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
         );
 
         this.image.scan(

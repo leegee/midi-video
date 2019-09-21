@@ -10,4 +10,12 @@
 * Account for tempo changes.
 * Reverse display?
 * Optionally scale note height to fill screen based on notes used in supplied file
+* Colours per channel/track
+* Cache to fs parsed MIDI files
+* Note velocity -> size
+* Simultaneous notes
+
+## Bibliography
+
+http://www.kunstderfuge.com/beethoven/variae.htm#Symphonies
 
