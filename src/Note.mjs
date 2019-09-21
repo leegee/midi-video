@@ -77,7 +77,6 @@ module.exports = class Note {
         this.md5 = md5(
             Note.dbFields.map( _ => options[_] )
         );
-        console.log('---------------------------------', this.md5);
     }
 
     save() {
