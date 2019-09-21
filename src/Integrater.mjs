@@ -13,15 +13,11 @@ module.exports = class Integrater {
         width: 1920,
         height: 1080,
         fps: 30,
-        beatsOnScreen: 8,
         midiNoteRange: 127
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
-    imageMaker = new ImageMaker({
-        noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
-        secondWidth: Math.floor(this.options.width / this.options.beatsOnScreen)
-    });
+    imageMaker = undefined;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -46,6 +42,11 @@ module.exports = class Integrater {
 
         this.beatsOnScreen = this.midiFile.timeSignature * 3;
 
+        this.imageMaker = new ImageMaker({
+            noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
+            secondWidth: Math.floor(this.options.width / this.beatsOnScreen)
+        });
+
         this.log('Integrater.new create Encoder');
         this.log('Time signature: ', this.midiFile.timeSignature);
         this.log('BPM: ', this.options.bpm);
@@ -67,12 +68,17 @@ module.exports = class Integrater {
         console.log('='.repeat(50));
 
         const timeFrame = 1 / this.options.fps;
-        for (let currentTime = 0; currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen/2); currentTime += timeFrame) {
+        for (
+            let currentTime = 0; 
+            currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen * 2); 
+            currentTime += timeFrame
+        ) {
             // const notes = await Note.readRange(currentTime - timeFrame, currentTime + timeFrame);
             const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
+            // const notes = await Note.readRange(currentTime - this.beatsOnScreen, currentTime + this.beatsOnScreen );
 
             this.imageMaker.addNotes(notes);
-            this.imageMaker.removeNotes(currentTime);
+            this.imageMaker.removeNotes(currentTime - (this.beatsOnScreen / 2));
 
             const image = await this.imageMaker.renderAsBuffer(currentTime);
             this.encoder.addImage(image);
@@ -84,8 +90,5 @@ module.exports = class Integrater {
         return promiseResolvesWhenFileWritten;
     }
 
-    async createImages() {
-
-    }
 }
 

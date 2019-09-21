@@ -10,6 +10,7 @@ module.exports = class ImageMaker {
     };
 
     seconds2notesPlaying = {};
+    uniqueNotesPlaying = {};
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
@@ -33,8 +34,11 @@ module.exports = class ImageMaker {
 
     addNotes(notes) {
         notes.forEach(note => {
-            this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.startSeconds] || [];
-            this.seconds2notesPlaying[note.endSeconds].push(note);
+            if (!this.uniqueNotesPlaying[note.md5]){
+                this.uniqueNotesPlaying[note.md5] = true;
+                this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.endSeconds] || [];
+                this.seconds2notesPlaying[note.endSeconds].push(note);
+            }
         });
     }
 
@@ -42,7 +46,12 @@ module.exports = class ImageMaker {
         Object.keys(this.seconds2notesPlaying)
             .sort()
             .filter(t => t < maxTime)
-            .forEach(t => delete this.seconds2notesPlaying[t]);
+            // .forEach(t => delete this.seconds2notesPlaying[t]);
+            .forEach(t => {
+                console.log('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
+                this.uniqueNotesPlaying[this.seconds2notesPlaying[t].md5] = false;
+                delete this.seconds2notesPlaying[t];
+            });
     }
 
     async renderAsBuffer(currentTime) {
@@ -66,13 +75,8 @@ module.exports = class ImageMaker {
 
     // todo midi startSeconds is 1 based, prefer 0?
     _drawNote(currentTime, note) {
-        // console.log('Enter draw: %d %d %d %d',
-        //     currentTime, note.startSeconds, this.options.secondWidth,
-        //     (currentTime - note.startSeconds) * this.options.secondWidth
-        // );
-        let x = // (this.options.width/2) + 
-            (note.startSeconds - currentTime) * this.options.secondWidth
-            ;
+        let x = ((note.startSeconds - currentTime) * this.options.secondWidth)
+            + (this.options.width / 2);
 
         let noteWidth = (note.endSeconds - note.startSeconds) * this.options.secondWidth;
 
@@ -80,18 +84,29 @@ module.exports = class ImageMaker {
             console.error(currentTime, note);
             throw new Error('zero width note?');
         }
-        if (x < 1) { // 0?
-            x = 1;  // 0?
+
+        // Left bounds
+        if (x < 0) {
+            noteWidth += x;
+            x = 0;
         }
+
+        // Right bounds
         if (x + noteWidth > this.options.width) {
             noteWidth = this.options.width - x;
         }
 
-        const y = note.pitch * this.options.noteHeight;
+        if (noteWidth <= 0) {
+            return;
+        }
+
+        const y = ((note.pitch - 1) * this.options.noteHeight) - 1;
 
         const colour = Jimp.cssColorToHex("yellow"); // from track/channel
 
-        // this.debug('DRAWING pitch %d at x %d y %d w %d start %d end %d', note.pitch, x, y, noteWidth, note.startSeconds, note.endSeconds);
+        this.debug('DRAWING pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+            note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
+        );
 
         this.image.scan(
             x,

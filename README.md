@@ -9,7 +9,7 @@
 
 * Account for tempo changes.
 * Reverse and flip display
-* Offset 'now'
+* Notes disappear early
 
 ## Notes
 

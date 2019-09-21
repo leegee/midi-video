@@ -1,15 +1,15 @@
 const sqlite3 = require('sqlite3').verbose();
+const md5 = require('md5');
 
 module.exports = class Note {
     static ready = false;
-    static dbFields = ['startSeconds', 'endSeconds', 'pitch', 'channel', 'track'];
+    static dbFields = ['startSeconds', 'endSeconds', 'pitch', 'channel', 'track', 'md5'];
     static statements = {
         insert: undefined,
         readRange: undefined
     };
     static dbh = new sqlite3.Database(':memory:');
     static log = () => { }
-    // fields = Note.dbFields.reduce((acc, key) => ({ ...acc, [key]: undefined }), {});
 
     static verbose() {
         Note.log = console.log;
@@ -74,6 +74,10 @@ module.exports = class Note {
 
     constructor(options) {
         Note.dbFields.forEach(_ => this[_] = options[_]);
+        this.md5 = md5(
+            Note.dbFields.map( _ => options[_] )
+        );
+        console.log('---------------------------------', this.md5);
     }
 
     save() {
