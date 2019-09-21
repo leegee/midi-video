@@ -110,7 +110,7 @@ module.exports = class ImageMaker {
 
         this.image.scan(
             x,
-            y,
+            this.height - y,
             noteWidth,
             this.options.noteHeight,
             function (x, y, offset) {
