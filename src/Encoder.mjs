@@ -15,6 +15,7 @@ module.exports = class Encoder {
         fps: undefined,
         width: undefined,
         height: undefined,
+        audioFilepath: undefined,
         outputpath: path.resolve('./output.mp4'),
         verbose: true,
     };
@@ -30,10 +31,9 @@ module.exports = class Encoder {
         this.log('New Encoder', this.options);
 
         assertOptions(this.options, {
-            fps: '"fps" integer',
-            width: 'number',
-            height: 'number'
-            // midiFilepath: '"midiFilepath" should be the path to the MIDI file to parse'
+            fps: 'integer',
+            width: 'integer',
+            height: 'integer'
         });
     }
 

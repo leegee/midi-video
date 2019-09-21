@@ -1,11 +1,15 @@
 const Jimp = require('jimp');
 
+const assertOptions = require('./assertOptions.mjs');
+
 module.exports = class ImageMaker {
     static Blank = null;
 
     options = {
-        width: 1920,
-        height: 1080,
+        secondWidth: undefined,
+        width: undefined, // 1920,
+        height: undefined, // 1080,
+        noteHeight: undefined,
         bg: Jimp.cssColorToHex('#ffffff')
     };
 
@@ -14,6 +18,15 @@ module.exports = class ImageMaker {
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
+
+        assertOptions(this.options, {
+            noteHeight: 'integer, the pixel height of a single note',
+            secondWidth: 'integer, being the number of pixels representing a second of time',
+            width: 'integer, being the video display  width',
+            height: 'integer, being the video display  height'
+        });
+
+        ['width', 'height', 'secondWidth'].forEach( _ => this.options[_] = Math.floor(this.options[_]));
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -100,7 +113,9 @@ module.exports = class ImageMaker {
             return;
         }
 
-        const y = ((note.pitch - 1) * this.options.noteHeight) - 1;
+        let y = ((note.pitch - 1) * this.options.noteHeight) - 1;
+
+        y = this.options.height - y;
 
         const colour = Jimp.cssColorToHex("yellow"); // from track/channel
 
@@ -109,9 +124,9 @@ module.exports = class ImageMaker {
         );
 
         this.image.scan(
-            x,
-             y,
-            noteWidth,
+            Math.floor(x),
+            Math.floor(y),
+            Math.floor(noteWidth),
             this.options.noteHeight,
             function (x, y, offset) {
                 this.bitmap.data.writeUInt32BE(colour, offset, true);

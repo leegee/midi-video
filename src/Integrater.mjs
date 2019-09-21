@@ -26,8 +26,8 @@ module.exports = class Integrater {
         this.log('Create new  Integrater');
 
         assertOptions(this.options, {
-            bpm: '"bpm" as a number representing the MIDI bpm',
-            midiFilepath: '"midiFilepath" should be the path to the MIDI file to parse'
+            bpm: 'a number representing the MIDI bpm',
+            midiFilepath: 'path to the MIDI file to parse'
         });
     }
 
@@ -43,6 +43,8 @@ module.exports = class Integrater {
         this.beatsOnScreen = this.midiFile.timeSignature * 3;
 
         this.imageMaker = new ImageMaker({
+            width: this.options.width,
+            height: this.options.height,
             noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen)
         });
