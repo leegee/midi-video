@@ -40,6 +40,7 @@ module.exports = class ImageMaker {
         });
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
+        
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -129,6 +130,8 @@ module.exports = class ImageMaker {
         let y = ((note.pitch - 1) * this.options.noteHeight) - 1;
 
         y = this.options.height - y;
+
+        console.log('y2 = ', y);
 
         const colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;

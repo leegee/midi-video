@@ -26,7 +26,10 @@ module.exports = class Note {
 
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields
-                .map(field => '\t' + field + (field.match(/seconds/i) ? ' DECIMAL' : ' TEXT'))
+                .map(field => '\t' + field + (
+                    field.match(/seconds/i) ? ' DECIMAL' : 
+                    field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
+                ))
                 .join(',\n')
             + '\n)';
 
@@ -75,7 +78,7 @@ module.exports = class Note {
     constructor(options) {
         Note.dbFields.forEach(_ => this[_] = options[_]);
         this.md5 = md5(
-            Note.dbFields.map( _ => options[_] )
+            Note.dbFields.map(_ => options[_])
         );
     }
 

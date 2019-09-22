@@ -73,8 +73,7 @@ module.exports = class MidiFile {
                         event.type = MidiFile.NOTE_OFF;
                     } else {
                         playingNotes[event.data[0]] = {
-                            startTick: currentTick,
-                            velocity: event.data[1]
+                            startTick: currentTick
                         };
                         if (event.data[0] > this.highestPitch) {
                             this.highestPitch = event.data[0];
@@ -89,6 +88,7 @@ module.exports = class MidiFile {
                         channel: event.channel,
                         track: trackNumber,
                         pitch: event.data[0],
+                        velocity: event.data[1],
                         startTick: playingNotes[event.data[0]].startTick,
                         endTick: currentTick,
                         startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
@@ -142,24 +142,10 @@ module.exports = class MidiFile {
     fitNotes() {
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
-                note.pitch -= this.lowestPitch;
+                note.pitch -= this.lowestPitch + 1;
             })
         })
         return this.highestPitch - this.lowestPitch;
     }
 }
 
-
-
-
-
-
-// db.serialize(function() {
-
-
-//   db.each("SELECT rowid AS id, info FROM lorem", function(err, row) {
-//       console.log(row.id + ": " + row.info);
-//   });
-
-//  stmt.finalize();
-// db.close();

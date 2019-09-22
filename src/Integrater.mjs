@@ -16,7 +16,7 @@ module.exports = class Integrater {
         midiNoteRange: 127,
         trackColours: undefined,
         defaultColour: 'blue',
-        fitNontes: false
+        fitNotes: false
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -31,7 +31,7 @@ module.exports = class Integrater {
         assertOptions(this.options, {
             bpm: 'a number representing the MIDI bpm',
             midiFilepath: 'path to the MIDI file to parse',
-            fitNontes: 'scale the screen to fit the note-range used by the MIDI file'
+            fitNotes: 'scale the screen to fit the note-range used by the MIDI file'
         });
     }
 
@@ -44,7 +44,7 @@ module.exports = class Integrater {
 
         await this.midiFile.parse();
 
-        if (this.options.fitNontes) {
+        if (this.options.fitNotes) {
             this.options.midiNoteRange = this.midiFile.fitNotes();
         }
         this.log('note range: ', this.options.midiNoteRange);
@@ -61,6 +61,8 @@ module.exports = class Integrater {
             noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen)
         });
+
+        this.log('noteHeight: ', this.imageMaker.options.noteHeight);
 
         this.log('Integrater.new create Encoder');
         this.log('Time signature: ', this.midiFile.timeSignature);
