@@ -16,6 +16,7 @@ module.exports = class Integrater {
         midiNoteRange: 127,
         trackColours: undefined,
         defaultColour: 'blue',
+        fitNontes: false
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -29,7 +30,8 @@ module.exports = class Integrater {
 
         assertOptions(this.options, {
             bpm: 'a number representing the MIDI bpm',
-            midiFilepath: 'path to the MIDI file to parse'
+            midiFilepath: 'path to the MIDI file to parse',
+            fitNontes: 'scale the screen to fit the note-range used by the MIDI file'
         });
     }
 
@@ -42,7 +44,14 @@ module.exports = class Integrater {
 
         await this.midiFile.parse();
 
+        if (this.options.fitNontes) {
+            this.options.midiNoteRange = this.midiFile.fitNotes();
+        }
+        this.log('note range: ', this.options.midiNoteRange);
+
         this.beatsOnScreen = this.midiFile.timeSignature * 3;
+
+        this.log('Integrater.new create ImageMaker');
 
         this.imageMaker = new ImageMaker({
             trackColours: this.midiFile.mapTrackNames2Colours(this.options.trackColours),
@@ -79,9 +88,7 @@ module.exports = class Integrater {
             currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen * 2);
             currentTime += timeFrame
         ) {
-            // const notes = await Note.readRange(currentTime - timeFrame, currentTime + timeFrame);
             const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
-            // const notes = await Note.readRange(currentTime - this.beatsOnScreen, currentTime + this.beatsOnScreen );
 
             this.imageMaker.addNotes(notes);
             this.imageMaker.removeNotes(currentTime - (this.beatsOnScreen / 2));

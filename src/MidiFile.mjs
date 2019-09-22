@@ -15,6 +15,8 @@ module.exports = class MidiFile {
     tracks = [];
     durationSeconds = null;
     timeSignature = null;
+    lowestPitch = 127;
+    highestPitch = 0;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -71,7 +73,13 @@ module.exports = class MidiFile {
                         event.type = MidiFile.NOTE_OFF;
                     } else {
                         playingNotes[event.data[0]] = {
-                            startTick: currentTick
+                            startTick: currentTick,
+                            velocity: event.data[1]
+                        };
+                        if (event.data[0] > this.highestPitch) {
+                            this.highestPitch = event.data[0];
+                        } else if (event.data[0] < this.lowestPitch) {
+                            this.lowestPitch = event.data[0];
                         }
                     }
                 }
@@ -86,7 +94,7 @@ module.exports = class MidiFile {
                         startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
                         endSeconds: this.ticksToSeconds(currentTick)
                     });
-                    this.log(note);
+                    // this.log(note);
                     note.save();
                     this.tracks[trackNumber].notes.push(note);
                     delete playingNotes[event.data[0]];
@@ -101,7 +109,8 @@ module.exports = class MidiFile {
                 trackNumber, trackDurationTicks, trackDurationSecs
             );
         }
-        this.log(this.tracks);
+
+        // this.log(this.tracks);
 
         if (this.timeSignature === null) {
             throw new Error('Failed to parse time signature from MIDI file');
@@ -130,6 +139,14 @@ module.exports = class MidiFile {
         return mapped;
     }
 
+    fitNotes() {
+        this.tracks.forEach(track => {
+            track.notes.forEach(note => {
+                note.pitch -= this.lowestPitch;
+            })
+        })
+        return this.highestPitch - this.lowestPitch;
+    }
 }
 
 
