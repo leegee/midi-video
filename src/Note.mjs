@@ -16,19 +16,23 @@ module.exports = class Note {
         return Note;
     }
 
-    static async init(options) {
+    static async reset(options = {}) {
+        Note.ready = false;
+        Note.init(options);
+    }
+
+    static async init(options = {}) {
         if (Note.ready) {
             return;
         }
 
-        this.options = Object.assign({}, this.options, options);
-        this.log = this.options.verbose ? console.log : Note.log;
+        this.log = options.verbose ? console.log : Note.log;
 
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields
                 .map(field => '\t' + field + (
-                    field.match(/seconds/i) ? ' DECIMAL' : 
-                    field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
+                    field.match(/seconds/i) ? ' DECIMAL' :
+                        field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
                 ))
                 .join(',\n')
             + '\n)';
@@ -41,14 +45,15 @@ module.exports = class Note {
 
         let readRange = 'SELECT * FROM notes WHERE startSeconds BETWEEN ? and ?';
 
-        Note.log(scheme);
-        Note.log(insert);
-        Note.log(readRange);
-
         await Note.dbh.serialize(() => {
+            Note.dbh.run('DROP TABLE IF EXISTS notes');
+            Note.log('Dropped mem table');
             Note.dbh.run(scheme);
+            Note.log(scheme);
             Note.statements.insert = Note.dbh.prepare(insert);
+            Note.log(insert);
             Note.statements.readRange = Note.dbh.prepare(readRange);
+            Note.log(readRange);
         });
 
         Note.ready = true;
