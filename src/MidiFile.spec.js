@@ -37,9 +37,9 @@ describe('MidiFile', () => {
     });
 
 
-    it('reads simple MIDI', async () => {
+    it('reads real world MIDI', async () => {
         const midiReader = new MidiFile({
-            midiFilepath: path.resolve('fixtures/one.mid'),
+            midiFilepath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
             bpm: 100,
             verbose: true
         });
