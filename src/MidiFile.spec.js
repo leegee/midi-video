@@ -22,7 +22,6 @@ describe('MidiFile', function () {
 
         await midiReader.parse();
 
-        expect(midiReader.timeSignature).to.equal(4);
         expect(midiReader.tracks.length).to.equal(1);
 
         expect(midiReader.tracks[0].name).to.equal('Polysynth');
@@ -47,7 +46,6 @@ describe('MidiFile', function () {
 
         await midiReader.parse();
 
-        expect(midiReader.timeSignature).to.equal(4);
         expect(midiReader.tracks.length).to.equal(15);
         expect(midiReader.tracks[0].name).to.equal('Flauti');
 

@@ -8,14 +8,12 @@
 ## Yet to do
 
 * Account for tempo changes.
-* Reverse display?
-* Optionally scale note height to fill screen based on notes used in supplied file
-* Colours per channel/track
-* Cache to fs parsed MIDI files
+* Aftertouch, controllers (breath, expression)
 * Note velocity -> size
-* Simultaneous notes
+* Visable display of simultaneous notes 
 
 ## Bibliography
 
-http://www.kunstderfuge.com/beethoven/variae.htm#Symphonies
+* http://www.kunstderfuge.com/beethoven/variae.htm#Symphonies
 
+* https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications

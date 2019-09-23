@@ -3,6 +3,7 @@ const fs = require('fs');
 const Note = require('./Note.mjs');
 
 module.exports = class MidiFile {
+    static verbose = false;
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
     static META = 255;
@@ -14,15 +15,14 @@ module.exports = class MidiFile {
     };
     tracks = [];
     durationSeconds = null;
-    timeSignature = undefined;
     lowestPitch = 127;
     highestPitch = 0;
     bpm = undefined;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.verbose ? console.log : () => { };
-        this.debug = this.options.debug ? console.debug : () => { };
+        this.debug = this.options.debug ? console.debug : MidiFile.verbose ? console.debug : () => { };
+        this.log = this.options.verbose || MidiFile.verbose ? console.log : () => { };
 
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
@@ -32,6 +32,7 @@ module.exports = class MidiFile {
         }
 
         this.bpm = this.options.bpm;
+        this.debug('Debugging...');
     }
 
     ticksToSeconds(delta) {
@@ -40,6 +41,7 @@ module.exports = class MidiFile {
 
     setTimeFactor(timeDivision) {
         this.timeFactor = 60000 / (this.bpm * timeDivision) / 1000;
+        return this.timeFactor;
     }
 
     async parse() {
@@ -64,52 +66,62 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                this.log('EVENT', event);
+                this.debug('EVENT', event);
 
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
-                    if (event.metaType === 3) {
+                    if (event.metaType === 81) {
+                        this.debug('Tempo change @ ', event.deltaTime, 'to', event.data);
+                        this.setTimeFactor(event.data);
+                        // const note = new Note({
+                        //     startTick: playingNotes[event.data[0]].startTick,
+                        //     startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
+                        //     tempoTicks: event.data,
+                        //     tempoSeconds: this.ticksToSeconds(event.data),
+                        //     timeFactor: this.timeFactor
+                        // });
+                        // note.save();
+                        // this.tracks[trackNumber].notes.push(note);
+                    }
+
+                    else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.debug('Parsing track number %d named %s', trackNumber, event.data);
-                    } else if (event.metaType === 88) {
-                        if (this.timeSignature !== undefined) {
-                            console.warn("Multiple timesignatures not yet supported");
-                        }
-                        this.timeSignature = event.data[0];
                     }
                 }
 
-                if (event.type === MidiFile.NOTE_ON) {
-                    if (event.data[1] === 0) {
-                        event.type = MidiFile.NOTE_OFF;
-                    } else {
-                        playingNotes[event.data[0]] = {
-                            startTick: currentTick
-                        };
-                        if (event.data[0] > this.highestPitch) {
-                            this.highestPitch = event.data[0];
-                        } else if (event.data[0] < this.lowestPitch) {
-                            this.lowestPitch = event.data[0];
+                else {
+                    if (event.type === MidiFile.NOTE_ON) {
+                        if (event.data[1] === 0) { // No velocity === silence note
+                            event.type = MidiFile.NOTE_OFF;
+                        } else {
+                            playingNotes[event.data[0]] = {
+                                startTick: currentTick
+                            };
+                            if (event.data[0] > this.highestPitch) {
+                                this.highestPitch = event.data[0];
+                            } else if (event.data[0] < this.lowestPitch) {
+                                this.lowestPitch = event.data[0];
+                            }
                         }
                     }
-                }
 
-                if (event.type === MidiFile.NOTE_OFF) {
-                    const note = new Note({
-                        channel: event.channel,
-                        track: trackNumber,
-                        pitch: event.data[0],
-                        velocity: event.data[1],
-                        startTick: playingNotes[event.data[0]].startTick,
-                        endTick: currentTick,
-                        startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
-                        endSeconds: this.ticksToSeconds(currentTick)
-                    });
-                    // this.log(note);
-                    note.save();
-                    this.tracks[trackNumber].notes.push(note);
-                    delete playingNotes[event.data[0]];
+                    if (event.type === MidiFile.NOTE_OFF) {
+                        const note = new Note({
+                            channel: event.channel,
+                            track: trackNumber,
+                            pitch: event.data[0],
+                            velocity: event.data[1],
+                            startTick: playingNotes[event.data[0]].startTick,
+                            endTick: currentTick,
+                            startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
+                            endSeconds: this.ticksToSeconds(currentTick)
+                        });
+                        note.save();
+                        this.tracks[trackNumber].notes.push(note);
+                        delete playingNotes[event.data[0]];
+                    }
                 }
             });
 
@@ -123,12 +135,6 @@ module.exports = class MidiFile {
         this.tracks = this.tracks.filter(track => track.notes.length > 0);
 
         // this.debug(this.tracks);
-
-        if (this.timeSignature === undefined) {
-            throw new Error('Failed to parse time signature from MIDI file');
-        } else {
-            this.log('Time Signature', this.timeSignature);
-        }
 
         this.log('MidiFile.parse - leave');
     }

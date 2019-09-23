@@ -1,11 +1,15 @@
 const path = require('path');
 const fs = require('fs');
+
 const chai = require("chai");
 const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
+const MidiFile = require('./MidiFile.mjs');
 const Integrater = require("./Integrater.mjs");
+
+MidiFile.verbose = true;
 
 const orchestraColours = {
     'Flauti': 'hsl(60, 77%, 63%)',
@@ -28,6 +32,7 @@ const orchestraColours = {
 const options = {
     bpm: 60,
     midiFilepath: 'fixtures/b.mid',
+    // midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5,
     trackColours: orchestraColours,
