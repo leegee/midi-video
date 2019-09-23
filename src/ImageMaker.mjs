@@ -21,6 +21,7 @@ module.exports = class ImageMaker {
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
+        this.debug = () => { };
 
         this.options.defaultColour = Jimp.cssColorToHex(this.options.defaultColour);
         this.options.bg = Jimp.cssColorToHex(this.options.bg);
@@ -41,7 +42,7 @@ module.exports = class ImageMaker {
         });
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
-        
+
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -74,9 +75,8 @@ module.exports = class ImageMaker {
         Object.keys(this.seconds2notesPlaying)
             .sort()
             .filter(t => t < maxTime)
-            // .forEach(t => delete this.seconds2notesPlaying[t]);
             .forEach(t => {
-                console.log('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
+                this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
                 this.uniqueNotesPlaying[this.seconds2notesPlaying[t].md5] = false;
                 delete this.seconds2notesPlaying[t];
             });
@@ -131,8 +131,6 @@ module.exports = class ImageMaker {
         let y = ((note.pitch - 1) * this.options.noteHeight) - 1;
 
         y = this.options.height - y;
-
-        console.log('y2 = ', y);
 
         const colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;

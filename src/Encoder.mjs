@@ -17,7 +17,7 @@ module.exports = class Encoder {
         height: undefined,
         audioFilepath: undefined,
         outputpath: path.resolve('./output.mp4'),
-        verbose: true,
+        verbose: false,
     };
     totalImagesAdded = 0;
     stderr = '';

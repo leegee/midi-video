@@ -8,7 +8,7 @@ module.exports = class MidiFile {
     static META = 255;
 
     options = {
-        verbose: true,
+        verbose: false,
         bpm: null,
         midiFilepath: null
     };
