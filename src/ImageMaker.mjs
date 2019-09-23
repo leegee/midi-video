@@ -95,7 +95,8 @@ module.exports = class ImageMaker {
     _render(currentTime) {
         for (let endSeconds in this.seconds2notesPlaying) {
             this.seconds2notesPlaying[endSeconds].forEach(note => {
-                this._drawNote(currentTime, note);
+                this._positionNote(currentTime, note);
+                this._drawNote(note);
             });
         }
     }
@@ -138,11 +139,11 @@ module.exports = class ImageMaker {
         this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
             note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
         );
+
+        note.update();
     }
 
-    _drawNote(currentTime, note) {
-        this._positionNote(currentTime, note);
-
+    _drawNote(note) {
         this.image.scan(
             Math.floor(note.x),
             Math.floor(note.y),

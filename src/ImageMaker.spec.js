@@ -24,6 +24,8 @@ describe('ImageMaker', () => {
     });
 
     it('overlay pitch, varied velocity', async () => {
+        await Note.init();
+
         const notes = [
             new Note({
                 startSeconds: 0,

@@ -10,7 +10,8 @@ module.exports = class Note {
     ];
     static statements = {
         insert: undefined,
-        readRange: undefined
+        readRange: undefined,
+        update: undefined
     };
     static dbh = new sqlite3.Database(':memory:');
     static log = () => { }
@@ -49,11 +50,14 @@ module.exports = class Note {
 
         let readRange = 'SELECT * FROM notes WHERE startSeconds BETWEEN ? and ?';
 
+        let updateWithPos = 'UPDATE notes SET (x, y, width, height, colour) = (?, ?, ?, ?, ?) WHERE md5 = ?';
+
         await Note.dbh.serialize(() => {
             Note.dbh.run('DROP TABLE IF EXISTS notes');
             Note.dbh.run(scheme);
             Note.statements.insert = Note.dbh.prepare(insert);
             Note.statements.readRange = Note.dbh.prepare(readRange);
+            Note.statements.update = Note.dbh.prepare(updateWithPos);
         });
 
         Note.ready = true;
@@ -92,6 +96,14 @@ module.exports = class Note {
         Note.dbFields.forEach(_ => values.push(this[_]));
         Note.dbh.serialize(() => {
             Note.statements.insert.run(values);
+        });
+    }
+
+    update() {
+        Note.dbh.serialize(() => {
+            Note.statements.update.run(
+                this.x, this.y, this.width, this.height, this.colour
+            );
         });
     }
 
