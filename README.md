@@ -7,10 +7,9 @@
 
 ## Yet to do
 
-* Account for tempo changes.
-* Aftertouch, controllers (breath, expression)
 * Note velocity -> size
 * Visable display of simultaneous notes 
+* Aftertouch, controllers (breath, expression)
 
 ## Bibliography
 
