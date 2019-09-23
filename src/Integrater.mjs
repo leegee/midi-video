@@ -16,7 +16,7 @@ module.exports = class Integrater {
         midiNoteRange: 127,
         trackColours: undefined,
         defaultColour: 'blue',
-        fitNotes: false
+        fitNotesToScreen: false
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -31,7 +31,7 @@ module.exports = class Integrater {
         assertOptions(this.options, {
             bpm: 'a number representing the MIDI bpm',
             midiFilepath: 'path to the MIDI file to parse',
-            fitNotes: 'scale the screen to fit the note-range used by the MIDI file'
+            fitNotesToScreen: 'scale the screen to fit the note-range used by the MIDI file'
         });
     }
 
@@ -44,8 +44,8 @@ module.exports = class Integrater {
 
         await this.midiFile.parse();
 
-        if (this.options.fitNotes) {
-            this.options.midiNoteRange = this.midiFile.fitNotes();
+        if (this.options.fitNotesToScreen) {
+            this.options.midiNoteRange = this.midiFile.fitNotesToScreen();
         }
         this.log('note range: ', this.options.midiNoteRange);
 

@@ -21,7 +21,6 @@ module.exports = class ImageMaker {
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
-        this.debug = () => { };
 
         this.options.defaultColour = Jimp.cssColorToHex(this.options.defaultColour);
         this.options.bg = Jimp.cssColorToHex(this.options.bg);
@@ -76,7 +75,7 @@ module.exports = class ImageMaker {
             .sort()
             .filter(t => t < maxTime)
             .forEach(t => {
-                this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
+                // this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
                 this.uniqueNotesPlaying[this.seconds2notesPlaying[t].md5] = false;
                 delete this.seconds2notesPlaying[t];
             });
@@ -135,9 +134,9 @@ module.exports = class ImageMaker {
         const colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
 
-        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
-        );
+        // this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+        //     note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
+        // );
 
         this.image.scan(
             Math.floor(x),

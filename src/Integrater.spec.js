@@ -19,7 +19,7 @@ const options = {
 let integrater;
 
 describe('Integrater', function () {
-    this.timeout(1000 * 30); 
+    this.timeout(1000 * 60); 
 
     beforeEach(async () => {
         integrater = new Integrater(options);
@@ -31,7 +31,7 @@ describe('Integrater', function () {
 
     afterEach(() => {
         if (fs.existsSync(integrater.options.outputpath)) {
-            // fs.unlinkSync(integrater.options.outputpath);
+            fs.unlinkSync(integrater.options.outputpath);
         }
     });
 

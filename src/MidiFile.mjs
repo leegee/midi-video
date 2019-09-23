@@ -147,7 +147,7 @@ module.exports = class MidiFile {
         return mapped;
     }
 
-    fitNotes() {
+    fitNotesToScreen() {
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
                 note.pitch -= this.lowestPitch + 1;

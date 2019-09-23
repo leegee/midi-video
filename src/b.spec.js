@@ -31,7 +31,7 @@ const options = {
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5,
     trackColours: orchestraColours,
-    fitNotes: false
+    fitNotesToScreen: false
 };
 
 let integrater;

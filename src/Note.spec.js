@@ -1,7 +1,7 @@
 const chai = require("chai");
 const expect = chai.expect;
 
-const Note = require("./Note.mjs").verbose();
+const Note = require("./Note.mjs"); // .verbose();
 
 describe('Note', () => {
     beforeEach(async () => {
