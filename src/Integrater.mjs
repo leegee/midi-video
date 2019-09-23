@@ -1,5 +1,4 @@
 const MidiFile = require('./MidiFile.mjs');
-const Note = require("./Note.mjs"); // .verbose();
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
 const assertOptions = require('./assertOptions.mjs');
@@ -35,12 +34,12 @@ module.exports = class Integrater {
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
             fitNotesToScreen: 'scale the screen to fit the note-range used by the MIDI file'
         });
+
+        this.beatsOnScreen = this.options.beatsOnScreen;
     }
 
     async init() {
-        this.log('Integrater.new create MidiFIle');
-
-        await Note.init();
+        this.log('Integrater.init enter');
 
         this.midiFile = new MidiFile(this.options);
 
@@ -61,6 +60,8 @@ module.exports = class Integrater {
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen)
         });
 
+        await this.imageMaker.init();
+
         this.log('noteHeight: ', this.imageMaker.options.noteHeight);
 
         this.log('Integrater.new create Encoder');
@@ -69,25 +70,26 @@ module.exports = class Integrater {
 
         this.encoder = new Encoder(this.options);
 
-        this.log('Integrater.new done');
+        this.log('Integrater.init done');
     }
 
     async integrate() {
-        this.log('Enter Integrater.integrate');
+        this.log('Integrater.integrate enter');
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
         const timeFrame = 1 / this.options.fps;
+        const maxTime = this.midiFile.durationSeconds + (this.beatsOnScreen * 2);
+        this.log('Integrater.integrate MIDI of %d seconds timeFrame for %d beats on screen: %d of %d ',
+            this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
+        );
+
         for (
             let currentTime = 0;
-            currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen * 2);
+            currentTime <= maxTime;
             currentTime += timeFrame
         ) {
-            const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
-
-            this.imageMaker.addNotes(notes);
-            this.imageMaker.removeNotes(currentTime - (this.beatsOnScreen / 2));
-
-            const image = await this.imageMaker.renderAsBuffer(currentTime);
+            this.log('Current time = ', currentTime);
+            const image = await this.imageMaker.getFrame(currentTime);
             this.encoder.addImage(image);
         }
 

@@ -38,7 +38,7 @@ module.exports = class Encoder {
     }
 
     init() {
-        this.log('Enter Encoder.create');
+        this.log('Encoder.init');
         return new Promise((resolve, reject) => {
             const videosize = [this.options.width, this.options.height].join('x');
 
@@ -101,7 +101,8 @@ module.exports = class Encoder {
         }
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-    }
+        this.log('Encoder.addImage added image', this.totalImagesAdded);  
+      }
 
     finalise() {
         this.imagesStream.end();

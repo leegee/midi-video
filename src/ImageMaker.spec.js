@@ -9,7 +9,6 @@ const Note = require('./Note.mjs');
 
 
 describe('ImageMaker', () => {
-
     it('get', async () => {
         const imageMaker = new ImageMaker({ 
             width: 100, 
@@ -17,6 +16,8 @@ describe('ImageMaker', () => {
             noteHeight: 10,
             secondWidth: 10
         });
+
+        await imageMaker.init();
 
         expect(imageMaker).to.be.an.instanceOf(ImageMaker);
         await imageMaker.renderAsBuffer();
@@ -52,6 +53,8 @@ describe('ImageMaker', () => {
             secondWidth: 60,
             // trackColours: ['red', 'blue']
         });
+
+        await imageMaker.init();
 
         await imageMaker.createBlankImage();
 

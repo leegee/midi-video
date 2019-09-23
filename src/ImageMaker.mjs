@@ -1,5 +1,6 @@
 const Jimp = require('jimp');
 
+const Note = require("./Note.mjs"); // .verbose();
 const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class ImageMaker {
@@ -46,6 +47,13 @@ module.exports = class ImageMaker {
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
 
+    async init() {
+        await Promise.all([
+            Note.init(),
+            this.createBlankImage()
+        ]);
+    }
+
     createBlankImage() {
         return new Promise((resolve, reject) => {
             new Jimp(this.options.width, this.options.height, (err, image) => {
@@ -58,6 +66,18 @@ module.exports = class ImageMaker {
                 resolve(this);
             });
         });
+    }
+
+    async getFrame(currentTime) {
+        const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
+
+        this.addNotes(notes);
+        this.removeNotes(currentTime - (this.beatsOnScreen / 2));
+
+        // this.markOverlaidPlayingNotes();
+
+        const image = await this.renderAsBuffer(currentTime);
+        return image;
     }
 
     addNotes(notes) {

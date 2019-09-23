@@ -16,7 +16,7 @@ describe('MidiFile', function () {
         const midiReader = new MidiFile({
             midiFilepath: path.resolve('fixtures/one.mid'),
             bpm: 60,
-            verbose: false
+            debug: true
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);
 
@@ -35,7 +35,7 @@ describe('MidiFile', function () {
     });
 
 
-    it('reads real world MIDI', async () => {
+    xit('reads real world MIDI', async () => {
         const midiReader = new MidiFile({
             midiFilepath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
             bpm: 100,

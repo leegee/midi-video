@@ -22,7 +22,7 @@ module.exports = class MidiFile {
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
         this.debug = this.options.debug ? console.debug : MidiFile.verbose ? console.debug : () => { };
-        this.log = this.options.verbose || MidiFile.verbose ? console.log : () => { };
+        this.log = this.options.verbose || MidiFile.verbose || this.options.debug ? console.log : () => { };
 
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
@@ -32,6 +32,7 @@ module.exports = class MidiFile {
         }
 
         this.bpm = this.options.bpm;
+        this.log('Verbose logging...');
         this.debug('Debugging...');
     }
 
@@ -40,22 +41,25 @@ module.exports = class MidiFile {
     }
 
     setTimeFactor(timeDivision) {
-        this.timeFactor = 60000 / (this.bpm * timeDivision) / 1000;
+        this.debug('Set timeFactor with timeDivision', timeDivision);
+        this.timeFactor = 60000 / (this.bpm * timeDivision); // / 1000;
         return this.timeFactor;
     }
 
     async parse() {
         await Note.init();
+        let longestTrackDurationSeconds = 0;
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.setTimeFactor(midi.timeDivision);
+        this.setTimeFactor(midi.timeDivision * 1000);
 
         this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
             midi.timeDivision, this.timeFactor, this.bpm
         );
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
+            let durationSeconds = 0;
             let currentTick = 0;
             let playingNotes = {};
 
@@ -72,17 +76,9 @@ module.exports = class MidiFile {
 
                 if (event.type === MidiFile.META) {
                     if (event.metaType === 81) {
+                        durationSeconds += this.ticksToSeconds(currentTick);
                         this.debug('Tempo change @ ', event.deltaTime, 'to', event.data);
                         this.setTimeFactor(event.data);
-                        // const note = new Note({
-                        //     startTick: playingNotes[event.data[0]].startTick,
-                        //     startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
-                        //     tempoTicks: event.data,
-                        //     tempoSeconds: this.ticksToSeconds(event.data),
-                        //     timeFactor: this.timeFactor
-                        // });
-                        // note.save();
-                        // this.tracks[trackNumber].notes.push(note);
                     }
 
                     else if (event.metaType === 3) {
@@ -125,18 +121,22 @@ module.exports = class MidiFile {
                 }
             });
 
-            const trackDurationTicks = currentTick;
-            const trackDurationSecs = this.ticksToSeconds(trackDurationTicks);
-            this.durationSeconds = trackDurationSecs > this.durationSeconds ? trackDurationSecs : this.durationSeconds;
+            durationSeconds += this.ticksToSeconds(currentTick);
 
-            this.log('Track %d ticks: %d, seconds: %d: ', trackNumber, trackDurationTicks, trackDurationSecs);
+            if (durationSeconds > longestTrackDurationSeconds) {
+                longestTrackDurationSeconds = durationSeconds;
+            }
+
+            console.log('Track %d completed with %d notes, %d ticks = %d seconds',
+            midi.track[trackNumber].event.length, trackNumber, currentTick, durationSeconds
+            );
+            console.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
         }
 
         this.tracks = this.tracks.filter(track => track.notes.length > 0);
+        this.durationSeconds = longestTrackDurationSeconds;
 
-        // this.debug(this.tracks);
-
-        this.log('MidiFile.parse - leave');
+        this.log('MidiFile.parse created %d tracks, leaving.', this.tracks.length);
     }
 
     mapTrackNames2Colours(trackColours) {

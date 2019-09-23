@@ -9,7 +9,7 @@ chai.use(require("chai-as-promised"));
 const Integrater = require("./Integrater.mjs");
 
 const options = {
-    verbose: false,
+    verbose: true,
     bpm: 60,
     midiFilepath: 'fixtures/4bars.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
@@ -31,7 +31,7 @@ describe('Integrater', function () {
 
     afterEach(() => {
         if (fs.existsSync(integrater.options.outputpath)) {
-            fs.unlinkSync(integrater.options.outputpath);
+            // fs.unlinkSync(integrater.options.outputpath);
         }
     });
 
