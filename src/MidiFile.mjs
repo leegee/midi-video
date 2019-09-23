@@ -62,7 +62,7 @@ module.exports = class MidiFile {
                         this.log('Parsing track named ', event.data);
                     } else if (event.metaType === 88) {
                         if (this.timeSignature !== null) {
-                            throw new Error("Multiple timesignatures not yet supported");
+                            console.warn("Multiple timesignatures not yet supported");
                         }
                         this.timeSignature = event.data[0];
                     }

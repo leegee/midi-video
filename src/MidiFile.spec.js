@@ -51,12 +51,6 @@ describe('MidiFile', () => {
         expect(midiReader.tracks.length).to.equal(1);
         expect(midiReader.tracks[0].name).to.equal('Polysynth');
 
-        expect(midiReader.durationSeconds).to.be.greaterThan(
-            2.389
-        );
-        expect(midiReader.durationSeconds).to.be.lessThan(
-            2.42
-        );
 
         expect(Note.ready).to.be.ok;
         const notes = await Note.readRange(0, 3);

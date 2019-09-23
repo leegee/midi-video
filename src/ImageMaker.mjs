@@ -6,6 +6,7 @@ module.exports = class ImageMaker {
     static Blank = null;
 
     options = {
+        verbose: false,
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,

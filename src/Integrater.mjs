@@ -67,7 +67,7 @@ module.exports = class Integrater {
         this.log('Integrater.new create Encoder');
         this.log('Time signature: ', this.midiFile.timeSignature);
         this.log('BPM: ', this.options.bpm);
-        this.log('fps:', this.options.fps);
+        this.log('FPS:', this.options.fps);
 
         this.encoder = new Encoder(this.options);
 
@@ -77,12 +77,6 @@ module.exports = class Integrater {
     async integrate() {
         this.log('Enter Integrater.integrate');
         const promiseResolvesWhenFileWritten = this.encoder.init();
-
-        console.log('='.repeat(50));
-        console.log('Begin adding images at fps %d for %d seconds',
-            this.options.fps, this.midiFile.durationSeconds
-        );
-        console.log('='.repeat(50));
 
         const timeFrame = 1 / this.options.fps;
         for (

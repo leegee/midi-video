@@ -47,13 +47,9 @@ module.exports = class Note {
 
         await Note.dbh.serialize(() => {
             Note.dbh.run('DROP TABLE IF EXISTS notes');
-            Note.log('Dropped mem table');
             Note.dbh.run(scheme);
-            Note.log(scheme);
             Note.statements.insert = Note.dbh.prepare(insert);
-            Note.log(insert);
             Note.statements.readRange = Note.dbh.prepare(readRange);
-            Note.log(readRange);
         });
 
         Note.ready = true;
