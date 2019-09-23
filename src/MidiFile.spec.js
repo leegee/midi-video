@@ -6,7 +6,7 @@ const MidiFile = require("./MidiFile.mjs");
 const Note = require("./Note.mjs");
 
 describe('MidiFile', function () {
-    this.timeout(3000);
+    this.timeout(1000 * 1000);
 
     beforeEach(() => {
         Note.reset();
@@ -15,7 +15,7 @@ describe('MidiFile', function () {
     it('reads simple MIDI', async () => {
         const midiReader = new MidiFile({
             midiFilepath: path.resolve('fixtures/one.mid'),
-            bpm: 100,
+            bpm: 60,
             verbose: false
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);

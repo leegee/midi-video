@@ -41,7 +41,7 @@ module.exports = class ImageMaker {
         });
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
-
+        
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -93,8 +93,8 @@ module.exports = class ImageMaker {
     }
 
     _render(currentTime) {
-        for (let startSeconds in this.seconds2notesPlaying) {
-            this.seconds2notesPlaying[startSeconds].forEach(note => {
+        for (let endSeconds in this.seconds2notesPlaying) {
+            this.seconds2notesPlaying[endSeconds].forEach(note => {
                 this._drawNote(currentTime, note);
             });
         }
@@ -134,9 +134,11 @@ module.exports = class ImageMaker {
         const colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
 
-        // this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-        //     note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
-        // );
+        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+            note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
+        );
+
+        this.debug('w/h', this.options.width, this.options.height);
 
         this.image.scan(
             Math.floor(x),

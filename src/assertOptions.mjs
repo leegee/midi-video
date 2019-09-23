@@ -3,7 +3,10 @@ module.exports = (options, requiredArgs) => {
     Object.keys(requiredArgs).forEach(key => {
         if (typeof options[key] === 'undefined') {
             errMsgs.push(key + ': ' + requiredArgs[key]);
-        }
+        } 
+        // else {
+        //     console.log('yes, key = %s ', key, options[key]);
+        // }
     });
     if (errMsgs.length) {
         console.error('\nSupplied options: ', options);

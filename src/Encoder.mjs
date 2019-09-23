@@ -87,9 +87,9 @@ module.exports = class Encoder {
             this.encoded.fps = this.stderr.match(/\s+fps=(\S+)/s)[1];
             this.encoded.time = this.stderr.match(/\s+time=(\d{2}:\d{2}:\d{2}.\d+)/s)[1];
         } catch (err) {
-            this.log('='.repeat(100));
-            this.log(this.stderr);
-            this.log('^'.repeat(100));
+            console.error('='.repeat(100));
+            console.error(this.stderr);
+            console.error('^'.repeat(100));
             throw err;
         }
 
