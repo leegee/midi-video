@@ -4,8 +4,11 @@ const expect = chai.expect;
 const Note = require("./Note.mjs").verbose();
 
 describe('Note', () => {
-    afterEach(() => {
-        Note.reset();
+    beforeEach(async () => {
+        await Note.reset();
+    });
+    afterEach(async () => {
+        await Note.reset();
     });
 
     it('saves to memory db', async () => {

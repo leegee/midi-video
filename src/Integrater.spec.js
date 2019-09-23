@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-// const tmp = require('tmp');
+
 const chai = require("chai");
 const expect = chai.expect;
 chai.use(require('chai-fs'));
@@ -8,9 +8,8 @@ chai.use(require("chai-as-promised"));
 
 const Integrater = require("./Integrater.mjs");
 
-// const tempDir = tmp.dirSync().name;
-
 const options = {
+    verbose: false,
     bpm: 60,
     midiFilepath: 'fixtures/4bars.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',

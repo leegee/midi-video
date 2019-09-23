@@ -1,5 +1,5 @@
 const MidiFile = require('./MidiFile.mjs');
-const Note = require("./Note.mjs").verbose();
+const Note = require("./Note.mjs"); // .verbose();
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
 const assertOptions = require('./assertOptions.mjs');
