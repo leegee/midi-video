@@ -14,9 +14,10 @@ module.exports = class MidiFile {
     };
     tracks = [];
     durationSeconds = null;
-    timeSignature = null;
+    timeSignature = undefined;
     lowestPitch = 127;
     highestPitch = 0;
+    bpm = undefined;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -28,6 +29,16 @@ module.exports = class MidiFile {
         if (!this.options.midiFilepath) {
             throw new TypeError('Expected supplied option midiFilepath');
         }
+
+        this.bpm = this.options.bpm;
+    }
+
+    ticksToSeconds(delta) {
+        return delta * this.timeFactor;
+    }
+
+    setTimeFactor(timeDivision) {
+        this.timeFactor = 60000 / (this.bpm * timeDivision) / 1000;
     }
 
     async parse() {
@@ -35,10 +46,10 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.timeFactor = 60000 / (this.options.bpm * midi.timeDivision) / 1000;
+        this.setTimeFactor(midi.timeDivision);
 
-        this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d, total tracks: %d',
-            midi.timeDivision, this.timeFactor, this.options.bpm, midi.tracks
+        this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
+            midi.timeDivision, this.timeFactor, this.bpm
         );
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
@@ -61,7 +72,7 @@ module.exports = class MidiFile {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.log('Parsing track named ', event.data);
                     } else if (event.metaType === 88) {
-                        if (this.timeSignature !== null) {
+                        if (this.timeSignature !== undefined) {
                             console.warn("Multiple timesignatures not yet supported");
                         }
                         this.timeSignature = event.data[0];
@@ -112,17 +123,13 @@ module.exports = class MidiFile {
 
         // this.log(this.tracks);
 
-        if (this.timeSignature === null) {
+        if (this.timeSignature === undefined) {
             throw new Error('Failed to parse time signature from MIDI file');
         } else {
             this.log('Time Signature', this.timeSignature);
         }
 
         this.log('MidiFile.parse - leave');
-    }
-
-    ticksToSeconds(delta) {
-        return delta * this.timeFactor;
     }
 
     mapTrackNames2Colours(trackColours) {
