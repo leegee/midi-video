@@ -41,7 +41,7 @@ module.exports = class ImageMaker {
         });
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
-        
+
         this.log = this.options.verbose ? console.log : () => { };
         this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
     }
@@ -100,53 +100,56 @@ module.exports = class ImageMaker {
         }
     }
 
-    // todo midi startSeconds is 1 based, prefer 0?
-    _drawNote(currentTime, note) {
-        let x = ((note.startSeconds - currentTime) * this.options.secondWidth)
+    _positionNote(currentTime, note) {
+        note.x = ((note.startSeconds - currentTime) * this.options.secondWidth)
             + (this.options.width / 2);
 
-        let noteWidth = (note.endSeconds - note.startSeconds) * this.options.secondWidth;
+        note.width = (note.endSeconds - note.startSeconds) * this.options.secondWidth;
 
-        if (noteWidth < 0) {
+        if (note.width < 0) {
             console.error(currentTime, note);
             throw new Error('zero width note?');
         }
 
         // Left bounds
-        if (x < 0) {
-            noteWidth += x;
-            x = 0;
+        if (note.x < 0) {
+            note.width += note.x;
+            note.x = 0;
         }
 
         // Right bounds
-        if (x + noteWidth > this.options.width) {
-            noteWidth = this.options.width - x;
+        if (note.x + note.width > this.options.width) {
+            note.width = this.options.width - note.x;
         }
 
-        if (noteWidth <= 0) {
+        if (note.width <= 0) {
             return;
         }
 
-        let y = ((note.pitch - 1) * this.options.noteHeight) - 1;
+        note.y = ((note.pitch - 1) * this.options.noteHeight) - 1;
 
-        y = this.options.height - y;
+        note.y = this.options.height - note.y;
 
-        const colour = this.options.trackColours && this.options.trackColours[note.track] ?
+        note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
 
-        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.track, note.channel, note.pitch, x, y, noteWidth, this.options.noteHeight, note.startSeconds, note.endSeconds
-        );
+        note.height = this.options.noteHeight;
 
-        this.debug('w/h', this.options.width, this.options.height);
+        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
+        );
+    }
+
+    _drawNote(currentTime, note) {
+        this._positionNote(currentTime, note);
 
         this.image.scan(
-            Math.floor(x),
-            Math.floor(y),
-            Math.floor(noteWidth),
-            this.options.noteHeight,
+            Math.floor(note.x),
+            Math.floor(note.y),
+            Math.floor(note.width),
+            note.height,
             function (x, y, offset) {
-                this.bitmap.data.writeUInt32BE(colour, offset, true);
+                this.bitmap.data.writeUInt32BE(note.colour, offset, true);
             }
         );
     }

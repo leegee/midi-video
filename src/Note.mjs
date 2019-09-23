@@ -3,7 +3,11 @@ const md5 = require('md5');
 
 module.exports = class Note {
     static ready = false;
-    static dbFields = ['startSeconds', 'endSeconds', 'pitch', 'velocity', 'channel', 'track', 'md5'];
+    static dbFields = [
+        'startSeconds', 'endSeconds', 'pitch', 'velocity', 'channel', 'track',
+        'md5',
+        'x', 'y', 'width', 'height', 'colour'
+    ];
     static statements = {
         insert: undefined,
         readRange: undefined
