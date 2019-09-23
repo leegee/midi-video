@@ -22,6 +22,7 @@ module.exports = class MidiFile {
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.verbose ? console.log : () => { };
+        this.debug = this.options.debug ? console.debug : () => { };
 
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
@@ -70,7 +71,7 @@ module.exports = class MidiFile {
                 if (event.type === MidiFile.META) {
                     if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
-                        this.log('Parsing track named ', event.data);
+                        this.debug('Parsing track number %d named %s', trackNumber, event.data);
                     } else if (event.metaType === 88) {
                         if (this.timeSignature !== undefined) {
                             console.warn("Multiple timesignatures not yet supported");
@@ -116,12 +117,12 @@ module.exports = class MidiFile {
             const trackDurationSecs = this.ticksToSeconds(trackDurationTicks);
             this.durationSeconds = trackDurationSecs > this.durationSeconds ? trackDurationSecs : this.durationSeconds;
 
-            this.log('Track %d ticks: %d, seconds: %d: ',
-                trackNumber, trackDurationTicks, trackDurationSecs
-            );
+            this.log('Track %d ticks: %d, seconds: %d: ', trackNumber, trackDurationTicks, trackDurationSecs);
         }
 
-        // this.log(this.tracks);
+        this.tracks = this.tracks.filter(track => track.notes.length > 0);
+
+        // this.debug(this.tracks);
 
         if (this.timeSignature === undefined) {
             throw new Error('Failed to parse time signature from MIDI file');
