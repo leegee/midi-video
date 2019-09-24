@@ -59,15 +59,19 @@ describe('ImageMaker', () => {
         await im.init();
 
         await im.createBlankImage();
+        expect(im).to.be.an.instanceOf(ImageMaker);
 
         im.addNotes(notes);
 
-        expect(im).to.be.an.instanceOf(ImageMaker);
-        im.image = ImageMaker.Blank.clone();
+        // im.image = ImageMaker.Blank.clone();
+        // im.positionPlayingNotes(0.5);
+        // im.drawPlayingNotes(0.5);
 
-        im.positionPlayingNotes(0.5);
-        im.drawPlayingNotes(0.5);
-        im.image.write('temp.png');
+        const imageBuffer = await im.getFrame(0.5);
+
+        expect(imageBuffer).to.be.an.instanceOf(Buffer);
+
+        imageBuffer.write('temp.png');
     });
     
 });
