@@ -15,9 +15,11 @@ module.exports = class Note {
     };
     static dbh = new sqlite3.Database(':memory:');
     static log = () => { }
+    static debug = () => { }
 
     static verbose() {
         Note.log = console.log;
+        Note.debug = console.debug;
         return Note;
     }
 
@@ -70,14 +72,17 @@ module.exports = class Note {
         if (to < 0) {
             to = 0;
         }
+
+        Note.debug('Note.readRange from %d to %d', from, to);
+
         return new Promise((resolve, reject) => {
             const rows = [];
             Note.dbh.serialize(() => {
                 Note.statements.readRange.each(from, to).each(
-                    (err, row) => err ? reject(err) : rows.push(row),
+                    (err, row) => err ? console.error(err) && reject(err) : rows.push(row),
                     () => {
-                        this.log('readRange from %d to %d: %d results', from, to, rows.length);
-                        resolve(rows)
+                        Note.log('readRange from %d to %d: %d results', from, to, rows.length);
+                        resolve(rows.map(row => new Note(row)));
                     }
                 );
             });

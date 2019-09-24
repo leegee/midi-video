@@ -57,7 +57,8 @@ module.exports = class Integrater {
             width: this.options.width,
             height: this.options.height,
             noteHeight: Math.floor(this.options.height / this.options.midiNoteRange),
-            secondWidth: Math.floor(this.options.width / this.beatsOnScreen)
+            secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
+            beatsOnScreen: this.beatsOnScreen
         });
 
         await this.imageMaker.init();

@@ -5,6 +5,7 @@ const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class ImageMaker {
     static Blank = null;
+    static BlankImageBuffer = null;
 
     options = {
         verbose: false,
@@ -14,7 +15,8 @@ module.exports = class ImageMaker {
         noteHeight: undefined,
         trackColours: undefined,
         bg: 'black',
-        defaultColour: 'yellow'
+        defaultColour: 'yellow',
+        beatsOnScreen: undefined
     };
 
     seconds2notesPlaying = {};
@@ -38,7 +40,8 @@ module.exports = class ImageMaker {
             width: 'integer, being the video display  width',
             height: 'integer, being the video display  height',
             defaultColour: 'a CSS colour value for the notes',
-            bg: 'a CSS colour value for the background'
+            bg: 'a CSS colour value for the background',
+            beatsOnScreen: 'integer representing the number of whole measures to display at one time',
         });
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
@@ -63,24 +66,32 @@ module.exports = class ImageMaker {
                 }
                 image.background(this.options.bg);
                 ImageMaker.Blank = image;
+                ImageMaker.BlankImageBuffer = image.getBufferAsync(Jimp.MIME_PNG);;
                 resolve(this);
             });
         });
     }
 
     async getFrame(currentTime) {
-        const notes = await Note.readRange(currentTime - (this.beatsOnScreen / 2), currentTime + (this.beatsOnScreen / 2));
+        this.debug('ImageMkaer.getFrame enter for ', currentTime, this.options.beatsOnScreen);
+        const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
 
-        this.addNotes(notes);
-        this.removeNotes(currentTime - (this.beatsOnScreen / 2));
+        if (notes.length === 0) {
+            this.debug('No notes to add');
+            return ImageMaker.BlankImageBuffer;
+        } else {
+            this.debug('Adding %d notes now', notes.length);
+            this.addNotes(notes);
+            this.removeNotes(currentTime - (this.options.beatsOnScreen / 2));
 
-        // this.markOverlaidPlayingNotes();
+            // this.markOverlaidPlayingNotes();
 
-        const image = await this.renderAsBuffer(currentTime);
-        return image;
+            return await this.renderAsBuffer(currentTime);
+        }
     }
 
     addNotes(notes) {
+        console.log('ImageMaker.addNotes %d notes', notes.length);
         notes.forEach(note => {
             if (!this.uniqueNotesPlaying[note.md5]) {
                 this.uniqueNotesPlaying[note.md5] = true;
@@ -113,10 +124,11 @@ module.exports = class ImageMaker {
     }
 
     _render(currentTime) {
+        console.log('Render ', this.seconds2notesPlaying);
         for (let endSeconds in this.seconds2notesPlaying) {
             this.seconds2notesPlaying[endSeconds].forEach(note => {
-                this._positionNote(currentTime, note);
-                this._drawNote(note);
+                const updatedNoteOrNull = this._positionNote(currentTime, note);
+                this._drawNote(updatedNoteOrNull);
             });
         }
     }
@@ -156,14 +168,20 @@ module.exports = class ImageMaker {
 
         note.height = this.options.noteHeight;
 
-        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
-        );
-
         note.update();
+
+        return note;
     }
 
     _drawNote(note) {
+        if (note === null) {
+            console.debug('Ignore null note');
+            return;
+        }
+        console.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
+        );
+
         this.image.scan(
             Math.floor(note.x),
             Math.floor(note.y),
