@@ -16,8 +16,8 @@ describe('ImageMaker', () => {
             noteHeight: 10,
             secondWidth: 10,
             beatsOnScreen: 10,
-            logging: true,
-            debug: true
+            logging: false,
+            debug: false
         });
 
         await imageMaker.init();
