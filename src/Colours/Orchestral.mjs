@@ -36,6 +36,6 @@ const manualColours = {
 };
 
 module.exports = sortNames.reduce(
-    (acc, i, index) => ({ ...acc, [i]: 'hsl(' + ((360 / sortNames.length) * index) + '77%, 43%' }),
+    (acc, i, index) => ({ ...acc, [i]: ['hsl(', ((360 / sortNames.length + 1) * index), ', 77%, 43%'].join('') }),
     {}
 )

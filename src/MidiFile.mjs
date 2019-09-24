@@ -66,6 +66,7 @@ module.exports = class MidiFile {
             this.tracks.push({
                 notes: [],
                 name: null,
+                number: trackNumber
             });
 
             midi.track[trackNumber].event.forEach(event => {
@@ -145,7 +146,10 @@ module.exports = class MidiFile {
             if (trackColours[track.name]) {
                 mapped.push(
                     trackColours[track.name]
-                )
+                );
+                this.log('Made trackColours for track %d, named "%s": ', track.number, track.name, trackColours[track.name])
+            } else {
+                console.warn('Missing trackColours for track %d, named "%s"!', track.number, track.name)
             }
         });
 

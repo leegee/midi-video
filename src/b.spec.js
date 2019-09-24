@@ -10,7 +10,7 @@ const MidiFile = require('./MidiFile.mjs');
 const Integrater = require("./Integrater.mjs");
 const orchestraColours = require('./Colours/Orchestral.mjs');
 
-MidiFile.logging = true;
+MidiFile.logging = false;
 
 const options = {
     bpm: 60,
