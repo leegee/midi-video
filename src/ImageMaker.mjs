@@ -104,7 +104,7 @@ module.exports = class ImageMaker {
     }
 
     _markOverlaidPlayingNotes() {
-        console.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
+        this.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
 
         const playing = Object.values(this.endSeconds2notesPlaying)[0];
         const checkedMd5s = {};
@@ -266,13 +266,8 @@ module.exports = class ImageMaker {
         );
 
         if (this.unisons && this.unisons[note.md5]) {
-
-            console.log('pre', note, 'then', this.unisons[note.md5]);
             note.y = this.unisons[note.md5].y;
             note.height = this.unisons[note.md5].height;
-            console.log('post', note);
-
-
         }
 
         this.image.scan(

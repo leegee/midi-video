@@ -31,13 +31,15 @@ const options = {
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5,
     trackColours: orchestraColours,
-    fitNotesToScreen: false
+    fitNotesToScreen: false,
+    logging: false,
 };
 
 main();
 
 async function main() {
-
+    console.info('Begin...');
+    
     const integrater = new Integrater(options);
 
     if (fs.existsSync(integrater.options.outputpath)) {
