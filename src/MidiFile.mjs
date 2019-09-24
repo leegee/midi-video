@@ -127,10 +127,9 @@ module.exports = class MidiFile {
                 longestTrackDurationSeconds = durationSeconds;
             }
 
-            console.log('Track %d completed with %d notes, %d ticks = %d seconds',
-            midi.track[trackNumber].event.length, trackNumber, currentTick, durationSeconds
-            );
-            console.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
+            this.log('Track %d completed with %d notes, %d ticks = %d seconds',
+                midi.track[trackNumber].event.length, trackNumber, currentTick, durationSeconds);
+            this.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
         }
 
         this.tracks = this.tracks.filter(track => track.notes.length > 0);

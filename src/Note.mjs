@@ -105,10 +105,15 @@ module.exports = class Note {
     }
 
     update() {
+        Note.debug('Note.update', this);
+        if (Number(this.x) === NaN) {
+            throw new TypeError('x is NaN');
+        }
         Note.dbh.serialize(() => {
             Note.statements.update.run(
                 this.x, this.y, this.width, this.height, this.colour
             );
+            Note.debug('Note.update ran: ', this.x, this.y, this.width, this.height, this.colour);
         });
     }
 

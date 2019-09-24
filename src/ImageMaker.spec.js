@@ -21,8 +21,8 @@ describe('ImageMaker', () => {
         await imageMaker.init();
 
         expect(imageMaker).to.be.an.instanceOf(ImageMaker);
-        await imageMaker.renderAsBuffer();
-        expect(imageMaker.renderAsBuffer()).to.eventually.be.an.instanceOf(Buffer);
+        await imageMaker.renderToBuffer();
+        expect(imageMaker.renderToBuffer()).to.eventually.be.an.instanceOf(Buffer);
     });
 
     it('overlay pitch, varied velocity', async () => {
@@ -47,7 +47,7 @@ describe('ImageMaker', () => {
             })
         ];
 
-        const imageMaker = new ImageMaker({ 
+        const im = new ImageMaker({ 
             width: 1000, 
             height: 700,
             noteHeight: 10,
@@ -56,17 +56,18 @@ describe('ImageMaker', () => {
             // trackColours: ['red', 'blue']
         });
 
-        await imageMaker.init();
+        await im.init();
 
-        await imageMaker.createBlankImage();
+        await im.createBlankImage();
 
-        imageMaker.addNotes(notes);
+        im.addNotes(notes);
 
-        expect(imageMaker).to.be.an.instanceOf(ImageMaker);
-        imageMaker.image = ImageMaker.Blank.clone();
+        expect(im).to.be.an.instanceOf(ImageMaker);
+        im.image = ImageMaker.Blank.clone();
 
-        imageMaker._render(0.5);
-        imageMaker.image.write('temp.png');
+        im.positionPlayingNotes(0.5);
+        im.drawPlayingNotes(0.5);
+        im.image.write('temp.png');
     });
     
 });

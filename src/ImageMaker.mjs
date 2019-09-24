@@ -47,7 +47,7 @@ module.exports = class ImageMaker {
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
 
         this.log = this.options.verbose ? console.log : () => { };
-        this.debug = this.options.verbose ? console.debug : console.debug; // () => { };
+        this.debug = this.options.debug ? console.debug : console.debug; // () => { };
     }
 
     async init() {
@@ -74,6 +74,10 @@ module.exports = class ImageMaker {
 
     async getFrame(currentTime) {
         this.debug('ImageMkaer.getFrame enter for ', currentTime, this.options.beatsOnScreen);
+        if (typeof currentTime === 'undefined') {
+            throw new TypeError('ImageMaker.getFrame requires the current time');
+        }
+
         let rvImage;
 
         const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
@@ -87,15 +91,24 @@ module.exports = class ImageMaker {
             this.debug('Adding %d notes now', notes.length);
             this.addNotes(notes);
             this.removeNotes(currentTime - (this.options.beatsOnScreen / 2));
+            this.positionPlayingNotes(currentTime);
             this.markOverlaidPlayingNotes();
-            rvImage = await this.renderAsBuffer(currentTime);
+            rvImage = await this.renderToBuffer(currentTime);
         }
 
         return rvImage;
     }
 
+    markOverlaidPlayingNotes() {
+        // console.log('ImageMaker.markOverlaidPlayingNotes', this.uniqueNotesPlaying);
+        // for (let playingNote in this.uniqueNotesPlaying){
+        //     console.log(playingNote);
+        // }
+        // console.log('-----------');
+    }
+
     addNotes(notes) {
-        console.log('ImageMaker.addNotes %d notes', notes.length);
+        // this.debug('ImageMaker.addNotes %d notes', notes.length);
         notes.forEach(note => {
             if (!this.uniqueNotesPlaying[note.md5]) {
                 this.uniqueNotesPlaying[note.md5] = true;
@@ -116,28 +129,45 @@ module.exports = class ImageMaker {
             });
     }
 
-    async renderAsBuffer(currentTime) {
+    async renderToBuffer(currentTime) {
         if (ImageMaker.Blank === null) {
             await this.createBlankImage();
         }
         this.image = ImageMaker.Blank.clone();
 
-        this._render(currentTime);
+        this.drawPlayingNotes(currentTime);
 
         return this.image.getBufferAsync(Jimp.MIME_PNG);
     }
 
-    _render(currentTime) {
-        console.log('Render ', this.seconds2notesPlaying);
+
+    drawPlayingNotes() {
+        this.debug('ImageMaker.drawPlayingNotes ', this.seconds2notesPlaying);
         for (let endSeconds in this.seconds2notesPlaying) {
             this.seconds2notesPlaying[endSeconds].forEach(note => {
-                const updatedNoteOrNull = this._positionNote(currentTime, note);
-                this._drawNote(updatedNoteOrNull);
+                this._drawNote(note);
+            });
+        }
+    }
+
+    positionPlayingNotes(currentTime) {
+        this.debug('ImageMaker.positionPlayingNotes ', currentTime);
+        if (typeof currentTime === 'undefined') {
+            throw new TypeError('ImageMaker.positionPlayingNotes requires the current time');
+        }
+
+        for (let endSeconds in this.seconds2notesPlaying) {
+            this.seconds2notesPlaying[endSeconds].forEach(note => {
+                this._positionNote(currentTime, note);
             });
         }
     }
 
     _positionNote(currentTime, note) {
+        if (typeof currentTime === 'undefined') {
+            throw new TypeError('ImageMaker._positionNote requires the current time');
+        }
+
         note.x = ((note.startSeconds - currentTime) * this.options.secondWidth)
             + (this.options.width / 2);
 
@@ -179,10 +209,10 @@ module.exports = class ImageMaker {
 
     _drawNote(note) {
         if (note === null) {
-            console.debug('Ignore null note');
+            this.debug('Ignore null note');
             return;
         }
-        console.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+        this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
             note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
         );
 
