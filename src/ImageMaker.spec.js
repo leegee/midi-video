@@ -15,7 +15,9 @@ describe('ImageMaker', () => {
             height: 100,
             noteHeight: 10,
             secondWidth: 10,
-            beatsOnScreen: 10
+            beatsOnScreen: 10,
+            logging: true,
+            debug: true
         });
 
         await imageMaker.init();
@@ -62,7 +64,7 @@ describe('ImageMaker', () => {
 
         // im.image = ImageMaker.Blank.clone();
         // im.positionPlayingNotes(0.5);
-        // im.drawPlayingNotes(0.5);
+        // im._drawPlayingNotes(0.5);
 
         const imageBuffer = await im.getFrame(0.5);
 

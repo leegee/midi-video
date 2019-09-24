@@ -17,7 +17,7 @@ module.exports = class Encoder {
         height: undefined,
         audioFilepath: undefined,
         outputpath: path.resolve('./output.mp4'),
-        verbose: false,
+        logging: false,
     };
     totalImagesAdded = 0;
     stderr = '';
@@ -27,7 +27,7 @@ module.exports = class Encoder {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.verbose ? console.log : () => { };
+        this.log = this.options.logging ? console.log : () => { };
         this.log('New Encoder', this.options);
 
         assertOptions(this.options, {

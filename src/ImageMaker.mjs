@@ -1,6 +1,6 @@
 const Jimp = require('jimp');
 
-const Note = require("./Note.mjs"); // .verbose();
+const Note = require("./Note.mjs"); // .logging();
 const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class ImageMaker {
@@ -8,7 +8,7 @@ module.exports = class ImageMaker {
     static BlankImageBuffer = null;
 
     options = {
-        verbose: false,
+        logging: false,
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,
@@ -20,7 +20,7 @@ module.exports = class ImageMaker {
     };
 
     seconds2notesPlaying = {};
-    uniqueNotesPlaying = {};
+    uniqueNotesPlayingByEndSeconds = {};
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
@@ -46,7 +46,7 @@ module.exports = class ImageMaker {
 
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
 
-        this.log = this.options.verbose ? console.log : () => { };
+        this.log = this.options.logging ? console.log : () => { };
         this.debug = this.options.debug ? console.debug : console.debug; // () => { };
     }
 
@@ -100,20 +100,34 @@ module.exports = class ImageMaker {
     }
 
     _markOverlaidPlayingNotes() {
-        console.log('ImageMaker.markOverlaidPlayingNotes', this.uniqueNotesPlaying);
-        // for (let playingNote in this.uniqueNotesPlaying){
-        //     console.log(playingNote);
-        // }
-        // console.log('-----------');
+        console.debug('ImageMaker._markOverlaidPlayingNotes enter');
+        for (let endSeconds in this.uniqueNotesPlaying) {
+            console.debug('ImageMaker._markOverlaidPlayingNotes ', endSeconds);
+
+            const numberOfNotesPlaying = this.uniqueNotesPlaying[endSeconds].length;
+            console.debug('ImageMaker._markOverlaidPlayingNotes numberOfNotesPlaying', numberOfNotesPlaying);
+
+            if (numberOfNotesPlaying > 1) {
+                if (numberOfNotesPlaying > Math.floor(this.options.noteHeight / 2)) {
+                    throw new Error('Cannot process more than ' + Math.floor(this.options.noteHeight / 2) + ' simultaneous notes');
+                }
+
+                console.log(this.seconds2notesPlaying[endSeconds]);
+            }
+        }
     }
 
     _addNotes(notes) {
-        // this.debug('ImageMaker.addNotes %d notes', notes.length);
+        this.debug('ImageMaker.addNotes %d notes', notes.length);
         notes.forEach(note => {
-            if (!this.uniqueNotesPlaying[note.md5]) {
-                this.uniqueNotesPlaying[note.md5] = true;
+            if (!this.uniqueNotesPlayingByEndSeconds[note.md5]) {
+                this.uniqueNotesPlayingByEndSeconds[note.md5] = true;
                 this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.endSeconds] || [];
                 this.seconds2notesPlaying[note.endSeconds].push(note);
+            } else {
+                console.log('Unique playing notes: ', this.uniqueNotesPlaying);
+                console.log('Tried to add notes: ', notes);
+                throw new Error('Unexpectedly found two notes?');
             }
         });
     }
@@ -123,8 +137,8 @@ module.exports = class ImageMaker {
             .sort()
             .filter(t => t < maxTime)
             .forEach(t => {
-                // this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
-                this.uniqueNotesPlaying[this.seconds2notesPlaying[t].md5] = false;
+                this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
+                this.uniqueNotesPlayingByEndSeconds[this.seconds2notesPlaying[t].md5] = false;
                 delete this.seconds2notesPlaying[t];
             });
     }
@@ -135,14 +149,14 @@ module.exports = class ImageMaker {
         }
         this.image = ImageMaker.Blank.clone();
 
-        this.drawPlayingNotes(currentTime);
+        this._drawPlayingNotes(currentTime);
 
         return this.image.getBufferAsync(Jimp.MIME_PNG);
     }
 
 
-    drawPlayingNotes() {
-        this.debug('ImageMaker.drawPlayingNotes ', this.seconds2notesPlaying);
+    _drawPlayingNotes() {
+        this.debug('ImageMaker._drawPlayingNotes ', this.seconds2notesPlaying);
         for (let endSeconds in this.seconds2notesPlaying) {
             this.seconds2notesPlaying[endSeconds].forEach(note => {
                 this._drawNote(note);

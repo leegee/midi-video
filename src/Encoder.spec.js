@@ -19,7 +19,7 @@ describe('Encoder', () => {
             fps,
             width: 500,
             height: 500,
-            verbose: false
+            logging: false
         });
         if (fs.existsSync(encoder.options.outputpath)) {
             fs.unlinkSync(encoder.options.outputpath);

@@ -5,7 +5,7 @@ const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class Integrater {
     options = {
-        verbose: false,
+        logging: false,
         bpm: null,
         midiFilepath: null,
         outputpath: 'output.mp4',
@@ -24,7 +24,7 @@ module.exports = class Integrater {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.verbose ? console.log : () => { };
+        this.log = this.options.logging ? console.log : () => { };
 
         this.log('Create new  Integrater');
 

@@ -39,7 +39,7 @@ describe('MidiFile', function () {
         const midiReader = new MidiFile({
             midiFilepath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
             bpm: 100,
-            verbose: false,
+            logging: false,
             debug: false
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);

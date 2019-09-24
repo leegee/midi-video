@@ -17,7 +17,7 @@ module.exports = class Note {
     static log = () => { }
     static debug = () => { }
 
-    static verbose() {
+    static logging() {
         Note.log = console.log;
         Note.debug = console.debug;
         return Note;
@@ -33,7 +33,7 @@ module.exports = class Note {
             return;
         }
 
-        this.log = options.verbose ? console.log : Note.log;
+        this.log = options.logging ? console.log : Note.log;
 
         let scheme = 'CREATE TABLE notes (\n'
             + Note.dbFields

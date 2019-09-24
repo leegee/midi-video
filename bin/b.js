@@ -4,7 +4,7 @@ const fs = require('fs');
 const MidiFile = require('../src/MidiFile.mjs');
 const Integrater = require("../src/Integrater.mjs");
 
-MidiFile.verbose = false;
+MidiFile.logging = false;
 
 const orchestraColours = {
     'Flauti': 'hsl(60, 77%, 63%)',

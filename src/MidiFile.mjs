@@ -3,13 +3,13 @@ const fs = require('fs');
 const Note = require('./Note.mjs');
 
 module.exports = class MidiFile {
-    static verbose = false;
+    static logging = false;
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
     static META = 255;
 
     options = {
-        verbose: false,
+        logging: false,
         bpm: null,
         midiFilepath: null
     };
@@ -21,8 +21,8 @@ module.exports = class MidiFile {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.debug = this.options.debug ? console.debug : MidiFile.verbose ? console.debug : () => { };
-        this.log = this.options.verbose || MidiFile.verbose || this.options.debug ? console.log : () => { };
+        this.debug = this.options.debug ? console.debug : MidiFile.logging ? console.debug : () => { };
+        this.log = this.options.logging || MidiFile.logging || this.options.debug ? console.log : () => { };
 
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
@@ -32,7 +32,7 @@ module.exports = class MidiFile {
         }
 
         this.bpm = this.options.bpm;
-        this.log('Verbose logging...');
+        this.log('logging logging...');
         this.debug('Debugging...');
     }
 

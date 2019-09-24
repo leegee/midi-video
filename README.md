@@ -8,6 +8,7 @@
 ## Yet to do
 
 * Note velocity -> size
+* Option to quantize x and y
 * Visable display of simultaneous notes 
 * Aftertouch, controllers (breath, expression)
 

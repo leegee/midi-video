@@ -9,7 +9,7 @@ chai.use(require("chai-as-promised"));
 const MidiFile = require('./MidiFile.mjs');
 const Integrater = require("./Integrater.mjs");
 
-MidiFile.verbose = true;
+MidiFile.logging = true;
 
 const orchestraColours = {
     'Flauti': 'hsl(60, 77%, 63%)',
