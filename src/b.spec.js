@@ -8,7 +8,7 @@ chai.use(require("chai-as-promised"));
 
 const MidiFile = require('./MidiFile.mjs');
 const Integrater = require("./Integrater.mjs");
-const orchestraColours = require('Colours/Orchestral.mjs');
+const orchestraColours = require('./Colours/Orchestral.mjs');
 
 MidiFile.logging = true;
 
