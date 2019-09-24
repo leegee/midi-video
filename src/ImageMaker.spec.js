@@ -61,8 +61,6 @@ describe('ImageMaker', () => {
         await im.createBlankImage();
         expect(im).to.be.an.instanceOf(ImageMaker);
 
-        im.addNotes(notes);
-
         // im.image = ImageMaker.Blank.clone();
         // im.positionPlayingNotes(0.5);
         // im.drawPlayingNotes(0.5);

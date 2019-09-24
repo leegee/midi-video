@@ -89,25 +89,25 @@ module.exports = class ImageMaker {
 
         else {
             this.debug('Adding %d notes now', notes.length);
-            this.addNotes(notes);
-            this.removeNotes(currentTime - (this.options.beatsOnScreen / 2));
-            this.positionPlayingNotes(currentTime);
-            this.markOverlaidPlayingNotes();
+            this._addNotes(notes);
+            this._removeNotes(currentTime - (this.options.beatsOnScreen / 2));
+            this._positionPlayingNotes(currentTime);
+            this._markOverlaidPlayingNotes();
             rvImage = await this.renderToBuffer(currentTime);
         }
 
         return rvImage;
     }
 
-    markOverlaidPlayingNotes() {
-        // console.log('ImageMaker.markOverlaidPlayingNotes', this.uniqueNotesPlaying);
+    _markOverlaidPlayingNotes() {
+        console.log('ImageMaker.markOverlaidPlayingNotes', this.uniqueNotesPlaying);
         // for (let playingNote in this.uniqueNotesPlaying){
         //     console.log(playingNote);
         // }
         // console.log('-----------');
     }
 
-    addNotes(notes) {
+    _addNotes(notes) {
         // this.debug('ImageMaker.addNotes %d notes', notes.length);
         notes.forEach(note => {
             if (!this.uniqueNotesPlaying[note.md5]) {
@@ -118,7 +118,7 @@ module.exports = class ImageMaker {
         });
     }
 
-    removeNotes(maxTime) {
+    _removeNotes(maxTime) {
         Object.keys(this.seconds2notesPlaying)
             .sort()
             .filter(t => t < maxTime)
@@ -150,7 +150,7 @@ module.exports = class ImageMaker {
         }
     }
 
-    positionPlayingNotes(currentTime) {
+    _positionPlayingNotes(currentTime) {
         this.debug('ImageMaker.positionPlayingNotes ', currentTime);
         if (typeof currentTime === 'undefined') {
             throw new TypeError('ImageMaker.positionPlayingNotes requires the current time');
