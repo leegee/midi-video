@@ -14,7 +14,8 @@ describe('ImageMaker', () => {
             width: 100, 
             height: 100,
             noteHeight: 10,
-            secondWidth: 10
+            secondWidth: 10,
+            beatsOnScreen: 10
         });
 
         await imageMaker.init();
@@ -51,6 +52,7 @@ describe('ImageMaker', () => {
             height: 700,
             noteHeight: 10,
             secondWidth: 60,
+            beatsOnScreen: 10,
             // trackColours: ['red', 'blue']
         });
 
