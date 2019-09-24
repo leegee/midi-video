@@ -1,7 +1,10 @@
+const path = require('path');
+const fs = require('fs');
 const Jimp = require('jimp');
-
 const chai = require("chai");
 const expect = chai.expect;
+
+chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
 const ImageMaker = require("./ImageMaker.mjs");
@@ -9,7 +12,7 @@ const Note = require('./Note.mjs');
 
 
 describe('ImageMaker', () => {
-    it('get', async () => {
+    xit('get', async () => {
         const imageMaker = new ImageMaker({
             width: 100,
             height: 100,
@@ -17,7 +20,7 @@ describe('ImageMaker', () => {
             secondWidth: 10,
             beatsOnScreen: 10,
             logging: false,
-            debug: false
+            debug: true
         });
 
         await imageMaker.init();
@@ -30,37 +33,38 @@ describe('ImageMaker', () => {
     it('overlay pitch, varied velocity', async () => {
         await Note.init();
 
-        new Note({
+        const noteArgs = {
             startSeconds: 0,
             endSeconds: 1,
             pitch: 50,
-            velocity: 100,
             channel: 0,
-            track: 0
+        };
+
+        new Note({
+            ...noteArgs,
+            track: 0,
+            velocity: 100
         }).save();
 
         new Note({
-            startSeconds: 0,
-            endSeconds: 1,
-            pitch: 50,
-            velocity: 50,
-            channel: 0,
-            track: 1
+            ...noteArgs,
+            track: 1,
+            velocity: 50
         }).save();
 
         const im = new ImageMaker({
+            debug: true,
             width: 1000,
-            height: 700,
+            height: 1000,
             noteHeight: 10,
             secondWidth: 60,
-            beatsOnScreen: 10,
-            // trackColours: ['red', 'blue']
+            beatsOnScreen: 1,
+            trackColours: ['#ffdd00', 'blue', 'pink']
         });
+        expect(im).to.be.an.instanceOf(ImageMaker);
 
         await im.init();
-
         await im.createBlankImage();
-        expect(im).to.be.an.instanceOf(ImageMaker);
 
         // im.image = ImageMaker.Blank.clone();
         // im.positionPlayingNotes(0.5);
@@ -70,7 +74,13 @@ describe('ImageMaker', () => {
 
         expect(imageBuffer).to.be.an.instanceOf(Buffer);
 
-        imageBuffer.write('temp.png');
+        console.log(imageBuffer);
+
+        const savePath = path.resolve('temp.png');
+        // imageBuffer.write(savePath);
+        fs.writeFileSync(savePath, imageBuffer);
+
+        expect(savePath).to.be.a.path();
     });
 
 });

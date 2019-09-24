@@ -19,8 +19,8 @@ module.exports = class ImageMaker {
         beatsOnScreen: undefined
     };
 
-    seconds2notesPlaying = {};
-    uniqueNotesPlayingByEndSeconds = {};
+    endSeconds2notesPlaying = {};
+    uniqueNotesPlaying = {};
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
@@ -47,7 +47,7 @@ module.exports = class ImageMaker {
         ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
 
         this.log = this.options.logging ? console.log : () => { };
-        this.debug = this.options.debug ? this.debug : () => { };
+        this.debug = this.options.debug ? console.debug : () => { };
 
         this.log('Logging');
         this.debug('Debugging', this.options);
@@ -76,47 +76,74 @@ module.exports = class ImageMaker {
     }
 
     async getFrame(currentTime) {
-        this.debug('ImageMkaer.getFrame enter for ', currentTime, this.options.beatsOnScreen);
+        this.debug('ImageMkaer.getFrame enter at %d for %d beats on screen', currentTime, this.options.beatsOnScreen);
+
         if (typeof currentTime === 'undefined') {
             throw new TypeError('ImageMaker.getFrame requires the current time');
         }
 
-        let rvImage;
+        let rvImageBuffer;
 
         const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
 
         if (notes.length === 0) {
             this.debug('No notes to add');
-            rvImage = ImageMaker.BlankImageBuffer;
+            rvImageBuffer = ImageMaker.BlankImageBuffer;
         }
 
         else {
-            this.debug('Adding %d notes now', notes.length);
+            this.debug('Processing %d notes from DB at %d', notes.length, currentTime);
             this._addNotes(notes);
             this._pruneCompletedNotes(currentTime - (this.options.beatsOnScreen / 2));
             this._positionPlayingNotes(currentTime);
             this._markOverlaidPlayingNotes();
-            rvImage = await this.renderToBuffer(currentTime);
+            rvImageBuffer = await this.renderToBuffer(currentTime);
         }
 
-        return rvImage;
+        return rvImageBuffer;
     }
 
     _markOverlaidPlayingNotes() {
-        this.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlayingByEndSeconds: ', this.uniqueNotesPlayingByEndSeconds);
-        for (let endSeconds in this.uniqueNotesPlayingByEndSeconds) {
-            this.debug('ImageMaker._markOverlaidPlayingNotes endSeconds = ', endSeconds);
+        console.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
 
-            const numberOfNotesPlaying = this.uniqueNotesPlayingByEndSeconds[endSeconds].length;
-            this.debug('ImageMaker._markOverlaidPlayingNotes numberOfNotesPlaying', numberOfNotesPlaying);
+        const playing = Object.values(this.endSeconds2notesPlaying)[0];
+        const checkedMd5s = {};
+        const unisons = [];
+        this.unisons = [];
 
-            if (numberOfNotesPlaying > 1) {
-                if (numberOfNotesPlaying > Math.floor(this.options.noteHeight / 2)) {
-                    throw new Error('Cannot process more than ' + Math.floor(this.options.noteHeight / 2) + ' simultaneous notes');
-                }
-
-                this.debug(this.seconds2notesPlaying[endSeconds]);
+        playing.forEach(noteToMatch => {
+            if (!checkedMd5s[noteToMatch.md5]) {
+                checkedMd5s[noteToMatch.md5] = true;
+                playing.filter(
+                    noteUnderTest => noteUnderTest.md5 !== noteToMatch.md5
+                        && noteUnderTest.pitch === noteToMatch.pitch
+                        && !checkedMd5s[noteUnderTest.md5]
+                ).forEach(matchingNote => {
+                    checkedMd5s[matchingNote.md5] = true;
+                    unisons[matchingNote.md5] = unisons[matchingNote.md5] ? unisons[matchingNote.md5].push(matchingNote) : [noteToMatch, matchingNote]
+                });
             }
+        });
+
+        for (let md5 in unisons) {
+            let offset = 0;
+            unisons[md5].sort((a, b) => a.velocity > b.velocity).forEach(note => {
+                if (offset > 0) {
+                    note.y += offset;
+                    note.height -= 2 * offset;
+                    note.x += offset;
+                    note.width -= 2 * offset;
+                }
+                offset++;
+
+                if (note.height <= 0) {
+                    throw new Error(
+                        'Too many simultaneous notes for options.noteHeight of ' + this.options.noteHeight
+                        + ' - note.height = ' + note.height
+                    );
+                }
+                this.unisons[note.md5] = note;
+            });
         }
     }
 
@@ -127,27 +154,27 @@ module.exports = class ImageMaker {
                 console.error('Note: ', note);
                 throw new Error('Note has no md5!');
             }
-            if (!this.uniqueNotesPlayingByEndSeconds[note.md5]) {
-                this.uniqueNotesPlayingByEndSeconds[note.md5] = true;
-                this.seconds2notesPlaying[note.endSeconds] = this.seconds2notesPlaying[note.endSeconds] || [];
-                this.seconds2notesPlaying[note.endSeconds].push(note);
-                this.debug('Added %s, unique playing notes: ', note.md5, this.uniqueNotesPlayingByEndSeconds);
+            if (!this.uniqueNotesPlaying[note.md5]) {
+                this.uniqueNotesPlaying[note.md5] = true;
+                this.endSeconds2notesPlaying[note.endSeconds] = this.endSeconds2notesPlaying[note.endSeconds] || [];
+                this.endSeconds2notesPlaying[note.endSeconds].push(note);
+                this.debug('Added a note, unique playing notes now %d long ', Object.keys(this.uniqueNotesPlaying).length);
             } else {
                 // console.error('note.md5 %s already playing', note.md5);
-                // console.error('Unique playing notes: ', this.uniqueNotesPlayingByEndSeconds);
+                // console.error('Unique playing notes: ', this.uniqueNotesPlaying);
                 // console.error('Tried to add notes: ', notes);
             }
         });
     }
 
     _pruneCompletedNotes(maxTime) {
-        Object.keys(this.seconds2notesPlaying)
+        Object.keys(this.endSeconds2notesPlaying)
             .sort()
             .filter(t => t < maxTime)
             .forEach(t => {
-                this.debug('DELETE at ', maxTime, this.seconds2notesPlaying[t]);
-                this.uniqueNotesPlayingByEndSeconds[this.seconds2notesPlaying[t].md5] = false;
-                delete this.seconds2notesPlaying[t];
+                this.debug('DELETE at ', maxTime, this.endSeconds2notesPlaying[t]);
+                this.uniqueNotesPlaying[this.endSeconds2notesPlaying[t].md5] = false;
+                delete this.endSeconds2notesPlaying[t];
             });
     }
 
@@ -164,9 +191,9 @@ module.exports = class ImageMaker {
 
 
     _drawPlayingNotes() {
-        this.debug('ImageMaker._drawPlayingNotes ', this.seconds2notesPlaying);
-        for (let endSeconds in this.seconds2notesPlaying) {
-            this.seconds2notesPlaying[endSeconds].forEach(note => {
+        this.debug('ImageMaker._drawPlayingNotes ', this.endSeconds2notesPlaying);
+        for (let endSeconds in this.endSeconds2notesPlaying) {
+            this.endSeconds2notesPlaying[endSeconds].forEach(note => {
                 this._drawNote(note);
             });
         }
@@ -178,8 +205,8 @@ module.exports = class ImageMaker {
             throw new TypeError('ImageMaker.positionPlayingNotes requires the current time');
         }
 
-        for (let endSeconds in this.seconds2notesPlaying) {
-            this.seconds2notesPlaying[endSeconds].forEach(note => {
+        for (let endSeconds in this.endSeconds2notesPlaying) {
+            this.endSeconds2notesPlaying[endSeconds].forEach(note => {
                 this._positionNote(currentTime, note);
             });
         }
@@ -237,6 +264,16 @@ module.exports = class ImageMaker {
         this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
             note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
         );
+
+        if (this.unisons && this.unisons[note.md5]) {
+
+            console.log('pre', note, 'then', this.unisons[note.md5]);
+            note.y = this.unisons[note.md5].y;
+            note.height = this.unisons[note.md5].height;
+            console.log('post', note);
+
+
+        }
 
         this.image.scan(
             Math.floor(note.x),
