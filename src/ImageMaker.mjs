@@ -74,20 +74,24 @@ module.exports = class ImageMaker {
 
     async getFrame(currentTime) {
         this.debug('ImageMkaer.getFrame enter for ', currentTime, this.options.beatsOnScreen);
+        let rvImage;
+
         const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
 
         if (notes.length === 0) {
             this.debug('No notes to add');
-            return ImageMaker.BlankImageBuffer;
-        } else {
+            rvImage = ImageMaker.BlankImageBuffer;
+        }
+
+        else {
             this.debug('Adding %d notes now', notes.length);
             this.addNotes(notes);
             this.removeNotes(currentTime - (this.options.beatsOnScreen / 2));
-
-            // this.markOverlaidPlayingNotes();
-
-            return await this.renderAsBuffer(currentTime);
+            this.markOverlaidPlayingNotes();
+            rvImage = await this.renderAsBuffer(currentTime);
         }
+
+        return rvImage;
     }
 
     addNotes(notes) {
