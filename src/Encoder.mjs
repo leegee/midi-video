@@ -1,5 +1,5 @@
 const path = require('path');
-const spawn = require('child_process').spawn;
+const child_process = require('child_process');
 const stream = require('stream');
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
@@ -7,7 +7,6 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const assertOptions = require('./assertOptions.mjs');
 
 // thx https://dzone.com/articles/creating-video-on-the-server-in-nodejs
-// https://stackoverflow.com/questions/37957994/how-to-create-a-video-from-image-buffers-using-fluent-ffmpeg
 
 module.exports = class Encoder {
     imagesStream = new stream.PassThrough();
@@ -27,28 +26,27 @@ module.exports = class Encoder {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.logging ? console.log : () => { };
-        this.log('New Encoder', this.options);
+        this.log = this.options.logging ? console.log : () => {};
+        this.log('Encoder.new from ', this.options);
 
         assertOptions(this.options, {
             fps: 'integer',
             width: 'integer',
-            height: 'integer'
+            height: 'integer',
+            outputpath: 'string'
         });
     }
 
     init() {
         this.log('Encoder.init');
         return new Promise((resolve, reject) => {
-            const videosize = [this.options.width, this.options.height].join('x');
-
-            this.log('pre-spawn ffmpeg');
             const args = [
                 '-y', '-f', 'image2pipe',
-                '-s', videosize,
+                '-s', [this.options.width, this.options.height].join('x'),
                 '-framerate', this.options.fps,
                 '-pix_fmt', 'yuv420p',
-                '-i', '-'];
+                '-i', '-'
+            ];
             if (this.options.audioFilepath) {
                 args.push('-i', this.options.audioFilepath);
             }
@@ -57,7 +55,9 @@ module.exports = class Encoder {
                 '-shortest',
                 this.options.outputpath
             );
-            const childProcess = spawn(ffmpegPath, args);
+
+            this.log('pre-spawn ffmpeg', args);
+            const childProcess = child_process.spawn(ffmpegPath, args);
             this.log('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
@@ -71,7 +71,10 @@ module.exports = class Encoder {
                 this.stderr += str + '\n';
             });
             childProcess.on('close', code => {
-                this.log(`Done: (${code})`);
+                this.log(
+                    'Encoder: close pipe after %d image, ffmpeg exit status %d',
+                    this.totalImagesAdded, code
+                );
                 this.parseOutput();
                 resolve(code);
             });
@@ -99,14 +102,15 @@ module.exports = class Encoder {
         if (!(buffer instanceof Buffer)) {
             throw new TypeError('addImage requires a Buffer, received ' + buffer);
         }
+        this.debug('Encoder.addImage adding image');
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-        this.log('Encoder.addImage added image', this.totalImagesAdded);  
-      }
+        this.debug('Encoder.addImage added image', this.totalImagesAdded);
+    }
 
     finalise() {
+        this.log('Encoder.finalise closing imageStream');
         this.imagesStream.end();
-        this.log('Done Encoder.finalise');
+        this.log('Encoder.finalise done');
     }
 }
-

@@ -80,15 +80,11 @@ module.exports = class MidiFile {
                         durationSeconds += this.ticksToSeconds(currentTick);
                         this.debug('Tempo change @ ', event.deltaTime, 'to', event.data);
                         this.setTimeFactor(event.data);
-                    }
-
-                    else if (event.metaType === 3) {
+                    } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.debug('Parsing track number %d named %s', trackNumber, event.data);
                     }
-                }
-
-                else {
+                } else {
                     if (event.type === MidiFile.NOTE_ON) {
                         if (event.data[1] === 0) { // No velocity === silence note
                             event.type = MidiFile.NOTE_OFF;
@@ -115,7 +111,7 @@ module.exports = class MidiFile {
                             startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
                             endSeconds: this.ticksToSeconds(currentTick)
                         });
-                        note.save();
+                        // note.save();
                         this.tracks[trackNumber].notes.push(note);
                         delete playingNotes[event.data[0]];
                     }
@@ -129,7 +125,7 @@ module.exports = class MidiFile {
             }
 
             this.log('Track %d completed with %d notes, %d ticks = %d seconds',
-                midi.track[trackNumber].event.length, trackNumber, currentTick, durationSeconds);
+                trackNumber, midi.track[trackNumber].event.length, currentTick, durationSeconds);
             this.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
         }
 
@@ -137,6 +133,25 @@ module.exports = class MidiFile {
         this.durationSeconds = longestTrackDurationSeconds;
 
         this.log('MidiFile.parse created %d tracks, leaving.', this.tracks.length);
+
+        this.tracks.forEach(track => {
+            track.notes.forEach(note => {
+                if (this.options.fitNotesToScreen) {
+                    note.pitch = note.pitch - this.lowestPitch;
+                }
+                note.save();
+            });
+        });
+
+
+        if (this.options.fitNotesToScreen) {
+            this.options.midiNoteRange = this.highestPitch - this.lowestPitch;
+            this.log('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
+                this.options.midiNoteRange, this.highestPitch, this.lowestPitch
+            );
+        }
+
+        return this.options.midiNoteRange;
     }
 
     mapTrackNames2Colours(trackColours) {
@@ -156,13 +171,4 @@ module.exports = class MidiFile {
         return mapped;
     }
 
-    fitNotesToScreen() {
-        this.tracks.forEach(track => {
-            track.notes.forEach(note => {
-                note.pitch -= this.lowestPitch + 1;
-            })
-        })
-        return this.highestPitch - this.lowestPitch;
-    }
 }
-

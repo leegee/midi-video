@@ -11,12 +11,13 @@ module.exports = class Note {
     static statements = {
         insert: undefined,
         readRange: undefined,
-        update: undefined,
+        updateForDisplay: undefined,
+        updatePitch: undefined,
         getUnison: undefined,
     };
     static dbh = new sqlite3.Database(':memory:');
-    static log = () => { }
-    static debug = () => { }
+    static log = () => {}
+    static debug = () => {}
 
     static logging() {
         Note.log = console.log;
@@ -36,29 +37,32 @@ module.exports = class Note {
 
         this.log = options.logging ? console.log : Note.log;
 
-        let scheme = 'CREATE TABLE notes (\n'
-            + Note.dbFields
-                .map(field => '\t' + field + (
-                    field.match(/seconds/i) ? ' DECIMAL' :
-                        field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
-                ))
-                .join(',\n')
-            + '\n)';
+        let scheme = 'CREATE TABLE notes (\n' +
+            Note.dbFields
+            .map(field => '\t' + field + (
+                field.match(/seconds/i) ? ' DECIMAL' :
+                field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
+            ))
+            .join(',\n') +
+            '\n)';
 
         await Note.dbh.serialize(() => {
             Note.dbh.run('DROP TABLE IF EXISTS notes');
             Note.dbh.run(scheme);
             Note.statements.insert = Note.dbh.prepare(
-                'INSERT INTO notes ('
-                + Note.dbFields.join(', ')
-                + ') VALUES ('
-                + new Array(Note.dbFields.length).fill('?').join(',')
-                + ')'
+                'INSERT INTO notes (' +
+                Note.dbFields.join(', ') +
+                ') VALUES (' +
+                new Array(Note.dbFields.length).fill('?').join(',') +
+                ')'
             );
             Note.statements.readRange = Note.dbh.prepare(
                 'SELECT * FROM notes WHERE startSeconds BETWEEN ? and ?'
             );
-            Note.statements.update = Note.dbh.prepare(
+            Note.statements.updatePitch = Note.dbh.prepare(
+                'UPDATE notes SET (pitch) = (?) WHERE md5 = ?'
+            );
+            Note.statements.updateForDisplay = Note.dbh.prepare(
                 'UPDATE notes SET (x, y, width, height, colour) = (?, ?, ?, ?, ?) WHERE md5 = ?'
             );
             Note.statements.getUnison = Note.dbh.prepare(
@@ -108,16 +112,32 @@ module.exports = class Note {
         });
     }
 
-    update() {
-        Note.debug('Note.update', this);
+    updatePitch(newPitch) {
+        console.debug('Note.updatePitch', this, newPitch);
+        this.pitch = newPitch;
+        
+        if (Number(this.pitch) === NaN) {
+            throw new TypeError('pitch is NaN');
+        }
+        if (!this.md5){
+            throw new TypeError('No md5?');
+        }
+        Note.dbh.serialize(() => {
+            Note.statements.updatePitch.run(this.pitch, this.md5);
+            console.debug('Note.updatePitch ran: ', this.pitch);
+        });
+    }
+
+    updateForDisplay() {
+        Note.debug('Note.updateForDisplay', this);
         if (Number(this.x) === NaN) {
             throw new TypeError('x is NaN');
         }
         Note.dbh.serialize(() => {
-            Note.statements.update.run(
+            Note.statements.updateForDisplay.run(
                 this.x, this.y, this.width, this.height, this.colour
             );
-            Note.debug('Note.update ran: ', this.x, this.y, this.width, this.height, this.colour);
+            Note.debug('Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour);
         });
     }
 
@@ -136,4 +156,3 @@ module.exports = class Note {
     }
 
 }
-

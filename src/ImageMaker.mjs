@@ -12,7 +12,7 @@ module.exports = class ImageMaker {
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,
-        noteHeight: undefined,
+        midiNoteRange: undefined,
         trackColours: undefined,
         bg: 'black',
         defaultColour: 'yellow',
@@ -35,16 +35,24 @@ module.exports = class ImageMaker {
         }
 
         assertOptions(this.options, {
-            noteHeight: 'integer, the pixel height of a single note',
             secondWidth: 'integer, being the number of pixels representing a second of time',
             width: 'integer, being the video display  width',
             height: 'integer, being the video display  height',
             defaultColour: 'a CSS colour value for the notes',
             bg: 'a CSS colour value for the background',
+            midiNoteRange: 'number of notes in range',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
         });
 
-        ['width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
+        ['midiNoteRange', 'width', 'height', 'secondWidth'].forEach(_ => this.options[_] = Math.floor(this.options[_]));
+
+        this.noteHeight = Math.floor(
+            (this.options.height + 1) / (this.options.midiNoteRange + 1)
+        );
+
+        console.log('Note height: %d, Canvas height: %d, note range: %d',
+            this.noteHeight, this.options.height / this.noteHeight, this.options.midiNoteRange
+        );
 
         this.log = this.options.logging ? console.log : () => { };
         this.debug = this.options.debug ? console.debug : () => { };
@@ -61,6 +69,7 @@ module.exports = class ImageMaker {
     }
 
     createBlankImage() {
+        console.log('enter create blank image');
         return new Promise((resolve, reject) => {
             new Jimp(this.options.width, this.options.height, (err, image) => {
                 if (err) {
@@ -89,9 +98,7 @@ module.exports = class ImageMaker {
         if (notes.length === 0) {
             this.debug('No notes to add');
             rvImageBuffer = ImageMaker.BlankImageBuffer;
-        }
-
-        else {
+        } else {
             this.debug('Processing %d notes from DB at %d', notes.length, currentTime);
             this._addNotes(notes);
             this._pruneCompletedNotes(currentTime - (this.options.beatsOnScreen / 2));
@@ -115,9 +122,9 @@ module.exports = class ImageMaker {
             if (!checkedMd5s[noteToMatch.md5]) {
                 checkedMd5s[noteToMatch.md5] = true;
                 playing.filter(
-                    noteUnderTest => noteUnderTest.md5 !== noteToMatch.md5
-                        && noteUnderTest.pitch === noteToMatch.pitch
-                        && !checkedMd5s[noteUnderTest.md5]
+                    noteUnderTest => noteUnderTest.md5 !== noteToMatch.md5 &&
+                        noteUnderTest.pitch === noteToMatch.pitch &&
+                        !checkedMd5s[noteUnderTest.md5]
                 ).forEach(matchingNote => {
                     checkedMd5s[matchingNote.md5] = true;
                     unisons[matchingNote.md5] = unisons[matchingNote.md5] ? unisons[matchingNote.md5].push(matchingNote) : [noteToMatch, matchingNote]
@@ -138,8 +145,8 @@ module.exports = class ImageMaker {
 
                 if (note.height <= 0) {
                     throw new Error(
-                        'Too many simultaneous notes for options.noteHeight of ' + this.options.noteHeight
-                        + ' - note.height = ' + note.height
+                        'Too many simultaneous notes for noteHeight of ' + this.noteHeight +
+                        ' - note.height = ' + note.height
                     );
                 }
                 this.unisons[note.md5] = note;
@@ -217,8 +224,8 @@ module.exports = class ImageMaker {
             throw new TypeError('ImageMaker._positionNote requires the current time');
         }
 
-        note.x = ((note.startSeconds - currentTime) * this.options.secondWidth)
-            + (this.options.width / 2);
+        note.x = ((note.startSeconds - currentTime) * this.options.secondWidth) +
+            (this.options.width / 2);
 
         note.width = (note.endSeconds - note.startSeconds) * this.options.secondWidth;
 
@@ -242,16 +249,16 @@ module.exports = class ImageMaker {
             return;
         }
 
-        note.y = ((note.pitch - 1) * this.options.noteHeight) - 1;
+        note.y = ((note.pitch + 1) * this.noteHeight);
 
         note.y = this.options.height - note.y;
 
         note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
 
-        note.height = this.options.noteHeight;
+        note.height = this.noteHeight;
 
-        note.update();
+        note.updateForDisplay();
 
         return note;
     }
@@ -262,23 +269,30 @@ module.exports = class ImageMaker {
             return;
         }
         this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.options.noteHeight, note.startSeconds, note.endSeconds
+            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.noteHeight, note.startSeconds, note.endSeconds
         );
 
         if (this.unisons && this.unisons[note.md5]) {
+            throw 'test';
             note.y = this.unisons[note.md5].y;
             note.height = this.unisons[note.md5].height;
         }
 
-        this.image.scan(
-            Math.floor(note.x),
-            Math.floor(note.y),
-            Math.floor(note.width),
-            note.height,
-            function (x, y, offset) {
-                this.bitmap.data.writeUInt32BE(note.colour, offset, true);
-            }
-        );
+        try {
+            this.image.scan(
+                Math.floor(note.x),
+                Math.floor(note.y),
+                Math.floor(note.width),
+                note.height,
+                function (x, y, offset) {
+                    this.bitmap.data.writeUInt32BE(note.colour, offset, true);
+                }
+            );
+        } catch (e) {
+            console.error('Note:', note);
+            console.error('Range:', this.options.midiNoteRange);
+            console.error('Canvas %d x %d:', this.options.width, this.options.height);
+            throw e;
+        }
     }
 };
-

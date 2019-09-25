@@ -7,9 +7,8 @@
 
 ## Yet to do
 
-* Note velocity -> size
+* `npm install --save canvas`
 * Option to quantize x and y
-* Visable display of simultaneous notes 
 * Aftertouch, controllers (breath, expression)
 
 ## Bibliography
@@ -17,3 +16,4 @@
 * http://www.kunstderfuge.com/beethoven/variae.htm#Symphonies
 
 * https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
+  

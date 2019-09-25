@@ -13,7 +13,9 @@ const options = {
     bpm: 60,
     midiFilepath: 'fixtures/4bars.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
-    fps: 5
+    fps: 5,
+    fitNotesToScreen: true,
+    bg: 'white'
 };
 
 let integrater;
