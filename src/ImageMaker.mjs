@@ -19,10 +19,24 @@ module.exports = class ImageMaker {
         globalAlpha: 1,
         defaultColour: 'yellow',
         beatsOnScreen: undefined,
+        highlightCurrent: {
+            strokeStyle: 'white',
+            shadowColor: 'white',
+            shadowBlur: 6,
+            lineWidth: 2
+        },
     };
 
     endSeconds2notesPlaying = {};
     uniqueNotesPlaying = {};
+
+    static createColourList(length, saturation = '77%', luninosity = '43%') {
+        return new Array(length).fill('x').map(
+            (value, index) => ([
+                'hsl(', Math.floor((360 / length + 1) * index), ', ' + saturation + ', ' + luninosity
+            ].join(''))
+        );
+    }
 
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
@@ -37,6 +51,7 @@ module.exports = class ImageMaker {
             defaultColour: 'a CSS colour value for the notes',
             bg: 'a CSS colour value for the background',
             midiNoteRange: 'number of notes in range',
+            highlightCurrent: 'undefined or object (shadowColor, shadowBLur, strokeStyle, lineWidth): highlight the currently sounding notes.',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
         });
 
@@ -65,10 +80,19 @@ module.exports = class ImageMaker {
         this.ctx = this.canvas.getContext('2d');
         this.ctx.fillStyle = this.options.bg;
         this.ctx.fillRect(0, 0, this.options.width, this.options.height);
-        
+
+        if (this.options.debug) {
+            this.ctx.strokeStyle = 'white';
+            this.ctx.moveTo(this.options.width / 2, 0);
+            this.ctx.lineTo(this.options.width / 2, this.options.height);
+            this.ctx.moveTo(0, this.options.height / 2);
+            this.ctx.lineTo(this.options.width, this.options.height / 2);
+            this.ctx.stroke();
+        }
+
         this.ctx.globalAlpha = this.options.globalAlpha;
-        this.ctx.globalCompositeOperation = this.options.globalCompositeOperation; 
-        
+        this.ctx.globalCompositeOperation = this.options.globalCompositeOperation;
+
         ImageMaker.BlankImageBuffer = ImageMaker.BlankImageBuffer || this.canvas.toBuffer('image/png');
     }
 
@@ -99,7 +123,6 @@ module.exports = class ImageMaker {
     }
 
     _markOverlaidPlayingNotes() {
-        return;
         this.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
 
         const playing = Object.values(this.endSeconds2notesPlaying)[0];
@@ -186,11 +209,11 @@ module.exports = class ImageMaker {
     }
 
 
-    _drawPlayingNotes() {
+    _drawPlayingNotes(currentTime) {
         this.debug('ImageMaker._drawPlayingNotes ', this.endSeconds2notesPlaying);
         for (let endSeconds in this.endSeconds2notesPlaying) {
             this.endSeconds2notesPlaying[endSeconds].forEach(note => {
-                this._drawNote(note);
+                this._drawNote(currentTime, note);
             });
         }
     }
@@ -250,7 +273,7 @@ module.exports = class ImageMaker {
         return note;
     }
 
-    _drawNote(note) {
+    _drawNote(currentTime, note) {
         if (note === null) {
             this.debug('Ignore null note');
             return;
@@ -272,6 +295,21 @@ module.exports = class ImageMaker {
                 Math.floor(note.width),
                 note.height
             );
+            if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds >= currentTime) {
+                this.ctx.save();
+                this.ctx.globalAlpha = 0.5;
+                this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
+                this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
+                this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur; 
+                this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
+                this.ctx.strokeRect(
+                    Math.floor(note.x),
+                    Math.floor(note.y),
+                    Math.floor(note.width),
+                    note.height
+                );
+                this.ctx.restore();
+            }
         } catch (e) {
             console.error('Note:', note);
             console.error('Range:', this.options.midiNoteRange);
