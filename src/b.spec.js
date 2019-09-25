@@ -6,11 +6,8 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
-const MidiFile = require('./MidiFile.mjs');
 const Integrator = require("./Integrator.mjs");
 const orchestraColours = require('./Colours/Orchestral.mjs');
-
-MidiFile.logging = false;
 
 const options = {
     bpm: 60,
