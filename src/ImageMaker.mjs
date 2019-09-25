@@ -233,8 +233,6 @@ module.exports = class ImageMaker {
 
         note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
 
-        // note.y = this.options.height - note.y;
-
         note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
 

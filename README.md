@@ -7,7 +7,7 @@
 
 ## Yet to do
 
-* `npm install --save canvas`
+* Fix layout bug (extra note lane at top)
 * Option to quantize x and y
 * Aftertouch, controllers (breath, expression)
 
