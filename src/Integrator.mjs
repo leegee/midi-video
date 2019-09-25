@@ -3,7 +3,7 @@ const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
 const assertOptions = require('./assertOptions.mjs');
 
-module.exports = class Integrater {
+module.exports = class Integrator {
     options = {
         logging: false,
         bpm: null,
@@ -14,7 +14,7 @@ module.exports = class Integrater {
         fps: 30,
         trackColours: undefined,
         defaultColour: 'blue',
-        fitNotesToScreen: false,
+        // fitNotesToScreen: true,
         beatsOnScreen: 12
     };
     totalImagesAdded = 0;
@@ -25,27 +25,35 @@ module.exports = class Integrater {
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.logging ? console.log : () => {};
 
-        this.log('Create new  Integrater');
+        this.log('Create new  Integrator');
 
         assertOptions(this.options, {
             bpm: 'a number representing the MIDI bpm',
             midiFilepath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
-            fitNotesToScreen: 'scale the screen to fit the note-range used by the MIDI file'
+            // fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
         });
+
+        if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined'){
+            throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
+        }
+
+        if (this.options.midiNoteRange) {
+            this.options.fitNotesToScreen = false;
+        }
 
         this.beatsOnScreen = this.options.beatsOnScreen;
     }
 
     async init() {
-        this.log('Integrater.init enter');
+        this.log('Integrator.init enter');
 
         this.midiFile = new MidiFile(this.options);
 
         const midiNoteRange = await this.midiFile.parse();
 
         this.log('Reset MIDI note range: ', midiNoteRange);
-        this.log('Integrater.new create ImageMaker');
+        this.log('Integrator.new create ImageMaker');
 
         this.imageMaker = new ImageMaker({
             ...this.options,
@@ -59,23 +67,23 @@ module.exports = class Integrater {
 
         this.log('noteHeight: ', this.imageMaker.options.noteHeight);
 
-        this.log('Integrater.new create Encoder');
+        this.log('Integrator.new create Encoder');
         this.log('BPM: ', this.options.bpm);
         this.log('FPS:', this.options.fps);
 
         this.encoder = new Encoder(this.options);
 
-        this.log('Integrater.init done');
+        this.log('Integrator.init done');
     }
 
     async integrate() {
-        this.log('Integrater.integrate enter');
+        this.log('Integrator.integrate enter');
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
         const timeFrame = 1 / this.options.fps;
-        const maxTime = this.midiFile.durationSeconds + (this.beatsOnScreen * 2);
+        const maxTime = this.midiFile.durationSeconds + (this.beatsOnScreen / 2);
 
-        this.log('Integrater.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d, expected length %d ',
+        this.log('Integrator.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d, expected length %d ',
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
         );
 

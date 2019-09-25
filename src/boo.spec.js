@@ -8,18 +8,16 @@ chai.use(require("chai-as-promised"));
 
 const MidiFile = require('./MidiFile.mjs');
 const Integrator = require("./Integrator.mjs");
-const orchestraColours = require('./Colours/Orchestral.mjs');
 
 MidiFile.logging = false;
 
 const options = {
-    bpm: 60,
-    midiFilepath: 'fixtures/b.mid',
-    // midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
-    // audioFilepath: 'fixtures/4bars-60bpm.wav',
+    bpm: 100,
+    midiFilepath: 'fixtures/4bars.mid',
+    audioFilepath: 'fixtures/4bars-100bpm.wav',
     fps: 5,
-    trackColours: orchestraColours,
-    midiNoteRange: 88
+    fitNotesToScreen: true,
+    logging: true
 };
 
 let integrator;

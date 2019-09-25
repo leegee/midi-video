@@ -1,1 +1,1 @@
-const encoder = require('./Encoder.mjs');
+module.exports = require('./Integrator.mjs');

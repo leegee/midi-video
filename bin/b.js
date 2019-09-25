@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 const MidiFile = require('../src/MidiFile.mjs');
-const Integrater = require("../src/Integrater.mjs");
+const Integrator = require("../src/Integrator.mjs");
 
 MidiFile.logging = false;
 
@@ -40,16 +40,16 @@ main();
 async function main() {
     console.info('Begin...');
     
-    const integrater = new Integrater(options);
+    const integrator = new Integrator(options);
 
-    if (fs.existsSync(integrater.options.outputpath)) {
-        fs.unlinkSync(integrater.options.outputpath);
+    if (fs.existsSync(integrator.options.outputpath)) {
+        fs.unlinkSync(integrator.options.outputpath);
     }
 
-    await integrater.init();
-    await integrater.integrate();
+    await integrator.init();
+    await integrator.integrate();
 
     console.log('Wrote ',
-        path.resolve(integrater.options.outputpath)
+        path.resolve(integrator.options.outputpath)
     );
 }

@@ -7,6 +7,7 @@
 
 ## Yet to do
 
+* Unison is still shite.
 * Fix layout bug (extra note lane at top)
 * Option to quantize x and y
 * Aftertouch, controllers (breath, expression)

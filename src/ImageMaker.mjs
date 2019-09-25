@@ -15,8 +15,10 @@ module.exports = class ImageMaker {
         midiNoteRange: undefined,
         trackColours: undefined,
         bg: 'black',
+        globalCompositeOperation: 'screen',
+        globalAlpha: 1,
         defaultColour: 'yellow',
-        beatsOnScreen: undefined
+        beatsOnScreen: undefined,
     };
 
     endSeconds2notesPlaying = {};
@@ -63,6 +65,10 @@ module.exports = class ImageMaker {
         this.ctx = this.canvas.getContext('2d');
         this.ctx.fillStyle = this.options.bg;
         this.ctx.fillRect(0, 0, this.options.width, this.options.height);
+        
+        this.ctx.globalAlpha = this.options.globalAlpha;
+        this.ctx.globalCompositeOperation = this.options.globalCompositeOperation; 
+        
         ImageMaker.BlankImageBuffer = ImageMaker.BlankImageBuffer || this.canvas.toBuffer('image/png');
     }
 
@@ -93,6 +99,7 @@ module.exports = class ImageMaker {
     }
 
     _markOverlaidPlayingNotes() {
+        return;
         this.debug('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
 
         const playing = Object.values(this.endSeconds2notesPlaying)[0];
@@ -117,7 +124,7 @@ module.exports = class ImageMaker {
         for (let md5 in unisons) {
             let offset = 0;
             let borderSize = this.noteHeight / Object.keys(unisons[md5]).length;
-            console.debug('Set borderSize to ', borderSize);
+            this.debug('Set borderSize to ', borderSize);
 
             unisons[md5].sort((a, b) => a.velocity > b.velocity).forEach(note => {
                 if (offset > 0) {

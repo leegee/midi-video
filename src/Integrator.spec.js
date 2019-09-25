@@ -6,7 +6,7 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
-const Integrater = require("./Integrater.mjs");
+const Integrator = require("./Integrator.mjs");
 
 const options = {
     logging: false,
@@ -15,39 +15,39 @@ const options = {
     audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5,
     fitNotesToScreen: true,
-    bg: 'white'
+    bg: 'black'
 };
 
-let integrater;
+let integrator;
 
-describe('Integrater', function () {
+describe('Integrator', function () {
     this.timeout(1000 * 60); 
 
     beforeEach(async () => {
-        integrater = new Integrater(options);
-        await integrater.init();
-        if (fs.existsSync(integrater.options.outputpath)) {
-            fs.unlinkSync(integrater.options.outputpath);
+        integrator = new Integrator(options);
+        await integrator.init();
+        if (fs.existsSync(integrator.options.outputpath)) {
+            fs.unlinkSync(integrator.options.outputpath);
         }
     });
 
     afterEach(() => {
-        if (fs.existsSync(integrater.options.outputpath)) {
-            // fs.unlinkSync(integrater.options.outputpath);
+        if (fs.existsSync(integrator.options.outputpath)) {
+            // fs.unlinkSync(integrator.options.outputpath);
         }
     });
 
     it('creates a video file', async () => {
-        expect(integrater).to.be.an.instanceOf(Integrater);
+        expect(integrator).to.be.an.instanceOf(Integrator);
 
-        const promiseResolvesWhenFileWritten = integrater.integrate();
+        const promiseResolvesWhenFileWritten = integrator.integrate();
         expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
         const encoderExitStatus = await promiseResolvesWhenFileWritten;
         expect(encoderExitStatus).to.equal(0);
         
         expect(
-            path.resolve(integrater.options.outputpath)
+            path.resolve(integrator.options.outputpath)
         ).to.be.a.path();
     });
 
