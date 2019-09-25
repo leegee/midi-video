@@ -231,11 +231,9 @@ module.exports = class ImageMaker {
             return;
         }
 
-        note.y = ((note.pitch + 1) * this.noteHeight);
-        console.debug('y = (pitch %d + 1) * noteheight of %d = %d', note.pitch, this.noteHeight, note.y);
+        note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
 
-        note.y = this.options.height - note.y;
-        console.debug('now y -= canvas height %d = y %d', this.options.height, note.y);
+        // note.y = this.options.height - note.y;
 
         note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;

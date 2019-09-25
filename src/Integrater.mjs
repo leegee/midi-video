@@ -48,13 +48,11 @@ module.exports = class Integrater {
         this.log('Integrater.new create ImageMaker');
 
         this.imageMaker = new ImageMaker({
-            trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Colours(this.options.trackColours) : undefined,
-            defaultColour: this.options.defaultColour,
-            width: this.options.width,
-            height: this.options.height,
+            ...this.options,
+            beatsOnScreen: this.beatsOnScreen,
             midiNoteRange: midiNoteRange,
+            trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Colours(this.options.trackColours) : undefined,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
-            beatsOnScreen: this.beatsOnScreen
         });
 
         await this.imageMaker.init();
