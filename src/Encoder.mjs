@@ -27,6 +27,7 @@ module.exports = class Encoder {
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.logging ? console.log : () => {};
+        this.debug = this.options.debug ? console.debug : () => { };
         this.log('Encoder.new from ', this.options);
 
         assertOptions(this.options, {

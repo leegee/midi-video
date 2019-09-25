@@ -1,7 +1,7 @@
 {
   "name": "midi-video",
-  "version": "0.0.1",
-  "description": "Visualise MIDI data in video",
+  "version": "0.0.2",
+  "description": "Visualise MIDI data as a piano roll in video",
   "repository": {
     "url": "https://github.com/leegee/midi-video.git"
   },
@@ -11,6 +11,7 @@
   },
   "keywords": [
     "midi",
+    "piano roll",
     "visualisation",
     "graph"
   ],
@@ -18,14 +19,13 @@
   "license": "UNLICENCED",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
-    "eslint": "^6.4.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "jimp": "^0.8.2",
+    "canvas": "^2.6.0",
     "md5": "^2.2.1",
     "midi-parser-js": "*",
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {
+    "eslint": "^6.4.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-fs": "^2.0.0",

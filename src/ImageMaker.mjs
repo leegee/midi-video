@@ -1,4 +1,4 @@
-const Jimp = require('jimp');
+const Canvas = require('canvas')
 
 const Note = require("./Note.mjs"); // .logging();
 const assertOptions = require('./assertOptions.mjs');
@@ -25,14 +25,8 @@ module.exports = class ImageMaker {
     constructor(options) {
         this.options = Object.assign({}, this.options, options);
 
-        this.options.defaultColour = Jimp.cssColorToHex(this.options.defaultColour);
-        this.options.bg = Jimp.cssColorToHex(this.options.bg);
-
-        if (this.options.trackColours) {
-            this.options.trackColours = this.options.trackColours.map(
-                key => Jimp.cssColorToHex(key)
-            );
-        }
+        this.log = this.options.logging ? console.log : () => { };
+        this.debug = this.options.debug ? console.debug : () => { };
 
         assertOptions(this.options, {
             secondWidth: 'integer, being the number of pixels representing a second of time',
@@ -50,38 +44,26 @@ module.exports = class ImageMaker {
             (this.options.height + 1) / (this.options.midiNoteRange + 1)
         );
 
-        console.log('Note height: %d, Canvas height: %d, note range: %d',
+        this.log('Note height: %d, Canvas height: %d, note range: %d',
             this.noteHeight, this.options.height / this.noteHeight, this.options.midiNoteRange
         );
 
-        this.log = this.options.logging ? console.log : () => { };
-        this.debug = this.options.debug ? console.debug : () => { };
+        this.createBlankImage();
 
         this.log('Logging');
         this.debug('Debugging', this.options);
     }
 
     async init() {
-        await Promise.all([
-            Note.init(),
-            this.createBlankImage()
-        ]);
+        await Note.init();
     }
 
     createBlankImage() {
-        console.log('enter create blank image');
-        return new Promise((resolve, reject) => {
-            new Jimp(this.options.width, this.options.height, (err, image) => {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                }
-                image.background(this.options.bg);
-                ImageMaker.Blank = image;
-                ImageMaker.BlankImageBuffer = image.getBufferAsync(Jimp.MIME_PNG);;
-                resolve(this);
-            });
-        });
+        this.canvas = Canvas.createCanvas(this.options.width, this.options.height);
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.fillStyle = this.options.bg;
+        this.ctx.fillRect(0, 0, this.options.width, this.options.height);
+        ImageMaker.BlankImageBuffer = ImageMaker.BlankImageBuffer || this.canvas.toBuffer('image/png');
     }
 
     async getFrame(currentTime) {
@@ -104,7 +86,7 @@ module.exports = class ImageMaker {
             this._pruneCompletedNotes(currentTime - (this.options.beatsOnScreen / 2));
             this._positionPlayingNotes(currentTime);
             this._markOverlaidPlayingNotes();
-            rvImageBuffer = await this.renderToBuffer(currentTime);
+            rvImageBuffer = this.renderToBuffer(currentTime);
         }
 
         return rvImageBuffer;
@@ -134,14 +116,18 @@ module.exports = class ImageMaker {
 
         for (let md5 in unisons) {
             let offset = 0;
+            let borderSize = this.noteHeight / Object.keys(unisons[md5]).length;
+            console.debug('Set borderSize to ', borderSize);
+
             unisons[md5].sort((a, b) => a.velocity > b.velocity).forEach(note => {
                 if (offset > 0) {
                     note.y += offset;
-                    note.height -= 2 * offset;
+                    note.height -= Math.floor(2 * offset);
                     note.x += offset;
-                    note.width -= 2 * offset;
+                    note.width -= Math.floor(2 * offset);
                 }
-                offset++;
+                // offset++;
+                offset += borderSize / 2;
 
                 if (note.height <= 0) {
                     throw new Error(
@@ -185,15 +171,11 @@ module.exports = class ImageMaker {
             });
     }
 
-    async renderToBuffer(currentTime) {
-        if (ImageMaker.Blank === null) {
-            await this.createBlankImage();
-        }
-        this.image = ImageMaker.Blank.clone();
-
+    renderToBuffer(currentTime) {
+        this.createBlankImage();
         this._drawPlayingNotes(currentTime);
-
-        return this.image.getBufferAsync(Jimp.MIME_PNG);
+        // cf https://github.com/Automattic/node-canvas#canvastobuffer
+        return this.canvas.toBuffer('image/png');
     }
 
 
@@ -250,8 +232,10 @@ module.exports = class ImageMaker {
         }
 
         note.y = ((note.pitch + 1) * this.noteHeight);
+        console.debug('y = (pitch %d + 1) * noteheight of %d = %d', note.pitch, this.noteHeight, note.y);
 
         note.y = this.options.height - note.y;
+        console.debug('now y -= canvas height %d = y %d', this.options.height, note.y);
 
         note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
@@ -273,20 +257,17 @@ module.exports = class ImageMaker {
         );
 
         if (this.unisons && this.unisons[note.md5]) {
-            throw 'test';
             note.y = this.unisons[note.md5].y;
             note.height = this.unisons[note.md5].height;
         }
 
         try {
-            this.image.scan(
+            this.ctx.fillStyle = note.colour;
+            this.ctx.fillRect(
                 Math.floor(note.x),
                 Math.floor(note.y),
                 Math.floor(note.width),
-                note.height,
-                function (x, y, offset) {
-                    this.bitmap.data.writeUInt32BE(note.colour, offset, true);
-                }
+                note.height
             );
         } catch (e) {
             console.error('Note:', note);

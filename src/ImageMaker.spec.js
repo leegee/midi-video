@@ -1,25 +1,24 @@
 const path = require('path');
 const fs = require('fs');
-const Jimp = require('jimp');
 const chai = require("chai");
 const expect = chai.expect;
 
 chai.use(require('chai-fs'));
-chai.use(require("chai-as-promised"));
 
 const ImageMaker = require("./ImageMaker.mjs");
 const Note = require('./Note.mjs');
 
 
 describe('ImageMaker', () => {
-    xit('get', async () => {
+    it('get', async () => {
         const imageMaker = new ImageMaker({
             width: 100,
             height: 100,
             noteHeight: 10,
             secondWidth: 10,
             beatsOnScreen: 10,
-            logging: false,
+            midiNoteRange: 10,
+            logging: true,
             debug: true
         });
 
@@ -27,7 +26,7 @@ describe('ImageMaker', () => {
 
         expect(imageMaker).to.be.an.instanceOf(ImageMaker);
         await imageMaker.renderToBuffer();
-        expect(imageMaker.renderToBuffer()).to.eventually.be.an.instanceOf(Buffer);
+        expect(imageMaker.renderToBuffer()).to.be.an.instanceOf(Buffer);
     });
 
     it('overlay pitch, varied velocity', async () => {
@@ -36,7 +35,7 @@ describe('ImageMaker', () => {
         const noteArgs = {
             startSeconds: 0,
             endSeconds: 1,
-            pitch: 50,
+            pitch: 1,
             channel: 0,
         };
 
@@ -53,18 +52,20 @@ describe('ImageMaker', () => {
         }).save();
 
         const im = new ImageMaker({
+            logging: true,
             debug: true,
             width: 1000,
             height: 1000,
             noteHeight: 10,
             secondWidth: 60,
             beatsOnScreen: 1,
+            midiNoteRange: 10,
             trackColours: ['#ffdd00', 'blue', 'pink']
         });
         expect(im).to.be.an.instanceOf(ImageMaker);
 
         await im.init();
-        await im.createBlankImage();
+        im.createBlankImage();
 
         // im.image = ImageMaker.Blank.clone();
         // im.positionPlayingNotes(0.5);
@@ -74,10 +75,9 @@ describe('ImageMaker', () => {
 
         expect(imageBuffer).to.be.an.instanceOf(Buffer);
 
-        console.log(imageBuffer);
+        console.log('Buffer:', imageBuffer);
 
         const savePath = path.resolve('temp.png');
-        // imageBuffer.write(savePath);
         fs.writeFileSync(savePath, imageBuffer);
 
         expect(savePath).to.be.a.path();

@@ -133,6 +133,13 @@ module.exports = class Note {
         if (Number(this.x) === NaN) {
             throw new TypeError('x is NaN');
         }
+        if (Number(this.y) === NaN) {
+            throw new TypeError('y is NaN');
+        }
+        if (Number(this.y) < 0) {
+            throw new TypeError('y is negative: ' + this.y);
+        }
+
         Note.dbh.serialize(() => {
             Note.statements.updateForDisplay.run(
                 this.x, this.y, this.width, this.height, this.colour
