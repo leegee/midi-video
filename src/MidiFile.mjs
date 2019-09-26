@@ -71,7 +71,7 @@ module.exports = class MidiFile {
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
-                    if (event.metaType === 81 && ) {
+                    if (event.metaType === 81) {
                         if (!this.options.ignoreTempoChanges) {
                             this.debug('Tempo change: ', event);
                             // form 0rrhhhhhh 
