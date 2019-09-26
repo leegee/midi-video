@@ -11,7 +11,8 @@ module.exports = class MidiFile {
     options = {
         logging: false,
         bpm: null,
-        midiFilepath: null
+        midiFilepath: null,
+        ignoreTempoChanges: true
     };
     tracks = [];
     durationSeconds = null;
@@ -40,19 +41,13 @@ module.exports = class MidiFile {
         return delta * this.timeFactor;
     }
 
-    setTimeFactor(timeDivision) {
-        this.debug('Set timeFactor with timeDivision', timeDivision);
-        this.timeFactor = 60000 / (this.bpm * timeDivision); // / 1000;
-        return this.timeFactor;
-    }
-
     async parse() {
         await Note.init();
         let longestTrackDurationSeconds = 0;
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.setTimeFactor(midi.timeDivision * 1000);
+        this.timeFactor = 60000 / (this.bpm * midi.timeDivision * 1000);
 
         this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
             midi.timeDivision, this.timeFactor, this.bpm
@@ -65,21 +60,26 @@ module.exports = class MidiFile {
 
             this.tracks.push({
                 notes: [],
-                name: null,
+                name: 'Track ' + trackNumber,
                 number: trackNumber
             });
 
             midi.track[trackNumber].event.forEach(event => {
 
-                this.debug('EVENT', event);
+                this.debug(trackNumber, 'EVENT', event);
 
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
-                    if (event.metaType === 81) {
-                        durationSeconds += this.ticksToSeconds(currentTick);
-                        this.debug('Tempo change @ ', event.deltaTime, 'to', event.data);
-                        this.setTimeFactor(event.data);
+                    if (event.metaType === 81 && ) {
+                        if (!this.options.ignoreTempoChanges) {
+                            this.debug('Tempo change: ', event);
+                            // form 0rrhhhhhh 
+                            // eg      545454
+                            // hhhhhh is six bits for the hour (0-23). The hour byte's top bit is always 0. 
+                            // thus 60000000 / 545454 = 110.00011 bpm
+                            this.timeFactor = 60000 / (this.bpm * event.data * 2);
+                        }
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.debug('Parsing track number %d named %s', trackNumber, event.data);
@@ -124,15 +124,17 @@ module.exports = class MidiFile {
                 longestTrackDurationSeconds = durationSeconds;
             }
 
-            this.log('Track %d completed with %d notes, %d ticks = %d seconds',
-                trackNumber, midi.track[trackNumber].event.length, currentTick, durationSeconds);
+            this.log('Track %d %s completed with %d notes, %d ticks = %d seconds',
+                trackNumber, this.tracks[trackNumber].name, this.tracks[trackNumber].notes.length,
+                currentTick, durationSeconds
+            );
             this.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
         }
 
         this.tracks = this.tracks.filter(track => track.notes.length > 0);
         this.durationSeconds = longestTrackDurationSeconds;
 
-        this.log('MidiFile.parse created %d tracks, leaving.', this.tracks.length);
+        console.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
 
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
