@@ -78,7 +78,7 @@ module.exports = class MidiFile {
                             // eg      545454
                             // hhhhhh is six bits for the hour (0-23). The hour byte's top bit is always 0. 
                             // thus 60000000 / 545454 = 110.00011 bpm
-                            this.timeFactor = 60000 / (this.bpm * event.data * 2);
+                            this.timeFactor = 60000000 / event.data;
                         }
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
