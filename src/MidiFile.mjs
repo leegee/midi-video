@@ -24,6 +24,7 @@ module.exports = class MidiFile {
         this.options = Object.assign({}, this.options, options);
         this.debug = this.options.debug ? console.debug : MidiFile.logging ? console.debug : () => { };
         this.log = this.options.logging || MidiFile.logging || this.options.debug ? console.log : () => { };
+        this.info = console.info;
 
         if (!this.options.bpm) {
             throw new TypeError('Expected supplied option bpm');
@@ -134,7 +135,7 @@ module.exports = class MidiFile {
         this.tracks = this.tracks.filter(track => track.notes.length > 0);
         this.durationSeconds = longestTrackDurationSeconds;
 
-        console.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
+        this.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
 
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
@@ -144,7 +145,6 @@ module.exports = class MidiFile {
                 note.save();
             });
         });
-
 
         if (this.options.fitNotesToScreen) {
             this.options.midiNoteRange = this.highestPitch - this.lowestPitch;
@@ -156,7 +156,7 @@ module.exports = class MidiFile {
         return this.options.midiNoteRange;
     }
 
-    mapTrackNames2Colours(trackColours) {
+    mapTrackNames2Hues(trackColours) {
         const mapped = [];
 
         this.tracks.forEach(track => {

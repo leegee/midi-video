@@ -59,8 +59,7 @@ describe('ImageMaker', () => {
             noteHeight: 10,
             secondWidth: 60,
             beatsOnScreen: 1,
-            midiNoteRange: 10,
-            trackColours: ['#ffdd00', 'blue', 'pink']
+            midiNoteRange: 10
         });
         expect(im).to.be.an.instanceOf(ImageMaker);
 
@@ -74,8 +73,6 @@ describe('ImageMaker', () => {
         const imageBuffer = await im.getFrame(0.5);
 
         expect(imageBuffer).to.be.an.instanceOf(Buffer);
-
-        console.log('Buffer:', imageBuffer);
 
         const savePath = path.resolve('temp.png');
         fs.writeFileSync(savePath, imageBuffer);

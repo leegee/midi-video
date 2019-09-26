@@ -17,7 +17,7 @@ module.exports = class ImageMaker {
         bg: 'black',
         globalCompositeOperation: 'screen',
         globalAlpha: 1,
-        defaultColour: 'yellow',
+        defaultColour: 100,
         beatsOnScreen: undefined,
         highlightCurrent: {
             strokeStyle: 'white',
@@ -25,16 +25,19 @@ module.exports = class ImageMaker {
             shadowBlur: 6,
             lineWidth: 2 // TODO check for conflicts with note height
         },
+        colour: {
+            minSaturationPc: 77,
+            minLuminosityPc: 43,
+            maxLuminosityPc: 90
+        }
     };
 
     endSeconds2notesPlaying = {};
     uniqueNotesPlaying = {};
 
-    static createColourList(length, saturation = '77%', luninosity = '43%') {
+    static createColourList(length) {
         return new Array(length).fill('x').map(
-            (value, index) => ([
-                'hsl(', Math.floor((360 / length + 1) * index), ', ' + saturation + ', ' + luninosity
-            ].join(''))
+            (value, index) => Math.floor((360 / length + 1) * index)
         );
     }
 
@@ -48,7 +51,7 @@ module.exports = class ImageMaker {
             secondWidth: 'integer, being the number of pixels representing a second of time',
             width: 'integer, being the video display  width',
             height: 'integer, being the video display  height',
-            defaultColour: 'a CSS colour value for the notes',
+            defaultColour: 'a CSS HSL hue number (0-360) for the notes',
             bg: 'a CSS colour value for the background',
             midiNoteRange: 'number of notes in range',
             highlightCurrent: 'undefined or object (shadowColor, shadowBLur, strokeStyle, lineWidth): highlight the currently sounding notes.',
@@ -263,8 +266,16 @@ module.exports = class ImageMaker {
 
         note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
 
-        note.colour = this.options.trackColours && this.options.trackColours[note.track] ?
+        const hue = this.options.trackColours && this.options.trackColours[note.track] ?
             this.options.trackColours[note.track] : this.options.defaultColour;
+
+        const saturation = this.options.colour.minSaturationPc;
+
+        // Normalise
+        const luminosity = (this.options.colour.minLuminosityPc - this.options.colour.minLuminosityPc)
+            * note.velocity / 127 + this.options.colour.minLuminosityPc;
+
+        note.colour = 'hsl(' + hue + ', ' + saturation + '%, ' + luminosity + '%)';
 
         note.height = this.noteHeight;
 
@@ -295,12 +306,12 @@ module.exports = class ImageMaker {
                 Math.floor(note.width),
                 note.height
             );
-            if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds >= currentTime) {
+            if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime) {
                 this.ctx.save();
                 this.ctx.globalAlpha = 0.8;
                 this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
                 this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
-                this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur; 
+                this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
                 this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
                 this.ctx.strokeRect(
                     Math.floor(note.x),

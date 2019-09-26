@@ -1,4 +1,4 @@
-// const ImageMaker = require('../ImageMaker.mjs');
+const ImageMaker = require('../ImageMaker.mjs');
 
 const sortNames = [
     'Flauti',
@@ -19,27 +19,23 @@ const sortNames = [
 ]
 
 const manualColours = {
-    'Flauti': 'hsl(60, 77%, 63%)',
-    'Oboi': 'hsl(90, 77%, 33%)',
-    'Clarinetti': 'hsl(90, 77%, 43%)',
-    'Fagotti': 'hsl(300, 77%, 83%)',
-    'Corni ': 'hsl(120, 77%, 43%)',
-    'Corni': 'hsl(150, 77%, 43%)',
-    'Trombe': 'hsl(180, 77%, 43%)',
-    'Tromboni': 'hsl(210, 77%, 43%)',
-    'Trombono Basso': 'hsl(240, 77%, 43%)',
-    'Timpani': 'hsl(280, 77%, 43%)',
-    'Violini I': 'hsl(63, 77%, 53%)',
-    'Violini II': 'hsl(66, 77%, 63%)',
-    'Viole': 'hsl(60, 77%, 33%)',
-    'Violoncelli': 'hsl(30, 77%, 43%)',
-    'Contrabassi': 'hsl(7, 77%, 43%)'
+    'Flauti': 60,
+    'Oboi': 90,
+    'Clarinetti': 90,
+    'Fagotti': 300,
+    'Corni ': 120,
+    'Corni': 150,
+    'Trombe': 180,
+    'Tromboni': 210,
+    'Trombono Basso': 240,
+    'Timpani': 280,
+    'Violini I': 63,
+    'Violini II': 66,
+    'Viole': 60,
+    'Violoncelli': 30,
+    'Contrabassi': 7,
 };
 
 
-// module.exports = ImageMaker.createColourMap(sortNames);
+module.exports = ImageMaker.createColourMap(sortNames);
 
-module.exports = sortNames.reduce(
-    (acc, i, index) => ({ ...acc, [i]: ['hsl(', ((360 / sortNames.length + 1) * index), ', 77%, 43%'].join('') }),
-    {}
-)

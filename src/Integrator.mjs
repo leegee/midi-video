@@ -13,7 +13,7 @@ module.exports = class Integrator {
         height: 1080,
         fps: 30,
         trackColours: undefined,
-        defaultColour: 'blue',
+        defaultColour: 100,
         // fitNotesToScreen: true,
         beatsOnScreen: 12
     };
@@ -55,12 +55,10 @@ module.exports = class Integrator {
         this.log('Reset MIDI note range: ', midiNoteRange);
         this.log('Integrator.new create ImageMaker');
 
-        const trackColours = this.options.trackColours ? this.midiFile.mapTrackNames2Colours(this.options.trackColours)
-            : ImageMaker.createColourList(this.midiFile.tracks.length);
-
         this.imageMaker = new ImageMaker({
             ...this.options,
-            trackColours,
+            trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Hues(this.options.trackColours)
+            : ImageMaker.createColourList(this.midiFile.tracks.length),
             beatsOnScreen: this.beatsOnScreen,
             midiNoteRange: midiNoteRange,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
