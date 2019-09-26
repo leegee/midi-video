@@ -7,10 +7,15 @@
 
 ## Yet to do
 
-* Unison is still shite.
+* Check highlightCurrent sizes do not conflict with small note heights
 * Fix layout bug (extra note lane at top)
 * Option to quantize x and y
+* Quantized range of velocity as lightness
 * Aftertouch, controllers (breath, expression)
+
+## Notes
+
+Bitwig only exports 16 channels of MIDI (good) but gives each one a track (bad).
 
 ## Bibliography
 

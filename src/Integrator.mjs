@@ -23,7 +23,7 @@ module.exports = class Integrator {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.logging ? console.log : () => {};
+        this.log = this.options.logging ? console.log : () => { };
 
         this.log('Create new  Integrator');
 
@@ -34,7 +34,7 @@ module.exports = class Integrator {
             // fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
         });
 
-        if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined'){
+        if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
             throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
         }
 
@@ -55,11 +55,14 @@ module.exports = class Integrator {
         this.log('Reset MIDI note range: ', midiNoteRange);
         this.log('Integrator.new create ImageMaker');
 
+        const trackColours = this.options.trackColours ? this.midiFile.mapTrackNames2Colours(this.options.trackColours)
+            : ImageMaker.createColourList(this.midiFile.tracks.length);
+
         this.imageMaker = new ImageMaker({
             ...this.options,
+            trackColours,
             beatsOnScreen: this.beatsOnScreen,
             midiNoteRange: midiNoteRange,
-            trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Colours(this.options.trackColours) : undefined,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
         });
 
@@ -67,10 +70,10 @@ module.exports = class Integrator {
 
         this.log('noteHeight: ', this.imageMaker.options.noteHeight);
 
-        this.log('Integrator.new create Encoder');
-        this.log('BPM: ', this.options.bpm);
-        this.log('FPS:', this.options.fps);
+        console.info('BPM: ', this.options.bpm);
+        console.info('FPS:', this.options.fps);
 
+        this.log('Integrator.new create Encoder');
         this.encoder = new Encoder(this.options);
 
         this.log('Integrator.init done');

@@ -1,3 +1,4 @@
+// const ImageMaker = require('../ImageMaker.mjs');
 
 const sortNames = [
     'Flauti',
@@ -34,6 +35,9 @@ const manualColours = {
     'Violoncelli': 'hsl(30, 77%, 43%)',
     'Contrabassi': 'hsl(7, 77%, 43%)'
 };
+
+
+// module.exports = ImageMaker.createColourMap(sortNames);
 
 module.exports = sortNames.reduce(
     (acc, i, index) => ({ ...acc, [i]: ['hsl(', ((360 / sortNames.length + 1) * index), ', 77%, 43%'].join('') }),
