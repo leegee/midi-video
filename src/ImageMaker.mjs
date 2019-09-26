@@ -23,7 +23,7 @@ module.exports = class ImageMaker {
             strokeStyle: 'white',
             shadowColor: 'white',
             shadowBlur: 6,
-            lineWidth: 2
+            lineWidth: 2 // TODO check for conflicts with note height
         },
     };
 
@@ -297,7 +297,7 @@ module.exports = class ImageMaker {
             );
             if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds >= currentTime) {
                 this.ctx.save();
-                this.ctx.globalAlpha = 0.5;
+                this.ctx.globalAlpha = 0.8;
                 this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
                 this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
                 this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur; 
