@@ -12,7 +12,7 @@ module.exports = class MidiFile {
         logging: false,
         bpm: null,
         midiFilepath: null,
-        ignoreTempoChanges: true
+        ignoreTempoChanges: false
     };
     tracks = [];
     durationSeconds = null;
@@ -48,9 +48,10 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.timeFactor = 60000 / (this.bpm * midi.timeDivision * 1000);
+        // this.timeFactor = 60000 / (this.bpm * midi.timeDivision * 1000);
+        this.timeFactor = 60 / (this.bpm * midi.timeDivision);
 
-        this.log('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
+        this.info('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
             midi.timeDivision, this.timeFactor, this.bpm
         );
 
@@ -79,7 +80,11 @@ module.exports = class MidiFile {
                             // eg      545454
                             // hhhhhh is six bits for the hour (0-23). The hour byte's top bit is always 0. 
                             // thus 60000000 / 545454 = 110.00011 bpm
-                            this.timeFactor = 60000000 / event.data;
+                            // this.timeFactor = 60 / (this.bpm * midi.timeDivision);
+
+                            this.bpm = 60000000 / event.data;
+                            this.timeFactor = this.bpm / 600;
+                            this.info('New timeFactor = ', this.timeFactor, ' thus bpm', this.bpm);
                         }
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;

@@ -11,10 +11,10 @@ const Integrator = require("./Integrator.mjs");
 
 const options = {
     bpm: 60,
-    midiFilepath: 'fixtures/b.mid',
-    // midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
+    // midiFilepath: 'fixtures/b.mid',
+    midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
-    fps: 5,
+    fps: 1,
     // trackColours: orchestraColours,
     fitNotesToScreen: true
 };

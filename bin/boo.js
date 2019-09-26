@@ -10,11 +10,8 @@ const options = {
     midiFilepath: 'fixtures/boo-full.mid',
     audioFilepath: 'fixtures/boo-107bpm.wav',
     fps: 25,
-    fitNotesToScreen: false,
     logging: false,
     fitNotesToScreen: true,
-
-    ignoreTempoChanges: true
 };
 
 main();
