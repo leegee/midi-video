@@ -17,6 +17,7 @@ module.exports = class Encoder {
         audioFilepath: undefined,
         outputpath: path.resolve('./output.mp4'),
         logging: false,
+        pixFmt: 'yuv420p'
     };
     totalImagesAdded = 0;
     stderr = '';
@@ -45,7 +46,7 @@ module.exports = class Encoder {
                 '-y', '-f', 'image2pipe',
                 '-s', [this.options.width, this.options.height].join('x'),
                 '-framerate', this.options.fps,
-                '-pix_fmt', 'yuv420p',
+                '-pix_fmt', this.options.pixFmt,
                 '-i', '-'
             ];
             if (this.options.audioFilepath) {

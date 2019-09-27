@@ -17,9 +17,7 @@ describe('ImageMaker', () => {
             noteHeight: 10,
             secondWidth: 10,
             beatsOnScreen: 10,
-            midiNoteRange: 10,
-            logging: true,
-            debug: true
+            midiNoteRange: 10
         });
 
         await imageMaker.init();
@@ -54,15 +52,7 @@ describe('ImageMaker', () => {
             velocity: 50
         }).save();
 
-
-        new Note({
-            ...noteArgs,
-            pitch: midiNoteRange,
-        }).save();
-
         const im = new ImageMaker({
-            logging: true,
-            debug: true,
             width: 1000,
             height: 1000,
             noteHeight: 10,
@@ -75,12 +65,7 @@ describe('ImageMaker', () => {
         await im.init();
         im.createBlankImage();
 
-        // im.image = ImageMaker.Blank.clone();
-        // im.positionPlayingNotes(0.5);
-        // im._drawPlayingNotes(0.5);
-
         const imageBuffer = await im.getFrame(0.5);
-
         expect(imageBuffer).to.be.an.instanceOf(Buffer);
 
         const savePath = path.resolve('temp.png');
@@ -89,5 +74,97 @@ describe('ImageMaker', () => {
         expect(savePath).to.be.a.path();
     });
 
+
+    it('min/max note range', async () => {
+        await Note.init();
+
+        const midiNoteRange = 10;
+
+        const noteArgs = {
+            startSeconds: 0,
+            endSeconds: 1,
+            pitch: 1,
+            track: 0,
+            channel: 0,
+        };
+
+        new Note({
+            ...noteArgs,
+            track: 1,
+            velocity: 50
+        }).save();
+
+        new Note({
+            ...noteArgs,
+            pitch: midiNoteRange - 1,
+        }).save();
+
+        const im = new ImageMaker({
+            width: 1000,
+            height: 1000,
+            noteHeight: 10,
+            secondWidth: 60,
+            beatsOnScreen: 1,
+            midiNoteRange
+        });
+        expect(im).to.be.an.instanceOf(ImageMaker);
+
+        await im.init();
+        im.createBlankImage();
+
+        const imageBuffer = await im.getFrame(0.5);
+        expect(imageBuffer).to.be.an.instanceOf(Buffer);
+
+        const savePath = path.resolve('temp.png');
+        fs.writeFileSync(savePath, imageBuffer);
+
+        expect(savePath).to.be.a.path();
+    });
+
+
+    it('velocity', async () => {
+        await Note.init();
+
+        const midiNoteRange = 127;
+
+        const noteArgs = {
+            track: 0,
+            channel: 0,
+        };
+
+        let s = 0;
+        for (let pitch = 1; pitch < 127; pitch++) {
+            new Note({
+                ...noteArgs,
+                pitch,
+                velocity: pitch,
+                startSeconds: s,
+                endSeconds: s += 0.1
+            }).save();
+        }
+
+        const im = new ImageMaker({
+            beatsOnScreen: 1000,
+            logging: true,
+            debug: true,
+            width: 1000,
+            height: 1000,
+            noteHeight: 10,
+            secondWidth: 10,
+            midiNoteRange
+        });
+        expect(im).to.be.an.instanceOf(ImageMaker);
+
+        await im.init();
+        im.createBlankImage();
+
+        const imageBuffer = await im.getFrame(0.5);
+        expect(imageBuffer).to.be.an.instanceOf(Buffer);
+
+        const savePath = path.resolve('temp-velocity.png');
+        fs.writeFileSync(savePath, imageBuffer);
+
+        expect(savePath).to.be.a.path();
+    });
 });
 

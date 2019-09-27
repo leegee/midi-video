@@ -51,9 +51,7 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.info('MIDI.timeDivision: %d, timeFactor: %d',
-            midi.timeDivision, this.timeFactor
-        );
+        this.debug('MIDI.timeDivision: %d', midi.timeDivision);
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
             let durationSeconds = 0;

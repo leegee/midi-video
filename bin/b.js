@@ -19,16 +19,12 @@ main();
 async function main() {
     console.info('Begin...');
     
-    const App = new App(options);
+    const app = new App(options);
 
-    if (fs.existsSync(App.options.outputpath)) {
-        fs.unlinkSync(App.options.outputpath);
-    }
-
-    await App.init();
-    await App.integrate();
+    await app.init();
+    await app.integrate();
 
     console.log('Wrote ',
-        path.resolve(App.options.outputpath)
+        path.resolve(app.options.outputpath)
     );
 }

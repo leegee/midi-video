@@ -12,7 +12,7 @@ module.exports = class ImageMaker {
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,
-        midiNoteRange: undefined,
+        midiNoteRange: 127,
         trackColours: undefined,
         bg: 'black',
         globalCompositeOperation: 'screen',
@@ -53,7 +53,6 @@ module.exports = class ImageMaker {
             height: 'integer, being the video display  height',
             defaultColour: 'a CSS HSL hue number (0-360) for the notes',
             bg: 'a CSS colour value for the background',
-            midiNoteRange: 'number of notes in range',
             highlightCurrent: 'undefined or object (shadowColor, shadowBLur, strokeStyle, lineWidth): highlight the currently sounding notes.',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
         });

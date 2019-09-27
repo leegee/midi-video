@@ -1,9 +1,30 @@
+# Synopsis
+
+    const App = require('src/');
+
+    main();
+
+    async function main() {
+        const app = new App({
+            midiFilepath: 'fixtures/4bars-60bpm.mid',
+            audioFilepath: 'fixtures/4bars-60bpm.wav',
+        });
+
+        await App.init();
+        await App.integrate();
+
+        console.log('Wrote ', app.options.outputpath );
+    }
+
 ## Completed so far
 
 * An object to render video via ffmpeg.
 * An object to interpret  MIDI files using `midi-parser-js`.
 * An object to store and render via `node-canvas` currently sounding notes.
 * An object to integrate the above
+* Scale used notes to fill screen
+* Quantize pitch
+* Colour by track and velocity
 
 ## Yet to do
 
@@ -23,3 +44,4 @@ Bitwig only exports 16 channels of MIDI (good) but gives each one a track (bad).
 * https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications
   
 * http://midi.teragonaudio.com/tech/midifile/ppqn.htm
+

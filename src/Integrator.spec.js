@@ -6,15 +6,12 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
-const Integrator = require("./Integrator.mjs");
+const Integrator = require("./index");
 
 const options = {
-    logging: false,
     midiFilepath: 'fixtures/4bars-60bpm.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5, // 30,
-    fitNotesToScreen: true,
-    bg: 'black'
 };
 
 let integrator;

@@ -13,7 +13,7 @@ module.exports = class Integrator {
         fps: 30,
         trackColours: undefined,
         defaultColour: 100,
-        // fitNotesToScreen: true,
+        fitNotesToScreen: true,
         beatsOnScreen: 12
     };
     totalImagesAdded = 0;
@@ -29,12 +29,12 @@ module.exports = class Integrator {
         assertOptions(this.options, {
             midiFilepath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
-            // fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
+            fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
         });
 
-        if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
-            throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
-        }
+        // if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
+        //     throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
+        // }
 
         if (this.options.midiNoteRange) {
             this.options.fitNotesToScreen = false;
@@ -55,10 +55,10 @@ module.exports = class Integrator {
 
         this.imageMaker = new ImageMaker({
             ...this.options,
+            midiNoteRange,
             trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Hues(this.options.trackColours)
             : ImageMaker.createColourList(this.midiFile.tracks.length),
             beatsOnScreen: this.beatsOnScreen,
-            midiNoteRange: midiNoteRange,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
         });
 
