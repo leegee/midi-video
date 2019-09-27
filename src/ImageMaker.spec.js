@@ -60,11 +60,6 @@ describe('ImageMaker', () => {
             pitch: midiNoteRange,
         }).save();
 
-        new Note({
-            ...noteArgs,
-            pitch: 0,
-        }).save();
-
         const im = new ImageMaker({
             logging: true,
             debug: true,

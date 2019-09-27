@@ -16,8 +16,8 @@ module.exports = class Note {
         getUnison: undefined,
     };
     static dbh = new sqlite3.Database(':memory:');
-    static log = () => {}
-    static debug = () => {}
+    static log = () => { }
+    static debug = () => { }
 
     static logging() {
         Note.log = console.log;
@@ -39,11 +39,11 @@ module.exports = class Note {
 
         let scheme = 'CREATE TABLE notes (\n' +
             Note.dbFields
-            .map(field => '\t' + field + (
-                field.match(/seconds/i) ? ' DECIMAL' :
-                field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
-            ))
-            .join(',\n') +
+                .map(field => '\t' + field + (
+                    field.match(/seconds/i) ? ' DECIMAL' :
+                        field.match(/(pitch|velocity)/i) ? ' INTEGER' : ' TEXT'
+                ))
+                .join(',\n') +
             '\n)';
 
         await Note.dbh.serialize(() => {
@@ -97,6 +97,27 @@ module.exports = class Note {
         });
     }
 
+    static assertValues(note) {
+        if (Number(note.x) === NaN) {
+            console.error('Bad note:', note);
+            throw new TypeError('x is NaN');
+        }
+        if (Number(note.y) === NaN) {
+            console.error('Bad note:', note);
+            throw new TypeError('y is NaN');
+        }
+        if (Number(note.y) < 0) {
+            console.error('Bad note:', note);
+            throw new TypeError('y is negative: ' + note.y);
+        }
+        if (Number(note.pitch) < 1 || Number(note.pitch) > 126) {
+            console.error('Bad note:', note);
+            throw new TypeError('pitch out of range 1-126: ' + note.pitch);
+        }
+        console.log('ok ', note);
+    }
+
+
     constructor(options) {
         Note.dbFields.forEach(_ => this[_] = options[_]);
         this.md5 = md5(
@@ -106,6 +127,7 @@ module.exports = class Note {
 
     save() {
         const values = [];
+        Note.assertValues(this);
         Note.dbFields.forEach(_ => values.push(this[_]));
         Note.dbh.serialize(() => {
             Note.statements.insert.run(values);
@@ -115,11 +137,11 @@ module.exports = class Note {
     updatePitch(newPitch) {
         console.debug('Note.updatePitch', this, newPitch);
         this.pitch = newPitch;
-        
+
         if (Number(this.pitch) === NaN) {
             throw new TypeError('pitch is NaN');
         }
-        if (!this.md5){
+        if (!this.md5) {
             throw new TypeError('No md5?');
         }
         Note.dbh.serialize(() => {
@@ -130,19 +152,7 @@ module.exports = class Note {
 
     updateForDisplay() {
         Note.debug('Note.updateForDisplay', this);
-        if (Number(this.x) === NaN) {
-            console.error('Bad note:', this);
-            throw new TypeError('x is NaN');
-        }
-        if (Number(this.y) === NaN) {
-            console.error('Bad note:', this);
-            throw new TypeError('y is NaN');
-        }
-        if (Number(this.y) < 0) {
-            console.error('Bad note:', this);
-            throw new TypeError('y is negative: ' + this.y);
-        }
-
+        Note.assertValues(this);
         Note.dbh.serialize(() => {
             Note.statements.updateForDisplay.run(
                 this.x, this.y, this.width, this.height, this.colour
@@ -161,8 +171,6 @@ module.exports = class Note {
                     resolve(rows.map(row => new Note(row)));
                 }
             );
-
         });
     }
-
 }

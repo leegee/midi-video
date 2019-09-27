@@ -31,5 +31,31 @@ describe('Note', () => {
         expect(notes.length).to.equal(1);
     });
 
+    it('it prevents negative y', () => {
+        expect( () => {
+            new Note({
+                startSeconds: 0,
+                endSeconds: 1,
+                pitch: 1,
+                track: 0,
+                channel: 0,
+                y: -1
+            }).save();
+        }).to.throw();
+    });
+
+    it('it prevents 0 pitch', () => {
+        expect( () => {
+            new Note({
+                startSeconds: 0,
+                endSeconds: 1,
+                pitch: 0,
+                track: 0,
+                channel: 0,
+            }).save();
+        }).to.throw();
+    });
+
+
 });
 
