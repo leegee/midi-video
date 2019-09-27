@@ -57,7 +57,7 @@ module.exports = class Integrator {
             ...this.options,
             midiNoteRange,
             trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Hues(this.options.trackColours)
-            : ImageMaker.createColourList(this.midiFile.tracks.length),
+                : ImageMaker.createColourList(this.midiFile.tracks.length),
             beatsOnScreen: this.beatsOnScreen,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
         });
@@ -65,11 +65,9 @@ module.exports = class Integrator {
         await this.imageMaker.init();
 
         this.log('noteHeight: ', this.imageMaker.options.noteHeight);
-
-        console.info('BPM: ', this.options.bpm);
-        console.info('FPS:', this.options.fps);
-
+        this.log('FPS:', this.options.fps);
         this.log('Integrator.new create Encoder');
+
         this.encoder = new Encoder(this.options);
 
         this.log('Integrator.init done');

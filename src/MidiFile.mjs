@@ -46,6 +46,7 @@ module.exports = class MidiFile {
     }
 
     async parse() {
+        this.info('MidiFile.parse Beginning');
         await Note.init();
         let longestTrackDurationSeconds = 0;
 

@@ -1,20 +1,20 @@
 # Synopsis
 
-    const App = require('src/');
+    const App = require('./src');
 
-    main();
+    const app = new App({
+        midiFilepath: 'fixtures/4bars-60bpm.mid',
+        audioFilepath: 'fixtures/4bars-60bpm.wav',
+        logging: false
+    });
 
-    async function main() {
-        const app = new App({
-            midiFilepath: 'fixtures/4bars-60bpm.mid',
-            audioFilepath: 'fixtures/4bars-60bpm.wav',
-        });
-
-        await App.init();
-        await App.integrate();
-
-        console.log('Wrote ', app.options.outputpath );
-    }
+    app.init().then(() => {
+        return app.integrate();
+    }).then(() => {
+        console.log('Wrote ', app.options.outputpath);
+    }).catch(err => {
+        console.error(err);
+    })
 
 ## Completed so far
 
@@ -25,6 +25,7 @@
 * Scale used notes to fill screen
 * Quantize pitch
 * Colour by track and velocity
+* Process tempo changes
 
 ## Yet to do
 
