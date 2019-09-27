@@ -9,7 +9,7 @@ chai.use(require("chai-as-promised"));
 const Integrator = require("./index");
 
 const options = {
-    midiFilepath: 'fixtures/4bars-60bpm.mid',
+    midipath: 'fixtures/4bars-60bpm.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 1, // 30,
 };

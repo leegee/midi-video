@@ -2,11 +2,9 @@
 
     const App = require('./src');
 
-    const app = new App({
-        midiFilepath: 'fixtures/4bars-60bpm.mid',
-        audioFilepath: 'fixtures/4bars-60bpm.wav',
-        logging: false
-    });
+    const app = new App(
+        'fixtures/4bars-60bpm.mid'
+    ); // src contains more options
 
     app.init().then(() => {
         return app.integrate();
@@ -19,7 +17,7 @@
 ## Constructor Options
 
     * `logging`: `false`
-    * `midiFilepath`: text
+    * `midipath`: text
     * `outputpath`: 'output.mp4',
     * `width`: 1920
     * `height`: 1080
@@ -29,6 +27,7 @@
     * `defaultHue`: 100 - default HSL hue value for tracks otherwise uncoloured
     * `trackHues`: if supplied, should be an object mapping the MIDI track names to HSL hue values.
 
+# Status
 
 ## Completed so far
 
@@ -45,6 +44,8 @@
 
 ## Yet to do
 
+* Transient annotation
+* Synchronise transients to transient file
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Fix layout bug (extra note lane at top) ?
 * Aftertouch, controllers (breath, expression)

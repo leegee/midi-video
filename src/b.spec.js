@@ -10,8 +10,8 @@ const Integrator = require("./Integrator.mjs");
 // const orchestraColours = require('./Colours/Orchestral.mjs');
 
 const options = {
-    // midiFilepath: 'fixtures/b.mid',
-    midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
+    // midipath: 'fixtures/b.mid',
+    midipath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 1,
     // trackHues: orchestraColours,

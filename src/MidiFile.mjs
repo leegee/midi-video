@@ -13,7 +13,7 @@ module.exports = class MidiFile {
 
     options = {
         logging: false,
-        midiFilepath: null,
+        midipath: null,
         quantizePitchBucketSize: false, // Or int
     };
     tracks = [];
@@ -24,7 +24,7 @@ module.exports = class MidiFile {
     constructor(options = {}) {
         if (typeof options === 'string') {
             options = {
-                midiFilepath: options
+                midipath: options
             };
         }
         this.options = Object.assign({}, this.options, options);
@@ -33,7 +33,7 @@ module.exports = class MidiFile {
         this.info = console.info;
 
         assertOptions(this.options, {
-            midiFilepath: 'string for input path',
+            midipath: 'string for input path',
             quantizePitchBucketSize: 'integer bucket size for quantizing pitch',
         });
 
@@ -50,7 +50,7 @@ module.exports = class MidiFile {
         await Note.init();
         let longestTrackDurationSeconds = 0;
 
-        const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
+        const midi = MidiParser.parse(fs.readFileSync(this.options.midipath));
 
         this.debug('MIDI.timeDivision: %d', midi.timeDivision);
 

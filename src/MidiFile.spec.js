@@ -19,7 +19,7 @@ describe('MidiFile', function () {
 
     it('reads simple MIDI', async () => {
         const midiReader = new MidiFile({
-            midiFilepath: path.resolve('fixtures/one.mid'),
+            midipath: path.resolve('fixtures/one.mid'),
             debug: false
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);
@@ -40,7 +40,7 @@ describe('MidiFile', function () {
 
     xit('reads real world MIDI', async () => {
         const midiReader = new MidiFile({
-            midiFilepath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
+            midipath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
             logging: false,
             debug: false
         });
@@ -58,7 +58,7 @@ describe('MidiFile', function () {
 
     it('has a good test file', async () => {
         const midiReader = new MidiFile({
-            midiFilepath: path.resolve('fixtures/4bars.mid')
+            midipath: path.resolve('fixtures/4bars.mid')
         });
         await midiReader.parse();
 
@@ -77,7 +77,7 @@ describe('MidiFile', function () {
 
     it('quantizes pitch', async () => {
         const midiReader = new MidiFile({
-            midiFilepath: path.resolve('fixtures/4bars.mid'),
+            midipath: path.resolve('fixtures/4bars.mid'),
             quantizePitchBucketSize: 12
         });
         await midiReader.parse();

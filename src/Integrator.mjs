@@ -1,3 +1,5 @@
+const path = require('path');
+
 const MidiFile = require('./MidiFile.mjs');
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
@@ -6,7 +8,7 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Integrator {
     options = {
         logging: false,
-        midiFilepath: null,
+        midipath: null,
         outputpath: 'output.mp4',
         width: 1920,
         height: 1080,
@@ -27,10 +29,20 @@ module.exports = class Integrator {
         this.log('Create new  Integrator');
 
         assertOptions(this.options, {
-            midiFilepath: 'path to the MIDI file to parse',
+            midipath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
             fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
         });
+
+        if (!this.outputpath) {
+            this.outputpath = path.join(
+                path.dirname(this.midipath),
+                path.basename(
+                    this.midipath,
+                    path.extname(this.midipath)
+                ) + '.mp4'
+            );
+        }
 
         // if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
         //     throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
