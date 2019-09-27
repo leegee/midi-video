@@ -1,6 +1,8 @@
-const MidiParser = require('midi-parser-js');
 const fs = require('fs');
+const MidiParser = require('midi-parser-js');
+
 const Note = require('./Note.mjs');
+const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class MidiFile {
     static logging = false;
@@ -20,14 +22,20 @@ module.exports = class MidiFile {
     highestPitch = 0;
 
     constructor(options = {}) {
+        if (typeof options === 'string') {
+            options = {
+                midiFilepath: options
+            };
+        }
         this.options = Object.assign({}, this.options, options);
         this.debug = this.options.debug ? console.debug : MidiFile.logging ? console.debug : () => { };
         this.log = this.options.logging || MidiFile.logging || this.options.debug ? console.log : () => { };
         this.info = console.info;
 
-        if (!this.options.midiFilepath) {
-            throw new TypeError('Expected supplied option midiFilepath');
-        }
+        assertOptions(this.options, {
+            midiFilepath: 'string for input path',
+            quantizePitchBucketSize: 'integer bucket size for quantizing pitch',
+        });
 
         this.log('Logging...');
         this.debug('Debugging...');
@@ -168,7 +176,7 @@ module.exports = class MidiFile {
         return mapped;
     }
 
-    quantizePitch(note){
+    quantizePitch(pitch) {
         let bucketNumber = Math.ceil(pitch / this.options.quantizePitchBucketSize);
         // let rv = pitch % this.options.quantizePitchBucketSize;
         // if (rv == 0) {
