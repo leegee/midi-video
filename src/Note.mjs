@@ -98,23 +98,27 @@ module.exports = class Note {
     }
 
     static assertValues(note) {
+        let errMsgs = [];
+
         if (Number(note.x) === NaN) {
-            console.error('Bad note:', note);
-            throw new TypeError('x is NaN');
+            push.errMsgs('x is NaN');
         }
         if (Number(note.y) === NaN) {
-            console.error('Bad note:', note);
-            throw new TypeError('y is NaN');
+            push.errMsgs('y is NaN');
         }
         if (Number(note.y) < 0) {
-            console.error('Bad note:', note);
-            throw new TypeError('y is negative: ' + note.y);
+            push.errMsgs('y is negative: ' + note.y);
         }
         if (Number(note.pitch) < 1 || Number(note.pitch) > 126) {
-            console.error('Bad note:', note);
-            throw new TypeError('pitch out of range 1-126: ' + note.pitch);
+            push.errMsgs('pitch out of range 1-126: ' + note.pitch);
         }
-        console.log('ok ', note);
+        
+        if (errMsgs.length) {
+            console.error('\nBad note: ', note);
+            throw new TypeError(
+                'Error' + (errMsgs.length > 1 ? 's' : '') + ':\n\t' + errMsgs.join('\n\t')
+            );
+        }
     }
 
 
