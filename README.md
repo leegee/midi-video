@@ -16,6 +16,20 @@
         console.error(err);
     })
 
+## Constructor Options
+
+    * `logging`: `false`
+    * `midiFilepath`: text
+    * `outputpath`: 'output.mp4',
+    * `width`: 1920
+    * `height`: 1080
+    * `fps`: 30
+    * `fitNotesToScreen`: true
+    * `beatsOnScreen`: 12
+    * `defaultHue`: 100 - default HSL hue value for tracks otherwise uncoloured
+    * `trackHues`: if supplied, should be an object mapping the MIDI track names to HSL hue values.
+
+
 ## Completed so far
 
 * An object to render video via `ffmpeg`.

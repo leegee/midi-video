@@ -9,7 +9,7 @@ const options = {
     midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 25,
-    trackColours: orchestraColours,
+    trackHues: orchestraColours,
     fitNotesToScreen: false,
     logging: false,
 };

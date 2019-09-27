@@ -11,7 +11,7 @@ const Integrator = require("./index");
 const options = {
     midiFilepath: 'fixtures/4bars-60bpm.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
-    fps: 5, // 30,
+    fps: 1, // 30,
 };
 
 let integrator;

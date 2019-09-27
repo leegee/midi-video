@@ -13,11 +13,11 @@ module.exports = class ImageMaker {
         width: undefined, // 1920,
         height: undefined, // 1080,
         midiNoteRange: 127,
-        trackColours: undefined,
+        trackHues: undefined,
         bg: 'black',
         globalCompositeOperation: 'screen',
         globalAlpha: 1,
-        defaultColour: 100,
+        defaultHue: 100,
         beatsOnScreen: undefined,
         highlightCurrent: {
             strokeStyle: 'white',
@@ -51,7 +51,7 @@ module.exports = class ImageMaker {
             secondWidth: 'integer, being the number of pixels representing a second of time',
             width: 'integer, being the video display  width',
             height: 'integer, being the video display  height',
-            defaultColour: 'a CSS HSL hue number (0-360) for the notes',
+            defaultHue: 'a CSS HSL hue number (0-360) for the notes',
             bg: 'a CSS colour value for the background',
             highlightCurrent: 'undefined or object (shadowColor, shadowBLur, strokeStyle, lineWidth): highlight the currently sounding notes.',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
@@ -265,8 +265,8 @@ module.exports = class ImageMaker {
 
         note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
 
-        const hue = this.options.trackColours && this.options.trackColours[note.track] ?
-            this.options.trackColours[note.track] : this.options.defaultColour;
+        const hue = this.options.trackHues && this.options.trackHues[note.track] ?
+            this.options.trackHues[note.track] : this.options.defaultHue;
 
         const saturation = this.options.colour.minSaturationPc;
 

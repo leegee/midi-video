@@ -158,17 +158,16 @@ module.exports = class MidiFile {
         return this.options.midiNoteRange;
     }
 
-    mapTrackNames2Hues(trackColours) {
+    mapTrackNames2Hues(trackHues, defaultHue) {
         const mapped = [];
 
         this.tracks.forEach(track => {
-            if (trackColours[track.name]) {
-                mapped.push(
-                    trackColours[track.name]
-                );
-                this.log('Made trackColours for track %d, named "%s": ', track.number, track.name, trackColours[track.name])
+            if (trackHues[track.name]) {
+                mapped.push(trackHues[track.name]);
+                this.log('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
             } else {
-                console.warn('Missing trackColours for track %d, named "%s"!', track.number, track.name)
+                console.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
+                mapped.push(defaultHue);
             }
         });
 

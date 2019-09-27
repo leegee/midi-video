@@ -11,8 +11,8 @@ module.exports = class Integrator {
         width: 1920,
         height: 1080,
         fps: 30,
-        trackColours: undefined,
-        defaultColour: 100,
+        trackHues: undefined,
+        defaultHue: 100,
         fitNotesToScreen: true,
         beatsOnScreen: 12
     };
@@ -56,7 +56,7 @@ module.exports = class Integrator {
         this.imageMaker = new ImageMaker({
             ...this.options,
             midiNoteRange,
-            trackColours: this.options.trackColours ? this.midiFile.mapTrackNames2Hues(this.options.trackColours)
+            trackHues: this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue)
                 : ImageMaker.createColourList(this.midiFile.tracks.length),
             beatsOnScreen: this.beatsOnScreen,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
