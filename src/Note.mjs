@@ -112,7 +112,7 @@ module.exports = class Note {
         if (Number(note.pitch) < 1 || Number(note.pitch) > 126) {
             push.errMsgs('pitch out of range 1-126: ' + note.pitch);
         }
-        
+
         if (errMsgs.length) {
             console.error('\nBad note: ', note);
             throw new TypeError(

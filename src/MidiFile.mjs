@@ -12,6 +12,7 @@ module.exports = class MidiFile {
     options = {
         logging: false,
         midiFilepath: null,
+        quantizePitchBucketSize: false, // Or int
     };
     tracks = [];
     durationSeconds = null;
@@ -133,7 +134,12 @@ module.exports = class MidiFile {
                     note.pitch = note.pitch - this.lowestPitch;
                 }
                 // Make pitch index 1-based to ease drawing:
-                note.pitch ++;
+                note.pitch++;
+
+                if (this.options.quantizePitchBucketSize) {
+                    note.pitch = this.quantizePitch(note.pitch);
+                }
+
                 note.save();
             });
         });
@@ -165,4 +171,12 @@ module.exports = class MidiFile {
         return mapped;
     }
 
+    quantizePitch(note){
+        let bucketNumber = Math.ceil(pitch / this.options.quantizePitchBucketSize);
+        // let rv = pitch % this.options.quantizePitchBucketSize;
+        // if (rv == 0) {
+        //     rv = this.options.quantizePitchBucketSize;
+        // }
+        return bucketNumber;
+    }
 }

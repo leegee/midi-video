@@ -271,7 +271,7 @@ module.exports = class ImageMaker {
 
         const saturation = this.options.colour.minSaturationPc;
 
-        // Normalise
+        // Normalise velocity for lum
         const luminosity = (this.options.colour.minLuminosityPc - this.options.colour.minLuminosityPc)
             * note.velocity / 127 + this.options.colour.minLuminosityPc;
 
