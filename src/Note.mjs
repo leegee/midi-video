@@ -101,16 +101,16 @@ module.exports = class Note {
         let errMsgs = [];
 
         if (Number(note.x) === NaN) {
-            push.errMsgs('x is NaN');
+            errMsgs.push('x is NaN');
         }
         if (Number(note.y) === NaN) {
-            push.errMsgs('y is NaN');
+            errMsgs.push('y is NaN');
         }
         if (Number(note.y) < 0) {
-            push.errMsgs('y is negative: ' + note.y);
+            errMsgs.push('y is negative: ' + note.y);
         }
         if (Number(note.pitch) < 1 || Number(note.pitch) > 126) {
-            push.errMsgs('pitch out of range 1-126: ' + note.pitch);
+            errMsgs.push('pitch out of range 1-126: ' + note.pitch);
         }
 
         if (errMsgs.length) {
