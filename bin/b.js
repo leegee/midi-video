@@ -5,7 +5,6 @@ const orchestraColours =require('../src/Colours/Orchestral.mjs');
 const App = require("../src");
 
 const options = {
-    bpm: 60,
     // midiFilepath: 'fixtures/b.mid',
     midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',

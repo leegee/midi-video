@@ -12,7 +12,6 @@ const Integrator = require("./Integrator.mjs");
 MidiFile.logging = false;
 
 const options = {
-    bpm: 100,
     midiFilepath: 'fixtures/4bars.mid',
     audioFilepath: 'fixtures/4bars-100bpm.wav',
     fps: 5,

@@ -6,7 +6,6 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Integrator {
     options = {
         logging: false,
-        bpm: null,
         midiFilepath: null,
         outputpath: 'output.mp4',
         width: 1920,
@@ -28,7 +27,6 @@ module.exports = class Integrator {
         this.log('Create new  Integrator');
 
         assertOptions(this.options, {
-            bpm: 'a number representing the MIDI bpm',
             midiFilepath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
             // fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'

@@ -10,12 +10,10 @@ const Integrator = require("./Integrator.mjs");
 
 const options = {
     logging: false,
-    bpm: 60,
     midiFilepath: 'fixtures/4bars-60bpm.mid',
     audioFilepath: 'fixtures/4bars-60bpm.wav',
     fps: 5, // 30,
     fitNotesToScreen: true,
-    ignoreTempoChanges: false,
     bg: 'black'
 };
 

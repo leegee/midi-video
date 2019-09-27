@@ -11,15 +11,12 @@ module.exports = class MidiFile {
 
     options = {
         logging: false,
-        bpm: null,
         midiFilepath: null,
-        ignoreTempoChanges: true
     };
     tracks = [];
     durationSeconds = null;
     lowestPitch = 127;
     highestPitch = 0;
-    bpm = undefined;
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -27,14 +24,10 @@ module.exports = class MidiFile {
         this.log = this.options.logging || MidiFile.logging || this.options.debug ? console.log : () => { };
         this.info = console.info;
 
-        if (!this.options.bpm) {
-            throw new TypeError('Expected supplied option bpm');
-        }
         if (!this.options.midiFilepath) {
             throw new TypeError('Expected supplied option midiFilepath');
         }
 
-        this.bpm = this.options.bpm;
         this.log('Logging...');
         this.debug('Debugging...');
     }
@@ -49,10 +42,10 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        this.timeFactor = 60 / (this.bpm * midi.timeDivision);
+        // this.timeFactor = 60 / (this.bpm * midi.timeDivision);
 
-        this.info('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
-            midi.timeDivision, this.timeFactor, this.bpm
+        this.info('MIDI.timeDivision: %d, timeFactor: %d',
+            midi.timeDivision, this.timeFactor
         );
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
@@ -74,12 +67,10 @@ module.exports = class MidiFile {
 
                 if (event.type === MidiFile.META) {
                     if (event.metaType === MidiFile.MS_PER_BEAT) {
-                        if (!this.options.ignoreTempoChanges) {
-                            this.debug('Tempo change: ', event);
-                            this.bpm = 60000000 / event.data;
-                            this.timeFactor =  60 / (this.bpm * midi.timeDivision);
-                            this.info('EVENT %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
-                        }
+                        this.debug('Tempo change: ', event);
+                        this.bpm = 60000000 / event.data;
+                        this.timeFactor = 60 / (this.bpm * midi.timeDivision);
+                        this.info('EVENT %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.debug('Parsing track number %d named %s', trackNumber, event.data);

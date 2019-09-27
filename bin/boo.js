@@ -5,7 +5,6 @@ const orchestraColours = require('../src/Colours/Orchestral.mjs');
 const App = require("../src");
 
 const options = {
-    bpm: 107,
     // midiFilepath: 'fixtures/b.mid',
     midiFilepath: 'fixtures/boo-full.mid',
     audioFilepath: 'fixtures/boo-107bpm.wav',

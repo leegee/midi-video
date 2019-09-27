@@ -10,7 +10,6 @@ const Integrator = require("./Integrator.mjs");
 // const orchestraColours = require('./Colours/Orchestral.mjs');
 
 const options = {
-    bpm: 60,
     // midiFilepath: 'fixtures/b.mid',
     midiFilepath: 'fixtures/symphony_9_2_(c)cvikl.mid',
     // audioFilepath: 'fixtures/4bars-60bpm.wav',
