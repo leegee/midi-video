@@ -132,6 +132,8 @@ module.exports = class MidiFile {
                 if (this.options.fitNotesToScreen) {
                     note.pitch = note.pitch - this.lowestPitch;
                 }
+                // Make pitch index 1-based to ease drawing:
+                note.pitch ++;
                 note.save();
             });
         });

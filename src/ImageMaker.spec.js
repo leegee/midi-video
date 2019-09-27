@@ -32,10 +32,13 @@ describe('ImageMaker', () => {
     it('overlay pitch, varied velocity', async () => {
         await Note.init();
 
+        const midiNoteRange = 10;
+
         const noteArgs = {
             startSeconds: 0,
             endSeconds: 1,
             pitch: 1,
+            track: 0,
             channel: 0,
         };
 
@@ -51,6 +54,17 @@ describe('ImageMaker', () => {
             velocity: 50
         }).save();
 
+
+        new Note({
+            ...noteArgs,
+            pitch: midiNoteRange,
+        }).save();
+
+        new Note({
+            ...noteArgs,
+            pitch: 0,
+        }).save();
+
         const im = new ImageMaker({
             logging: true,
             debug: true,
@@ -59,7 +73,7 @@ describe('ImageMaker', () => {
             noteHeight: 10,
             secondWidth: 60,
             beatsOnScreen: 1,
-            midiNoteRange: 10
+            midiNoteRange
         });
         expect(im).to.be.an.instanceOf(ImageMaker);
 

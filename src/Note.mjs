@@ -131,12 +131,15 @@ module.exports = class Note {
     updateForDisplay() {
         Note.debug('Note.updateForDisplay', this);
         if (Number(this.x) === NaN) {
+            console.error('Bad note:', this);
             throw new TypeError('x is NaN');
         }
         if (Number(this.y) === NaN) {
+            console.error('Bad note:', this);
             throw new TypeError('y is NaN');
         }
         if (Number(this.y) < 0) {
+            console.error('Bad note:', this);
             throw new TypeError('y is negative: ' + this.y);
         }
 
