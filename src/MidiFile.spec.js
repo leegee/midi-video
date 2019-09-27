@@ -34,7 +34,7 @@ describe('MidiFile', function () {
     });
 
 
-    xit('reads real world MIDI', async () => {
+    it('reads real world MIDI', async () => {
         const midiReader = new MidiFile({
             midiFilepath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
             logging: false,
@@ -67,7 +67,7 @@ describe('MidiFile', function () {
 
         expect(Note.ready).to.be.ok;
         const notes = await Note.readRange(0, 3);
-        expect(notes.length).to.equal(30);
+        expect(notes.length).to.equal(68);
 
     });
 

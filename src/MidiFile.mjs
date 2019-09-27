@@ -43,8 +43,6 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        // this.timeFactor = 60 / (this.bpm * midi.timeDivision);
-
         this.info('MIDI.timeDivision: %d, timeFactor: %d',
             midi.timeDivision, this.timeFactor
         );
@@ -62,16 +60,15 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                console.debug(trackNumber, 'EVENT', event);
+                this.debug(trackNumber, 'EVENT', event);
 
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
                     if (event.metaType === MidiFile.MS_PER_BEAT) {
-                        this.debug('Tempo change: ', event);
                         this.bpm = 60000000 / event.data;
                         this.timeFactor = 60 / (this.bpm * midi.timeDivision);
-                        this.info('EVENT %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
+                        this.log('TEMPO CHANGE %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.debug('Parsing track number %d named %s', trackNumber, event.data);
