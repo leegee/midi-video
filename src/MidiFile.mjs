@@ -7,12 +7,13 @@ module.exports = class MidiFile {
     static NOTE_ON = 9;
     static NOTE_OFF = 8;
     static META = 255;
+    static MS_PER_BEAT = 81;
 
     options = {
         logging: false,
         bpm: null,
         midiFilepath: null,
-        ignoreTempoChanges: false
+        ignoreTempoChanges: true
     };
     tracks = [];
     durationSeconds = null;
@@ -34,7 +35,7 @@ module.exports = class MidiFile {
         }
 
         this.bpm = this.options.bpm;
-        this.log('logging logging...');
+        this.log('Logging...');
         this.debug('Debugging...');
     }
 
@@ -48,7 +49,6 @@ module.exports = class MidiFile {
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midiFilepath));
 
-        // this.timeFactor = 60000 / (this.bpm * midi.timeDivision * 1000);
         this.timeFactor = 60 / (this.bpm * midi.timeDivision);
 
         this.info('MIDI.timeDivision: %d, timeFactor: %d, BPM: %d',
@@ -68,23 +68,17 @@ module.exports = class MidiFile {
 
             midi.track[trackNumber].event.forEach(event => {
 
-                this.debug(trackNumber, 'EVENT', event);
+                console.debug(trackNumber, 'EVENT', event);
 
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
-                    if (event.metaType === 81) {
+                    if (event.metaType === MidiFile.MS_PER_BEAT) {
                         if (!this.options.ignoreTempoChanges) {
                             this.debug('Tempo change: ', event);
-                            // form 0rrhhhhhh 
-                            // eg      545454
-                            // hhhhhh is six bits for the hour (0-23). The hour byte's top bit is always 0. 
-                            // thus 60000000 / 545454 = 110.00011 bpm
-                            // this.timeFactor = 60 / (this.bpm * midi.timeDivision);
-
                             this.bpm = 60000000 / event.data;
-                            this.timeFactor = this.bpm / 600;
-                            this.info('New timeFactor = ', this.timeFactor, ' thus bpm', this.bpm);
+                            this.timeFactor =  60 / (this.bpm * midi.timeDivision);
+                            this.info('EVENT %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
                         }
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
