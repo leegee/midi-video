@@ -20,6 +20,7 @@ module.exports = class ImageMaker {
         defaultHue: 100,
         beatsOnScreen: undefined,
         highlightCurrent: {
+            alpha: 0.9,
             strokeStyle: 'white',
             shadowColor: 'white',
             shadowBlur: 6,
@@ -307,7 +308,7 @@ module.exports = class ImageMaker {
             );
             if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime) {
                 this.ctx.save();
-                this.ctx.globalAlpha = 0.8;
+                this.ctx.globalAlpha = this.options.highlightCurrent.alpha;
                 this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
                 this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
                 this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
