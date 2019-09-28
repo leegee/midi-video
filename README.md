@@ -44,6 +44,7 @@
 
 ## Yet to do
 
+* Revisit velocity
 * Double height notes offset by 50% of height
 * Transient annotation
 * Synchronise transients to transient file
