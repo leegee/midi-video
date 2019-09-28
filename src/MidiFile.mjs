@@ -13,6 +13,16 @@ module.exports = class MidiFile {
     static MS_PER_BEAT = 81;
     static SIXTY_MILLION = new Decimal(60000000);
     static SIXTY = new Decimal(60);
+    static INIT_RANGES = {
+        pitch: {
+            hi: 0,
+            lo: 127
+        },
+        velocity: {
+            hi: 0,
+            lo: 127
+        }
+    };
 
     options = {
         logging: false,
@@ -21,8 +31,7 @@ module.exports = class MidiFile {
     };
     tracks = [];
     durationSeconds = null;
-    lowestPitch = 127;
-    highestPitch = 0;
+    ranges = MidiFile.INIT_RANGES;
 
     constructor(options = {}) {
         if (typeof options === 'string') {
@@ -42,7 +51,7 @@ module.exports = class MidiFile {
         this.debug('Debugging...');
     }
 
-    verbose(){
+    verbose() {
         this.options.debug = this.options.log = true;
         this.setLogging();
     }
@@ -60,6 +69,7 @@ module.exports = class MidiFile {
     async parse() {
         this.info('MidiFile.parse Beginning');
         await Note.init();
+        this.ranges = MidiFile.INIT_RANGES;
         let longestTrackDurationSeconds = 0;
 
         const midi = MidiParser.parse(fs.readFileSync(this.options.midipath));
@@ -102,27 +112,33 @@ module.exports = class MidiFile {
                             event.type = MidiFile.NOTE_OFF;
                             this.debug('ZERO VELOCITY NOTE ON === NOTE OFF');
                         } else {
-                            totalNotesOn ++;
+                            totalNotesOn++;
                             playingNotes[event.data[0]] = {
-                                startTick: currentTick
+                                startTick: currentTick,
+                                velocity: event.data[1]
                             };
-                            if (event.data[0] > this.highestPitch) {
-                                this.highestPitch = event.data[0];
-                            } else if (event.data[0] < this.lowestPitch) {
-                                this.lowestPitch = event.data[0];
+                            if (event.data[0] > this.ranges.pitch.hi) {
+                                this.ranges.pitch.hi = event.data[0];
+                            } else if (event.data[0] < this.ranges.pitch.lo) {
+                                this.ranges.pitch.lo = event.data[0];
+                            }
+                            if (event.data[1] > this.ranges.velocity.hi) {
+                                this.ranges.velocity.hi = event.data[1];
+                            } else if (event.data[1] < this.ranges.velocity.lo) {
+                                this.ranges.velocity.lo = event.data[1];
                             }
                         }
                     }
 
                     if (event.type === MidiFile.NOTE_OFF) {
-                        totalNotesOff ++;
+                        totalNotesOff++;
                         let note;
                         try {
                             note = new Note({
                                 channel: event.channel,
                                 track: trackNumber,
                                 pitch: event.data[0],
-                                velocity: event.data[1],
+                                velocity: playingNotes[event.data[0]].velocity,
                                 startTick: playingNotes[event.data[0]].startTick,
                                 endTick: currentTick,
                                 startSeconds: this.ticksToSeconds(playingNotes[event.data[0]].startTick),
@@ -164,11 +180,12 @@ module.exports = class MidiFile {
         this.durationSeconds = longestTrackDurationSeconds;
 
         this.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
+        this.info('MidiFile.parse found ranges: ', this.ranges);
 
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
                 if (this.options.fitNotesToScreen) {
-                    note.pitch = note.pitch - this.lowestPitch;
+                    note.pitch = note.pitch - this.ranges.pitch.lo;
                 }
                 // Make pitch index 1-based to ease drawing:
                 note.pitch++;
@@ -182,9 +199,9 @@ module.exports = class MidiFile {
         });
 
         if (this.options.fitNotesToScreen) {
-            this.options.midiNoteRange = this.highestPitch - this.lowestPitch;
+            this.options.midiNoteRange = this.ranges.pitch.hi - this.ranges.pitch.lo;
             this.log('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
-                this.options.midiNoteRange, this.highestPitch, this.lowestPitch
+                this.options.midiNoteRange, this.ranges.pitch.hi, this.ranges.pitch.lo
             );
         }
 
