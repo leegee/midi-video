@@ -7,7 +7,7 @@ const App = require("../src");
 const options = {
     // midipath: 'fixtures/b.mid',
     midipath: 'fixtures/boo-full.mid',
-    audioFilepath: 'fixtures/boo-107bpm.wav',
+    audiopath: 'fixtures/boo-107bpm.wav',
     fps: 25,
     logging: false,
     fitNotesToScreen: true,

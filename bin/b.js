@@ -7,7 +7,7 @@ const App = require("../src");
 const options = {
     // midipath: 'fixtures/b.mid',
     midipath: 'fixtures/symphony_9_2_(c)cvikl.mid',
-    // audioFilepath: 'fixtures/4bars-60bpm.wav',
+    // audiopath: 'fixtures/4bars-60bpm.wav',
     fps: 25,
     trackHues: orchestraColours,
     fitNotesToScreen: false,

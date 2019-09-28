@@ -22,6 +22,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "canvas": "^2.6.0",
+    "decimal.js": "^10.2.0",
     "md5": "^2.2.1",
     "midi-parser-js": "*",
     "sqlite3": "^4.1.0"

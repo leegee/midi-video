@@ -23,6 +23,12 @@ module.exports = class Integrator {
     imageMaker = undefined;
 
     constructor(options = {}) {
+        if (typeof options === 'string') {
+            options = {
+                midipath: options
+            };
+        }
+
         this.options = Object.assign({}, this.options, options);
         this.log = this.options.logging ? console.log : () => { };
 
@@ -34,12 +40,12 @@ module.exports = class Integrator {
             fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
         });
 
-        if (!this.outputpath) {
-            this.outputpath = path.join(
-                path.dirname(this.midipath),
+        if (!this.options.outputpath) {
+            this.options.outputpath = path.join(
+                path.dirname(this.options.midipath),
                 path.basename(
-                    this.midipath,
-                    path.extname(this.midipath)
+                    this.options.midipath,
+                    path.extname(this.options.midipath)
                 ) + '.mp4'
             );
         }

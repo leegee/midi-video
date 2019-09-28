@@ -94,5 +94,12 @@ describe('MidiFile', function () {
         );
     });
 
+    it('quantizes pitch', async () => {
+        const midiReader = new MidiFile(
+            'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
+        );
+        midiReader.verbose();
+        await midiReader.parse();
+    });
 });
 

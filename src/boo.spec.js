@@ -13,7 +13,7 @@ MidiFile.logging = false;
 
 const options = {
     midipath: 'fixtures/4bars.mid',
-    audioFilepath: 'fixtures/4bars-100bpm.wav',
+    audiopath: 'fixtures/4bars-100bpm.wav',
     fps: 5,
     fitNotesToScreen: true,
     logging: true

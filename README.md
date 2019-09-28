@@ -44,6 +44,7 @@
 
 ## Yet to do
 
+* Double height notes offset by 50% of height
 * Transient annotation
 * Synchronise transients to transient file
 * Check `highlightCurrent` sizes do not conflict with small note heights

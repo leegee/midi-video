@@ -14,7 +14,7 @@ module.exports = class Encoder {
         fps: undefined,
         width: undefined,
         height: undefined,
-        audioFilepath: undefined,
+        audiopath: undefined,
         outputpath: path.resolve('./output.mp4'),
         logging: false,
         pixFmt: 'yuv420p'
@@ -49,8 +49,8 @@ module.exports = class Encoder {
                 '-pix_fmt', this.options.pixFmt,
                 '-i', '-'
             ];
-            if (this.options.audioFilepath) {
-                args.push('-i', this.options.audioFilepath);
+            if (this.options.audiopath) {
+                args.push('-i', this.options.audiopath);
             }
             args.push(
                 '-vcodec', 'mpeg4',
@@ -73,7 +73,7 @@ module.exports = class Encoder {
                 this.stderr += str + '\n';
             });
             childProcess.on('close', code => {
-                this.log(
+                console.info(
                     'Encoder: close pipe after %d image, ffmpeg exit status %d',
                     this.totalImagesAdded, code
                 );
