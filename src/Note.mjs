@@ -6,7 +6,7 @@ module.exports = class Note {
     static dbFields = [
         'startSeconds', 'endSeconds', 'pitch', 'velocity', 'channel', 'track',
         'md5',
-        'x', 'y', 'width', 'height', 'colour'
+        'x', 'y', 'width', 'height', 'colour', 'luminosity'
     ];
     static statements = {
         insert: undefined,

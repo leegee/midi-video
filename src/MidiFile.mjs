@@ -28,6 +28,7 @@ module.exports = class MidiFile {
         logging: false,
         midipath: null,
         quantizePitchBucketSize: false, // Or int
+        scaleLuminosity: true
     };
     tracks = [];
     durationSeconds = null;
@@ -45,6 +46,10 @@ module.exports = class MidiFile {
         assertOptions(this.options, {
             midipath: 'string for input path',
             quantizePitchBucketSize: 'integer bucket size for quantizing pitch',
+            colour: {
+                minLuminosityPc: 'Number, 0-100',
+                maxLuminosityPc: 'Number, 0-100'
+            }
         });
 
         this.log('Logging...');
@@ -91,7 +96,7 @@ module.exports = class MidiFile {
             });
 
             midi.track[trackNumber].event.forEach(event => {
-                // this.debug(trackNumber, 'EVENT', event);
+                this.debug(trackNumber, 'EVENT', event);
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
@@ -192,6 +197,14 @@ module.exports = class MidiFile {
 
                 if (this.options.quantizePitchBucketSize) {
                     note.pitch = this.quantizePitch(note.pitch);
+                }
+
+                if (this.options.scaleLuminosity) {
+                    note.luminosity = 
+                        (this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc)
+                        * (note.velocity - this.ranges.velocity.lo)
+                        / (this.ranges.velocity.hi - this.ranges.velocity.lo)
+                        + this.options.colour.minLuminosityPc;
                 }
 
                 note.save();

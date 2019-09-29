@@ -65,3 +65,4 @@ Bitwig only exports 16 channels of MIDI (good) but gives each one a track (bad).
   
 * http://midi.teragonaudio.com/tech/midifile/ppqn.htm
 
+* http://www.kuhmann.com/Yamaha.htm

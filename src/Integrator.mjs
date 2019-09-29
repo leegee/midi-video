@@ -16,7 +16,12 @@ module.exports = class Integrator {
         trackHues: undefined,
         defaultHue: 100,
         fitNotesToScreen: true,
-        beatsOnScreen: 12
+        beatsOnScreen: 12,
+        colour: {
+            minSaturationPc: 77,
+            minLuminosityPc: 20,
+            maxLuminosityPc: 100
+        }
     };
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -37,7 +42,11 @@ module.exports = class Integrator {
         assertOptions(this.options, {
             midipath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
-            fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange'
+            fitNotesToScreen: 'boolean: scale the screen to fit the note-range used by the MIDI file. If false, supply the option midiNoteRange',
+            colour: {
+                minLuminosityPc: 'Number, 0-100',
+                maxLuminosityPc: 'Number, 0-100'
+            }
         });
 
         if (!this.options.outputpath) {

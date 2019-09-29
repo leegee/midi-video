@@ -1,10 +1,10 @@
 const Canvas = require('canvas')
 
+// const Titles = require('./Titles.mjs');
 const Note = require("./Note.mjs"); // .logging();
 const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class ImageMaker {
-    static Blank = null;
     static BlankImageBuffer = null;
 
     options = {
@@ -30,7 +30,19 @@ module.exports = class ImageMaker {
             minSaturationPc: 77,
             minLuminosityPc: 20,
             maxLuminosityPc: 100
-        }
+        },
+        titles: [
+            {
+                top: [
+                    {h1: 'What Would I Do'},
+                    {h2: 'Irving Berlin, 1923'}
+                ],
+                bottom: [
+                    {p: 'Piano Roll by Adam Carroll'},
+                    {p: 'Video © ℗ Lee Goddard'}
+                ]
+            }
+        ]
     };
 
     endSeconds2notesPlaying = {};
@@ -270,13 +282,7 @@ module.exports = class ImageMaker {
             this.options.trackHues[note.track] : this.options.defaultHue;
 
         const saturation = this.options.colour.minSaturationPc;
-
-        // Normalise velocity for lum - todo check MidiFile.ranges.velocity.lo and .hi
-        const luminosity = ((
-            (this.options.colour.minLuminosityPc - this.options.colour.minLuminosityPc)
-            * note.velocity
-        ) / 127) + this.options.colour.minLuminosityPc;
-
+        const luminosity = note.luminosity;
         note.colour = 'hsl(' + hue + ', ' + saturation + '%, ' + luminosity + '%)';
 
         note.height = this.noteHeight;
