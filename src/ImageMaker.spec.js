@@ -132,19 +132,18 @@ describe('ImageMaker', () => {
             channel: 0,
         };
 
-        let s = 0;
-        for (let pitch = 1; pitch < 127; pitch++) {
+        for (let pitch = 1; pitch < 127; pitch+= 127/3) {
             new Note({
                 ...noteArgs,
                 pitch,
                 velocity: pitch,
-                startSeconds: s,
-                endSeconds: s += 0.1
+                startSeconds: 0,
+                endSeconds: 1
             }).save();
         }
 
         const im = new ImageMaker({
-            beatsOnScreen: 1000,
+            beatsOnScreen: 2,
             logging: true,
             debug: true,
             width: 1000,
@@ -158,7 +157,7 @@ describe('ImageMaker', () => {
         await im.init();
         im.createBlankImage();
 
-        const imageBuffer = await im.getFrame(0.5);
+        const imageBuffer = await im.getFrame(0);
         expect(imageBuffer).to.be.an.instanceOf(Buffer);
 
         const savePath = path.resolve('temp-velocity.png');

@@ -17,7 +17,7 @@ module.exports = class ImageMaker {
         bg: 'black',
         globalCompositeOperation: 'screen',
         globalAlpha: 1,
-        defaultHue: 100,
+        defaultHue: 240,
         beatsOnScreen: undefined,
         highlightCurrent: {
             alpha: 0.9,
@@ -28,8 +28,8 @@ module.exports = class ImageMaker {
         },
         colour: {
             minSaturationPc: 77,
-            minLuminosityPc: 43,
-            maxLuminosityPc: 90
+            minLuminosityPc: 20,
+            maxLuminosityPc: 100
         }
     };
 
@@ -271,9 +271,11 @@ module.exports = class ImageMaker {
 
         const saturation = this.options.colour.minSaturationPc;
 
-        // Normalise velocity for lum
-        const luminosity = (this.options.colour.minLuminosityPc - this.options.colour.minLuminosityPc)
-            * note.velocity / 127 + this.options.colour.minLuminosityPc;
+        // Normalise velocity for lum - todo check MidiFile.ranges.velocity.lo and .hi
+        const luminosity = ((
+            (this.options.colour.minLuminosityPc - this.options.colour.minLuminosityPc)
+            * note.velocity
+        ) / 127) + this.options.colour.minLuminosityPc;
 
         note.colour = 'hsl(' + hue + ', ' + saturation + '%, ' + luminosity + '%)';
 
@@ -290,7 +292,8 @@ module.exports = class ImageMaker {
             return;
         }
         this.debug('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
-            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.noteHeight, note.startSeconds, note.endSeconds
+            note.track, note.channel, note.pitch, note.x, note.y, note.width, this.noteHeight, note.startSeconds, note.endSeconds,
+            note.colour
         );
 
         if (this.unisons && this.unisons[note.md5]) {
