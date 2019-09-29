@@ -26,7 +26,7 @@ describe('Titles', function () {
             width: imageMaker.canvas.width,
             height: imageMaker.canvas.height,
             title: {
-                text: 'What Would I Do',
+                text: "What'll I Do",
                 maxSize: 500,
                 color: 'white',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Italic.ttf')

@@ -44,12 +44,12 @@
 
 ## Yet to do
 
-* Revisit velocity
+* `assertOptions` to take objects
+* Fix layout bug (extra note lane at top) ?
 * Double height notes offset by 50% of height
+* Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation
 * Synchronise transients to transient file
-* Check `highlightCurrent` sizes do not conflict with small note heights
-* Fix layout bug (extra note lane at top) ?
 * Aftertouch, controllers (breath, expression)
 * Fractional pitches
 

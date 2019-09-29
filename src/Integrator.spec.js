@@ -13,11 +13,16 @@ let integrator;
 describe('Integrator', function () {
     this.timeout(1000 * 60);
 
-    xit('creates a video file from simple MIDI', async () => {
+    it('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
             fps: 1, // 30,
+            text: {
+                title: "What'll I Do",
+                composer: 'Irving Berlin, 1923',
+                performer: 'Piano Roll by Adam Carroll'
+            }
         });
         expect(integrator).to.be.an.instanceOf(Integrator);
 
@@ -32,15 +37,22 @@ describe('Integrator', function () {
         const encoderExitStatus = await promiseResolvesWhenFileWritten;
         expect(encoderExitStatus).to.equal(0);
 
+        await integrator.addTitles();
+
         expect(
             path.resolve(integrator.options.outputpath)
         ).to.be.a.path();
     });
 
-    it('creates a video file from real world  MIDI', async () => {
+    xit('creates a video file from real world Irving Berlin MIDI', async () => {
         const integrator = new Integrator({
             audiopath: 'fixtures/berlin/49-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871]-110bpm.wav',
             midipath: 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
+            text: {
+                title: "What'll I Do",
+                composer: 'Irving Berlin, 1923',
+                performer: 'Piano Roll by Adam Carroll'
+            }
         });
 
         expect(integrator).to.be.an.instanceOf(Integrator);

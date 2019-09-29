@@ -1,14 +1,26 @@
+const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
 const stream = require('stream');
 
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const FFMPEG_PATH = require('@ffmpeg-installer/ffmpeg').path;
 
 const assertOptions = require('./assertOptions.mjs');
 
 // thx https://dzone.com/articles/creating-video-on-the-server-in-nodejs
 
 module.exports = class Encoder {
+    static log = () => { }
+    static debug = () => { }
+    static doLog = false;
+
+    static logging() {
+        Note.doLog = true;
+        Note.log = console.log;
+        Note.debug = console.debug;
+        return Note;
+    }
+
     imagesStream = new stream.PassThrough();
     options = {
         fps: undefined,
@@ -25,9 +37,42 @@ module.exports = class Encoder {
     encoded = {};
     fps = undefined;
 
+    static concat(titlesTempPath, midiTempPath, finalPath) {
+        console.log('Encoder.concat enter');
+        const args = [
+            '-safe', 0, '-f', 'concat', '-i', 'temp.txt', '-c', 'copy', finalPath
+        ];
+
+        fs.writeFileSync('temp.txt', `file '${titlesTempPath}'\nfile '${midiTempPath}'`);
+
+        return new Promise((resolve, reject) => {
+            console.log('Encoder.concat pre-spawn ffmpeg', args);
+            const childProcess = child_process.spawn(FFMPEG_PATH, args);
+            console.log('Encoder.concat post-spawn ffmpeg');
+
+            if (Encoder.doLog) {
+                childProcess.stdout.on('data', data => {
+                    const str = data.toString();
+                    console.log('Encoder.concat out', str);
+                });
+                childProcess.stderr.on('data', data => {
+                    const str = data.toString();
+                    console.log('Encoder.concat err', str);
+                });
+            }
+            childProcess.on('close', code => {
+                console.info('Encoder.concat closed pipe after merge, ffmpeg exit status %d', code);
+                fs.unlinkSync('temp.txt');
+                fs.unlinkSync(titlesTempPath);
+                fs.unlinkSync(midiTempPath);
+                resolve(code);
+            });
+        });
+    }
+
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.logging ? console.log : () => {};
+        this.log = this.options.logging ? console.log : () => { };
         this.debug = this.options.debug ? console.debug : () => { };
         this.log('Encoder.new from ', this.options);
 
@@ -59,7 +104,7 @@ module.exports = class Encoder {
             );
 
             this.log('pre-spawn ffmpeg', args);
-            const childProcess = child_process.spawn(ffmpegPath, args);
+            const childProcess = child_process.spawn(FFMPEG_PATH, args);
             this.log('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
@@ -115,4 +160,5 @@ module.exports = class Encoder {
         this.imagesStream.end();
         this.log('Encoder.finalise done');
     }
+
 }

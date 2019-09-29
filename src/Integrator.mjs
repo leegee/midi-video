@@ -1,14 +1,17 @@
 const path = require('path');
 
+
 const MidiFile = require('./MidiFile.mjs');
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
+const TitleMaker = require('./TitleMaker.mjs');
 const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class Integrator {
     options = {
         logging: false,
         midipath: null,
+        titleDuration: 2,
         outputpath: 'output.mp4',
         width: 1920,
         height: 1080,
@@ -17,12 +20,16 @@ module.exports = class Integrator {
         defaultHue: 100,
         fitNotesToScreen: true,
         beatsOnScreen: 12,
+        createTitle: true,
         colour: {
             minSaturationPc: 77,
             minLuminosityPc: 20,
             maxLuminosityPc: 100
         }
     };
+    titlesTempPath = 'titles.mp4';
+    midiTempPath = 'midi.mp4';
+    finalPath = undefined;
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
     imageMaker = undefined;
@@ -59,6 +66,8 @@ module.exports = class Integrator {
             );
         }
 
+        this.finalPath = this.options.outputpath;
+
         // if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
         //     throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
         // }
@@ -93,15 +102,14 @@ module.exports = class Integrator {
 
         this.log('noteHeight: ', this.imageMaker.options.noteHeight);
         this.log('FPS:', this.options.fps);
-        this.log('Integrator.new create Encoder');
-
-        this.encoder = new Encoder(this.options);
 
         this.log('Integrator.init done');
     }
 
     async integrate() {
         this.log('Integrator.integrate enter');
+        this.options.outputpath = this.midiTempPath;
+        this.encoder = new Encoder(this.options);
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
         const timeFrame = 1 / this.options.fps;
@@ -112,7 +120,9 @@ module.exports = class Integrator {
         );
 
         for (
-            let currentTime = 0; currentTime <= maxTime; currentTime += timeFrame
+            let currentTime = 0;
+            currentTime <= maxTime;
+            currentTime += timeFrame
         ) {
             this.log('Current time = ', currentTime);
             const image = await this.imageMaker.getFrame(currentTime);
@@ -124,6 +134,58 @@ module.exports = class Integrator {
         this.log('Called Encoder.finalise');
 
         return promiseResolvesWhenFileWritten;
+    }
+
+    async addTitles() {
+        if (this.options.createTitle) {
+            const titleCanvas = this.getTitleCanvas();
+            const titleImage = titleCanvas.toBuffer('image/png');
+            const options = Object.assign({}, this.options, {
+                fps: 1,
+                outputpath: this.titlesTempPath,
+                audiopath: 'wav/silence.wav'
+            });
+
+            const encoder = new Encoder(options);
+            const promiseResolvesWhenFileWritten = encoder.init();
+            for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {
+                encoder.addImage(titleImage);
+            }
+            encoder.finalise();
+
+            await promiseResolvesWhenFileWritten;
+
+            await Encoder.concat(
+                this.titlesTempPath, this.midiTempPath, this.finalPath
+            );
+        }
+    }
+
+    getTitleCanvas() {
+        const titleMaker = new TitleMaker({
+            width: this.options.width,
+            height: this.options.height,
+            title: {
+                text: this.options.text.title,
+                maxSize: 500,
+                color: 'white',
+                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Italic.ttf')
+            },
+            composer: {
+                text: this.options.text.composer,
+                maxSize: 80,
+                color: 'rgba(255, 255, 255, 0.7)',
+                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
+            },
+            performer: {
+                text: this.options.text.performer,
+                maxSize: 80,
+                color: 'rgba(255, 255, 255, 0.7)',
+                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
+            }
+        });
+
+        return titleMaker.getCanvas();
     }
 
 }

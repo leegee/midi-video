@@ -5,7 +5,7 @@ module.exports = (options, requiredArgs) => {
             errMsgs.push(key + ': ' + requiredArgs[key]);
         } 
         // else {
-        //     console.log('yes, key = %s ', key, options[key]);
+        //     console.log('yes, key = %s; value =', key, options[key]);
         // }
     });
     if (errMsgs.length) {
