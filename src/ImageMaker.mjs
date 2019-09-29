@@ -30,19 +30,7 @@ module.exports = class ImageMaker {
             minSaturationPc: 77,
             minLuminosityPc: 20,
             maxLuminosityPc: 100
-        },
-        titles: [
-            {
-                top: [
-                    {h1: 'What Would I Do'},
-                    {h2: 'Irving Berlin, 1923'}
-                ],
-                bottom: [
-                    {p: 'Piano Roll by Adam Carroll'},
-                    {p: 'Video © ℗ Lee Goddard'}
-                ]
-            }
-        ]
+        }
     };
 
     endSeconds2notesPlaying = {};
