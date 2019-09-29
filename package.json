@@ -25,6 +25,8 @@
     "decimal.js": "^10.2.0",
     "md5": "^2.2.1",
     "midi-parser-js": "*",
+    "node-canvas-text": "^1.0.2",
+    "opentype.js": "^1.1.0",
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {

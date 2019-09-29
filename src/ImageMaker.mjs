@@ -1,6 +1,6 @@
 const Canvas = require('canvas')
 
-// const Titles = require('./Titles.mjs');
+const Titles = require('./Titles.mjs');
 const Note = require("./Note.mjs"); // .logging();
 const assertOptions = require('./assertOptions.mjs');
 
