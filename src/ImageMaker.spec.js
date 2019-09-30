@@ -121,7 +121,6 @@ describe('ImageMaker', () => {
         expect(savePath).to.be.a.path();
     });
 
-
     it('velocity', async () => {
         await Note.init();
 
@@ -144,8 +143,8 @@ describe('ImageMaker', () => {
 
         const im = new ImageMaker({
             beatsOnScreen: 2,
-            logging: true,
-            debug: true,
+            // logging: true,
+            // debug: true,
             width: 1000,
             height: 1000,
             noteHeight: 10,

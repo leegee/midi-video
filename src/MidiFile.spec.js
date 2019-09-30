@@ -8,8 +8,11 @@ const Note = require("./Note.mjs");
 describe('MidiFile', function () {
     this.timeout(1000 * 1000);
 
-    beforeEach(() => {
-        Note.reset();
+    beforeEach(async () => {
+        await Note.reset();
+    });
+    afterEach(async () => {
+        await Note.reset();
     });
 
     it('accepts a sole arg', async () => {
@@ -20,7 +23,6 @@ describe('MidiFile', function () {
     it('reads simple MIDI', async () => {
         const midiReader = new MidiFile({
             midipath: path.resolve('fixtures/one.mid'),
-            debug: false
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);
 
@@ -41,8 +43,6 @@ describe('MidiFile', function () {
     xit('reads real world MIDI', async () => {
         const midiReader = new MidiFile({
             midipath: path.resolve('fixtures/symphony_9_2_(c)cvikl.mid'),
-            logging: false,
-            debug: false
         });
         expect(midiReader).to.be.an.instanceOf(MidiFile);
 
@@ -94,12 +94,5 @@ describe('MidiFile', function () {
         );
     });
 
-    it('quantizes pitch', async () => {
-        const midiReader = new MidiFile(
-            'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
-        );
-        midiReader.verbose();
-        await midiReader.parse();
-    });
 });
 

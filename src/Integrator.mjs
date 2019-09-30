@@ -23,7 +23,12 @@ module.exports = class Integrator {
         colour: {
             minSaturationPc: 77,
             minLuminosityPc: 20,
-            maxLuminosityPc: 100
+            maxLuminosityPc: 100,
+            text: {
+                composer: '',
+                performer: '',
+                title: ''
+            }
         }
     };
     finalPath = undefined;
@@ -76,7 +81,7 @@ module.exports = class Integrator {
         this.beatsOnScreen = this.options.beatsOnScreen;
     }
 
-    async init() {
+    async _init() {
         this.log('Integrator.init enter');
 
         this.midiFile = new MidiFile(this.options);
@@ -107,6 +112,8 @@ module.exports = class Integrator {
 
     async integrate() {
         this.log('Integrator.integrate enter');
+        await this._init();
+
         this.encoder = new Encoder(this.options);
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
@@ -117,7 +124,7 @@ module.exports = class Integrator {
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
         );
 
-        if (1 == 1 || this.options.createTitle) { // xxx
+        if (this.options.createTitle) { // xxx
             const titleCanvas = this.getTitleCanvas();
             const titleImage = titleCanvas.toBuffer('image/png');
             for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {

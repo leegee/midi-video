@@ -7,8 +7,16 @@ chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
 const Integrator = require("./index");
+const Note = require("./Note.mjs");
 
 let integrator;
+
+beforeEach(async () => {
+    await Note.reset();
+});
+afterEach(async () => {
+    await Note.reset();
+});
 
 describe('Integrator', function () {
     this.timeout(1000 * 60);
@@ -28,7 +36,6 @@ describe('Integrator', function () {
         });
         expect(integrator).to.be.an.instanceOf(Integrator);
 
-        await integrator.init();
         if (fs.existsSync(integrator.options.outputpath)) {
             fs.unlinkSync(integrator.options.outputpath);
         }
@@ -57,7 +64,6 @@ describe('Integrator', function () {
 
         expect(integrator).to.be.an.instanceOf(Integrator);
 
-        await integrator.init();
         if (fs.existsSync(integrator.options.outputpath)) {
             fs.unlinkSync(integrator.options.outputpath);
         }

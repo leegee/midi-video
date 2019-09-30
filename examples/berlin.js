@@ -17,8 +17,6 @@ async function main() {
     });
 
     try {
-        await integrator.init();
-
         const encoderExitStatus = await integrator.integrate();
 
         console.log('Completed with code', encoderExitStatus);
