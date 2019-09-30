@@ -23,7 +23,7 @@ module.exports = class ImageMaker {
             alpha: 0.9,
             strokeStyle: 'white',
             shadowColor: 'white',
-            shadowBlur: 6,
+            shadowBlur: 10,
             lineWidth: 2 // TODO check for conflicts with note height
         },
         colour: {

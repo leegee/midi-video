@@ -68,6 +68,8 @@ describe('Integrator', function () {
         const encoderExitStatus = await promiseResolvesWhenFileWritten;
         expect(encoderExitStatus).to.equal(0);
 
+        await integrator.addTitles();
+
         expect(
             path.resolve(integrator.options.outputpath)
         ).to.be.a.path();

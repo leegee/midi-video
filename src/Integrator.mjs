@@ -1,6 +1,5 @@
 const path = require('path');
 
-
 const MidiFile = require('./MidiFile.mjs');
 const Encoder = require('./Encoder.mjs');
 const ImageMaker = require('./ImageMaker.mjs');
@@ -130,10 +129,10 @@ module.exports = class Integrator {
         }
 
         this.log('All time frames parsed: call Encoder.finalise');
+        await  promiseResolvesWhenFileWritten;
         this.encoder.finalise();
         this.log('Called Encoder.finalise');
 
-        return promiseResolvesWhenFileWritten;
     }
 
     async addTitles() {
@@ -151,13 +150,9 @@ module.exports = class Integrator {
             for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {
                 encoder.addImage(titleImage);
             }
-            encoder.finalise();
-
             await promiseResolvesWhenFileWritten;
+            await encoder.finalise();
 
-            await Encoder.concat(
-                this.titlesTempPath, this.midiTempPath, this.finalPath
-            );
         }
     }
 

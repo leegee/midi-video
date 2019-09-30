@@ -21,7 +21,7 @@ module.exports = class Encoder {
         return Note;
     }
 
-    imagesStream = new stream.PassThrough();
+    imagesStream = undefined;
     options = {
         fps: undefined,
         width: undefined,
@@ -60,6 +60,9 @@ module.exports = class Encoder {
                     console.log('Encoder.concat err', str);
                 });
             }
+            childProcess.on('error', error => {
+                throw error;
+            });
             childProcess.on('close', code => {
                 console.info('Encoder.concat closed pipe after merge, ffmpeg exit status %d', code);
                 fs.unlinkSync('temp.txt');
@@ -112,20 +115,39 @@ module.exports = class Encoder {
                 this.log(str);
                 this.stdout += str + '\n';
             });
+
             childProcess.stderr.on('data', data => {
                 const str = data.toString();
                 this.log(str);
                 this.stderr += str + '\n';
             });
+
+            childProcess.on('error', data => {
+                const str = data.toString();
+                console.error('ERROR', str);
+                this.stderr += str + '\n';
+                reject(str);
+            });
+
+            childProcess.on('exit', code => {
+                console.info('Child proc closed');
+            });
+
             childProcess.on('close', code => {
+                this.pipeOpen = false;
                 console.info(
-                    'Encoder: close pipe after %d image, ffmpeg exit status %d',
+                    'Encoder: closed pipe after %d images, ffmpeg exit status %d',
                     this.totalImagesAdded, code
                 );
                 this.parseOutput();
                 resolve(code);
             });
 
+            this.pipeOpen = true;
+            this.imagesStream = new stream.PassThrough();
+            this.imagesStream.on('error', () => {
+                console.error('imageStream error: ', error);
+            });
             this.imagesStream.pipe(childProcess.stdin);
             this.log('pipe connected');
         });
@@ -155,9 +177,12 @@ module.exports = class Encoder {
         this.debug('Encoder.addImage added image', this.totalImagesAdded);
     }
 
-    finalise() {
+    async finalise() {
         this.log('Encoder.finalise closing imageStream');
         this.imagesStream.end();
+        await Encoder.concat(
+            this.titlesTempPath, this.midiTempPath, this.finalPath
+        );
         this.log('Encoder.finalise done');
     }
 
