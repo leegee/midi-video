@@ -35,6 +35,12 @@ module.exports = class ImageMaker {
 
     endSeconds2notesPlaying = {};
     uniqueNotesPlaying = {};
+    ranges = {
+        y: {
+            hi: 0,
+            lo: undefined
+        }
+    };
 
     static createColourList(length, defaultHue) {
         return length === 1 ? [defaultHue] : new Array(length).fill('x').map(
@@ -63,6 +69,8 @@ module.exports = class ImageMaker {
         this.noteHeight = Math.floor(
             (this.options.height + 1) / (this.options.midiNoteRange + 1)
         );
+
+        this.ranges.y.lo = this.height;
 
         this.log('Note height: %d, Canvas height: %d, note range: %d',
             this.noteHeight, this.options.height / this.noteHeight, this.options.midiNoteRange
@@ -293,6 +301,13 @@ module.exports = class ImageMaker {
         if (this.unisons && this.unisons[note.md5]) {
             note.y = this.unisons[note.md5].y;
             note.height = this.unisons[note.md5].height;
+        }
+
+        if (note.y > this.ranges.y.hi) {
+            this.ranges.y.hi = note.y;
+        }
+        else if (note.y < this.ranges.y.lo) {
+            this.ranges.y.lo = note.y;
         }
 
         try {

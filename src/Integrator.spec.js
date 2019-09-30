@@ -27,7 +27,7 @@ describe('Integrator', function () {
             // debug: true,
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
-            fps: 1, // 30,
+            fps: 5, // 30,
             text: {
                 title: "What'll I Do",
                 composer: 'Irving Berlin, 1923',

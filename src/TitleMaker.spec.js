@@ -17,12 +17,13 @@ const imageMaker = new ImageMaker({
 });
 
 const canvas = imageMaker.createBlankImage();
+let titleMaker;
 
 describe('Titles', function () {
     this.timeout(1000 * 60);
 
-    it('renders a title image', async () => {
-        const titleMaker = new TitleMaker({
+    beforeEach(() => {
+        titleMaker = new TitleMaker({
             width: imageMaker.canvas.width,
             height: imageMaker.canvas.height,
             title: {
@@ -44,7 +45,9 @@ describe('Titles', function () {
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             }
         });
+    });
 
+    it('renders a title image', async () => {
         const canvas = titleMaker.getCanvas();
         const imageBuffer = canvas.toBuffer('image/png');
         const savePath = path.resolve('temp-title.png');
@@ -52,4 +55,39 @@ describe('Titles', function () {
         expect(savePath).to.be.a.path();
     });
 
+    it('fades out', () => {
+        const canvas = titleMaker.getCanvas();
+        const savePath = path.resolve('temp-title-faded.png');
+
+        this.options = {
+            fadeTitleDuration: 8,
+            titleDuration: 10,
+        };
+
+        const timeFrame = 1 / 10;
+
+        const onePc = 100 / ((this.options.titleDuration - this.options.fadeTitleDuration) / timeFrame);
+
+        console.log('Step size: ', onePc);
+        console.log('From ', this.options.fadeTitleDuration);
+
+        let i = 0;
+        for (let seconds = this.options.fadeTitleDuration; seconds <= this.options.titleDuration; seconds += timeFrame) {
+            const pc = onePc * i++;
+            console.log('seconds %d pc %d', seconds, pc);
+
+            const fadedTitleCanvas = titleMaker.getFadedTitleCanvas(pc);
+            console.log('fadedTitleCanvas', fadedTitleCanvas);
+            const titleImageBuffer = fadedTitleCanvas.toBuffer('image/png');
+
+            if (pc > 60 && pc < 70) {
+                fs.writeFileSync(savePath, titleImageBuffer);
+                expect(savePath).to.be.a.path();
+
+                throw 'stop at ' + i;
+            }
+        }
+
+        console.log('To ', this.options.titleDuration);
+    });
 });

@@ -191,7 +191,7 @@ module.exports = class MidiFile {
         this.durationSeconds = longestTrackDurationSeconds;
 
         this.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
-        this.info('MidiFile.parse found ranges: ', this.ranges);
+        this.log('MidiFile.parse found ranges: ', this.ranges);
 
         this.tracks.forEach(track => {
             track.notes.forEach(note => {

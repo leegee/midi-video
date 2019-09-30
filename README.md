@@ -6,9 +6,7 @@
         'fixtures/4bars-60bpm.mid'
     ); // src contains more options
 
-    app.init().then(() => {
-        return app.integrate();
-    }).then(() => {
+    app.integrate().then(() => {
         console.log('Wrote ', app.options.outputpath);
     }).catch(err => {
         console.error(err);
@@ -41,11 +39,14 @@
 * Colour by track and velocity
 * Process tempo changes
 * Visually represent multiple voicings of the same pitch
+* Adds title card
 
 ## Yet to do
 
+* Better ffmpeg options
 * `assertOptions` to take objects
 * Fix layout bug (extra note lane at top) ?
+* Fade titles
 * Double height notes offset by 50% of height
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation
@@ -66,3 +67,5 @@ Bitwig only exports 16 channels of MIDI (good) but gives each one a track (bad).
 * http://midi.teragonaudio.com/tech/midifile/ppqn.htm
 
 * http://www.kuhmann.com/Yamaha.htm
+
+* https://trac.ffmpeg.org/wiki/Encode/H.264

@@ -23,6 +23,7 @@ module.exports = class Encoder {
 
     imagesStream = undefined;
     options = {
+        createTitle: false,
         fps: undefined,
         width: undefined,
         height: undefined,
@@ -52,8 +53,6 @@ module.exports = class Encoder {
         });
     }
 
-    // ffmpeg -y -i a.mp4 -itsoffset 00:00:30 sng.m4a -map 0:0 -map 1:0 -c:v copy -preset ultrafast -async 1 out.mp4
-
     init() {
         this.log('Encoder.init');
         return new Promise((resolve, reject) => {
@@ -65,7 +64,15 @@ module.exports = class Encoder {
                 '-i', '-'
             ];
             if (this.options.audiopath) {
-                args.push('-itsoffset', '00:00:' + this.options.titleDuration); // XXX
+                if (this.options.createTitle) {
+                    const t = new Date();
+                    t.setHours(0);
+                    t.setMinutes(0);
+                    t.setSeconds(this.options.titleDuration);
+                    const audiooffset = t.toLocaleTimeString('en-GB', { hour12: false });
+                    console.log('Audio offset, after titles: [%s]', audiooffset);
+                    args.push('-itsoffset', audiooffset);
+                }
                 args.push('-i', this.options.audiopath);
             }
             args.push(

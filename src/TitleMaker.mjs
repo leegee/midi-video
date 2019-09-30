@@ -11,11 +11,12 @@ module.exports = class Titles {
     debug = () => { };
     creator = 'Video © ℗ Lee Goddard';
     defaultFont = path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf');
+    completeCanvasImageData = undefined;
     options = {
         width: undefined,
         height: undefined,
-        bg: 'black',
         fg: 'white',
+        bg: 'black',
         areas: {
             header: { x: undefined, y: undefined, width: undefined, height: undefined },
             center: { x: undefined, y: undefined, width: undefined, height: undefined },
@@ -83,6 +84,26 @@ module.exports = class Titles {
             width: this.options.width,
             height: (this.options.height / 3) - 10
         };
+    }
+
+    getFadedTitleCanvas(opacityPc) {
+        if (isNaN(opacityPc)) {
+            throw new TypeError('getFadedTitleCanvas expected a percentage number, got ' + opacityPc);
+        }
+        if (this.completeCanvasImageData === undefined) {
+            this.completeCanvasImageData = this.completeCanvasImageData || this.ctx.getImageData(0, 0, this.options.width, this.options.height);
+        }
+
+        const fadedTitleCanvas = Canvas.createCanvas(this.options.width, this.options.height);
+        const ctx = fadedTitleCanvas.getContext('2d');
+
+        ctx.putImageData(this.completeCanvasImageData, 0, 0);
+        
+        ctx.globalAlpha = opacityPc / 100;
+        ctx.fillStyle = this.options.bg;
+        ctx.fillRect(0, 0, this.options.width, this.options.height);
+
+        return fadedTitleCanvas;
     }
 
     getCanvas() {

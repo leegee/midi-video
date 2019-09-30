@@ -10,7 +10,8 @@ module.exports = class Integrator {
     options = {
         logging: false,
         midipath: null,
-        titleDuration: 2,
+        titleDuration: 4,
+        fadeTitleDuration: 1,
         outputpath: 'output.mp4',
         width: 1920,
         height: 1080,
@@ -35,6 +36,7 @@ module.exports = class Integrator {
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
     imageMaker = undefined;
+    titleMaker = undefined;
 
     constructor(options = {}) {
         if (typeof options === 'string') {
@@ -124,10 +126,30 @@ module.exports = class Integrator {
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
         );
 
-        if (this.options.createTitle) { // xxx
+        if (this.options.createTitle) {
+            if (this.options.titleDuration - this.options.fadeTitleDuration < 0) {
+                throw new RangeError('this.options.titleDuration - this.options.fadeTitleDuration < 0');
+            }
+
+            const durationOpaque = this.options.titleDuration - this.options.fadeTitleDuration;
             const titleCanvas = this.getTitleCanvas();
             const titleImage = titleCanvas.toBuffer('image/png');
-            for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {
+
+            console.info('Titles: full=%d, opaque=%d, fade=%d',
+                this.options.titleDuration, durationOpaque, this.options.fadeTitleDuration
+            );
+
+            for (let seconds = 0; seconds <= durationOpaque; seconds += timeFrame) {
+                this.encoder.addImage(titleImage);
+            }
+
+            const onePc = 100 / (this.options.fadeTitleDuration / timeFrame);
+            let i = 0;
+
+            for (let seconds = 0; seconds <= this.options.fadeTitleDuration; seconds += timeFrame) {
+                const pc = onePc * i++;
+                const fadedTitleCanvas = this.titleMaker.getFadedTitleCanvas(pc);
+                const titleImage = fadedTitleCanvas.toBuffer('image/png');
                 this.encoder.addImage(titleImage);
             }
         }
@@ -141,11 +163,13 @@ module.exports = class Integrator {
         this.log('All time frames parsed: call Encoder.finalise');
         this.encoder.finalise();
         this.log('Called Encoder.finalise');
+
+        this.log('ImageMaker height %d, range: ', this.imageMaker.height, this.imageMaker.ranges);
         return promiseResolvesWhenFileWritten;
     }
 
     getTitleCanvas() {
-        const titleMaker = new TitleMaker({
+        this.titleMaker = new TitleMaker({
             width: this.options.width,
             height: this.options.height,
             title: {
@@ -168,7 +192,7 @@ module.exports = class Integrator {
             }
         });
 
-        return titleMaker.getCanvas();
+        return this.titleMaker.getCanvas();
     }
 
 }
