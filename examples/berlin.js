@@ -1,5 +1,6 @@
+#!/usr/bin/env node
+
 const path = require('path');
-const fs = require('fs');
 
 const App = require("../src");
 
@@ -18,7 +19,6 @@ async function main() {
 
     try {
         const encoderExitStatus = await integrator.integrate();
-
         console.log('Completed with code', encoderExitStatus);
     }
     catch (e) {
