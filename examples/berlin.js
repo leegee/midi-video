@@ -21,8 +21,6 @@ async function main() {
 
         const encoderExitStatus = await integrator.integrate();
 
-        await integrator.addTitles();
-    
         console.log('Completed with code', encoderExitStatus);
     }
     catch (e) {

@@ -15,6 +15,8 @@ describe('Integrator', function () {
 
     it('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
+            // logging: true,
+            // debug: true,
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
             fps: 1, // 30,
@@ -36,8 +38,6 @@ describe('Integrator', function () {
 
         const encoderExitStatus = await promiseResolvesWhenFileWritten;
         expect(encoderExitStatus).to.equal(0);
-
-        await integrator.addTitles();
 
         expect(
             path.resolve(integrator.options.outputpath)
@@ -67,8 +67,6 @@ describe('Integrator', function () {
 
         const encoderExitStatus = await promiseResolvesWhenFileWritten;
         expect(encoderExitStatus).to.equal(0);
-
-        await integrator.addTitles();
 
         expect(
             path.resolve(integrator.options.outputpath)

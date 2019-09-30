@@ -36,8 +36,8 @@ module.exports = class ImageMaker {
     endSeconds2notesPlaying = {};
     uniqueNotesPlaying = {};
 
-    static createColourList(length) {
-        return new Array(length).fill('x').map(
+    static createColourList(length, defaultHue) {
+        return length === 1 ? [defaultHue] : new Array(length).fill('x').map(
             (value, index) => Math.floor((360 / length + 1) * index)
         );
     }

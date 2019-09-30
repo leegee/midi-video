@@ -28,7 +28,12 @@ module.exports = class MidiFile {
         logging: false,
         midipath: null,
         quantizePitchBucketSize: false, // Or int
-        scaleLuminosity: true
+        scaleLuminosity: true,
+        defaultLuminosity: 50,
+        colour: {
+            minLuminosityPc: undefined,
+            maxLuminosityPc: undefined
+        }
     };
     tracks = [];
     durationSeconds = null;
@@ -48,7 +53,8 @@ module.exports = class MidiFile {
             quantizePitchBucketSize: 'integer bucket size for quantizing pitch',
             colour: {
                 minLuminosityPc: 'Number, 0-100',
-                maxLuminosityPc: 'Number, 0-100'
+                maxLuminosityPc: 'Number, 0-100',
+                defaultLuminosity: 'Number, 0-100'
             }
         });
 
@@ -199,12 +205,14 @@ module.exports = class MidiFile {
                     note.pitch = this.quantizePitch(note.pitch);
                 }
 
-                if (this.options.scaleLuminosity) {
-                    note.luminosity = 
+                if (this.options.scaleLuminosity && this.ranges.velocity.hi !== this.ranges.velocity.lo) {
+                    note.luminosity =
                         (this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc)
                         * (note.velocity - this.ranges.velocity.lo)
                         / (this.ranges.velocity.hi - this.ranges.velocity.lo)
                         + this.options.colour.minLuminosityPc;
+                } else {
+                    note.luminosity = this.options.defaultLuminosity;
                 }
 
                 note.save();
@@ -223,12 +231,17 @@ module.exports = class MidiFile {
 
     mapTrackNames2Hues(trackHues, defaultHue) {
         const mapped = [];
+        let i = 0;
 
         this.tracks.forEach(track => {
-            if (trackHues[track.name]) {
+            if (trackHues instanceof Object && trackHues[track.name]) {
                 mapped.push(trackHues[track.name]);
                 this.log('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
-            } else {
+            }
+            else if (trackHues instanceof Array) {
+                mapped.push(trackHues[i++]);
+            }
+            else {
                 console.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
                 mapped.push(defaultHue);
             }

@@ -26,8 +26,6 @@ module.exports = class Integrator {
             maxLuminosityPc: 100
         }
     };
-    titlesTempPath = 'titles.mp4';
-    midiTempPath = 'midi.mp4';
     finalPath = undefined;
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
@@ -88,11 +86,13 @@ module.exports = class Integrator {
         this.log('Reset MIDI note range: ', midiNoteRange);
         this.log('Integrator.new create ImageMaker');
 
+        const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue)
+            : ImageMaker.createColourList(this.midiFile.tracks.length, this.options.defaultHue);
+
         this.imageMaker = new ImageMaker({
             ...this.options,
             midiNoteRange,
-            trackHues: this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue)
-                : ImageMaker.createColourList(this.midiFile.tracks.length),
+            trackHues,
             beatsOnScreen: this.beatsOnScreen,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
         });
@@ -107,7 +107,6 @@ module.exports = class Integrator {
 
     async integrate() {
         this.log('Integrator.integrate enter');
-        this.options.outputpath = this.midiTempPath;
         this.encoder = new Encoder(this.options);
         const promiseResolvesWhenFileWritten = this.encoder.init();
 
@@ -118,42 +117,24 @@ module.exports = class Integrator {
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
         );
 
-        for (
-            let currentTime = 0;
-            currentTime <= maxTime;
-            currentTime += timeFrame
-        ) {
+        if (1 == 1 || this.options.createTitle) { // xxx
+            const titleCanvas = this.getTitleCanvas();
+            const titleImage = titleCanvas.toBuffer('image/png');
+            for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {
+                this.encoder.addImage(titleImage);
+            }
+        }
+
+        for (let currentTime = 0; currentTime <= maxTime; currentTime += timeFrame) {
             this.log('Current time = ', currentTime);
             const image = await this.imageMaker.getFrame(currentTime);
             this.encoder.addImage(image);
         }
 
         this.log('All time frames parsed: call Encoder.finalise');
-        await  promiseResolvesWhenFileWritten;
         this.encoder.finalise();
         this.log('Called Encoder.finalise');
-
-    }
-
-    async addTitles() {
-        if (this.options.createTitle) {
-            const titleCanvas = this.getTitleCanvas();
-            const titleImage = titleCanvas.toBuffer('image/png');
-            const options = Object.assign({}, this.options, {
-                fps: 1,
-                outputpath: this.titlesTempPath,
-                audiopath: 'wav/silence.wav'
-            });
-
-            const encoder = new Encoder(options);
-            const promiseResolvesWhenFileWritten = encoder.init();
-            for (let seconds = 0; seconds <= this.options.titleDuration; seconds++) {
-                encoder.addImage(titleImage);
-            }
-            await promiseResolvesWhenFileWritten;
-            await encoder.finalise();
-
-        }
+        return promiseResolvesWhenFileWritten;
     }
 
     getTitleCanvas() {

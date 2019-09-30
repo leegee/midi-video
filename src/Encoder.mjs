@@ -29,49 +29,14 @@ module.exports = class Encoder {
         audiopath: undefined,
         outputpath: path.resolve('./output.mp4'),
         logging: false,
-        pixFmt: 'yuv420p'
+        pixFmt: 'yuv420p',
+        titleDuration: undefined
     };
     totalImagesAdded = 0;
     stderr = '';
     stdout = '';
     encoded = {};
     fps = undefined;
-
-    static concat(titlesTempPath, midiTempPath, finalPath) {
-        console.log('Encoder.concat enter');
-        const args = [
-            '-safe', 0, '-f', 'concat', '-i', 'temp.txt', '-c', 'copy', finalPath
-        ];
-
-        fs.writeFileSync('temp.txt', `file '${titlesTempPath}'\nfile '${midiTempPath}'`);
-
-        return new Promise((resolve, reject) => {
-            console.log('Encoder.concat pre-spawn ffmpeg', args);
-            const childProcess = child_process.spawn(FFMPEG_PATH, args);
-            console.log('Encoder.concat post-spawn ffmpeg');
-
-            if (Encoder.doLog) {
-                childProcess.stdout.on('data', data => {
-                    const str = data.toString();
-                    console.log('Encoder.concat out', str);
-                });
-                childProcess.stderr.on('data', data => {
-                    const str = data.toString();
-                    console.log('Encoder.concat err', str);
-                });
-            }
-            childProcess.on('error', error => {
-                throw error;
-            });
-            childProcess.on('close', code => {
-                console.info('Encoder.concat closed pipe after merge, ffmpeg exit status %d', code);
-                fs.unlinkSync('temp.txt');
-                fs.unlinkSync(titlesTempPath);
-                fs.unlinkSync(midiTempPath);
-                resolve(code);
-            });
-        });
-    }
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
@@ -87,6 +52,8 @@ module.exports = class Encoder {
         });
     }
 
+    // ffmpeg -y -i a.mp4 -itsoffset 00:00:30 sng.m4a -map 0:0 -map 1:0 -c:v copy -preset ultrafast -async 1 out.mp4
+
     init() {
         this.log('Encoder.init');
         return new Promise((resolve, reject) => {
@@ -98,6 +65,7 @@ module.exports = class Encoder {
                 '-i', '-'
             ];
             if (this.options.audiopath) {
+                args.push('-itsoffset', '00:00:' + this.options.titleDuration); // XXX
                 args.push('-i', this.options.audiopath);
             }
             args.push(
@@ -164,7 +132,6 @@ module.exports = class Encoder {
             console.error('^'.repeat(100));
             throw err;
         }
-
     }
 
     addImage(buffer) {
@@ -180,9 +147,6 @@ module.exports = class Encoder {
     async finalise() {
         this.log('Encoder.finalise closing imageStream');
         this.imagesStream.end();
-        await Encoder.concat(
-            this.titlesTempPath, this.midiTempPath, this.finalPath
-        );
         this.log('Encoder.finalise done');
     }
 
