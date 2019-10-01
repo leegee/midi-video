@@ -2,4 +2,6 @@ node_modules/
 package-lock.json
 output.mp4
 src/temp.css
-temp.png
+temp*.png
+fixtures/berlin/desktop.ini
+fixtures/todo/
