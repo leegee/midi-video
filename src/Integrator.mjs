@@ -8,6 +8,7 @@ const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class Integrator {
     options = {
+        RENDER_DISABLED: false,
         logging: false,
         midipath: null,
         titleDuration: 4,
@@ -50,6 +51,10 @@ module.exports = class Integrator {
 
         this.log('Create new  Integrator');
 
+        if (this.options.RENDER_DISABLED) {
+            console.info('*'.repeat(40), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat(40), '\n');
+        }
+
         assertOptions(this.options, {
             midipath: 'path to the MIDI file to parse',
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
@@ -90,7 +95,7 @@ module.exports = class Integrator {
 
         const midiNoteRange = await this.midiFile.parse();
 
-        this.log('Reset MIDI note range: ', midiNoteRange);
+        this.log('MIDI note range: ', midiNoteRange);
         this.log('Integrator.new create ImageMaker');
 
         const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue)
@@ -106,7 +111,7 @@ module.exports = class Integrator {
 
         await this.imageMaker.init();
 
-        this.log('noteHeight: ', this.imageMaker.options.noteHeight);
+        this.log('noteHeight: ', this.imageMaker.noteHeight);
         this.log('FPS:', this.options.fps);
 
         this.log('Integrator.init done');
@@ -116,8 +121,13 @@ module.exports = class Integrator {
         this.log('Integrator.integrate enter');
         await this._init();
 
-        this.encoder = new Encoder(this.options);
-        const promiseResolvesWhenFileWritten = this.encoder.init();
+        let promiseResolvesWhenFileWritten;
+        if (this.options.RENDER_DISABLED) {
+            promiseResolvesWhenFileWritten = Promise.resolve();
+        } else {
+            this.encoder = new Encoder(this.options);
+            promiseResolvesWhenFileWritten = this.encoder.init();
+        }
 
         const timeFrame = 1 / this.options.fps;
         const maxTime = this.midiFile.durationSeconds + (this.beatsOnScreen / 2);
@@ -139,8 +149,10 @@ module.exports = class Integrator {
                 this.options.titleDuration, durationOpaque, this.options.fadeTitleDuration
             );
 
-            for (let seconds = 0; seconds <= durationOpaque; seconds += timeFrame) {
-                this.encoder.addImage(titleImage);
+            if (!this.options.RENDER_DISABLED) {
+                for (let seconds = 0; seconds <= durationOpaque; seconds += timeFrame) {
+                    this.encoder.addImage(titleImage);
+                }
             }
 
             const onePc = 100 / (this.options.fadeTitleDuration / timeFrame);
@@ -150,21 +162,27 @@ module.exports = class Integrator {
                 const pc = onePc * i++;
                 const fadedTitleCanvas = this.titleMaker.getFadedTitleCanvas(pc);
                 const titleImage = fadedTitleCanvas.toBuffer('image/png');
-                this.encoder.addImage(titleImage);
+                if (!this.options.RENDER_DISABLED) {
+                    this.encoder.addImage(titleImage);
+                }
             }
         }
 
         for (let currentTime = 0; currentTime <= maxTime; currentTime += timeFrame) {
             this.log('Current time = ', currentTime);
             const image = await this.imageMaker.getFrame(currentTime);
-            this.encoder.addImage(image);
+            if (!this.options.RENDER_DISABLED) {
+                this.encoder.addImage(image);
+            }
         }
 
-        this.log('All time frames parsed: call Encoder.finalise');
-        this.encoder.finalise();
-        this.log('Called Encoder.finalise');
+        if (!this.options.RENDER_DISABLED) {
+            this.log('All time frames parsed: call Encoder.finalise');
+            this.encoder.finalise();
+            this.log('Called Encoder.finalise');
+        }
 
-        this.log('ImageMaker height %d, range: ', this.imageMaker.height, this.imageMaker.ranges);
+        this.log('ImageMaker height %d, range: ', this.imageMaker.options.height, this.imageMaker.ranges);
         return promiseResolvesWhenFileWritten;
     }
 

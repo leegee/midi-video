@@ -15,8 +15,8 @@ module.exports = class MidiFile {
     static SIXTY = new Decimal(60);
     static INIT_RANGES = {
         pitch: {
-            hi: 0,
-            lo: 127
+            hi: undefined,
+            lo: undefined
         },
         velocity: {
             hi: 0,
@@ -128,14 +128,16 @@ module.exports = class MidiFile {
                                 startTick: currentTick,
                                 velocity: event.data[1]
                             };
-                            if (event.data[0] > this.ranges.pitch.hi) {
+                            if (!this.ranges.pitch.hi || event.data[0] > this.ranges.pitch.hi) {
                                 this.ranges.pitch.hi = event.data[0];
-                            } else if (event.data[0] < this.ranges.pitch.lo) {
+                            }
+                            if (!this.ranges.pitch.lo || event.data[0] < this.ranges.pitch.lo) {
                                 this.ranges.pitch.lo = event.data[0];
                             }
-                            if (event.data[1] > this.ranges.velocity.hi) {
+                            if (!this.ranges.velocity.hi || event.data[1] > this.ranges.velocity.hi) {
                                 this.ranges.velocity.hi = event.data[1];
-                            } else if (event.data[1] < this.ranges.velocity.lo) {
+                            }
+                            if (!this.ranges.velocity.lo || event.data[1] < this.ranges.velocity.lo) {
                                 this.ranges.velocity.lo = event.data[1];
                             }
                         }

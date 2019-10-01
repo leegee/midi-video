@@ -6,6 +6,7 @@ const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class ImageMaker {
     static BlankImageBuffer = null;
+    static RENDER_ENDABLED;
 
     options = {
         logging: false,
@@ -32,7 +33,7 @@ module.exports = class ImageMaker {
             maxLuminosityPc: 100
         }
     };
-
+    noteHeight = undefined;
     endSeconds2notesPlaying = {};
     uniqueNotesPlaying = {};
     ranges = {
@@ -55,9 +56,10 @@ module.exports = class ImageMaker {
         this.debug = this.options.debug ? console.debug : () => { };
 
         assertOptions(this.options, {
-            secondWidth: 'integer, being the number of pixels representing a second of time',
-            width: 'integer, being the video display  width',
-            height: 'integer, being the video display  height',
+            midiNoteRange: 'integer, the normalised range of possible pitches',
+            secondWidth: 'integer, the number of pixels representing a second of time',
+            width: 'integer, the video display  width',
+            height: 'integer, the video display  height',
             defaultHue: 'a CSS HSL hue number (0-360) for the notes',
             bg: 'a CSS colour value for the background',
             highlightCurrent: 'undefined or object (shadowColor, shadowBLur, strokeStyle, lineWidth): highlight the currently sounding notes.',
@@ -70,7 +72,7 @@ module.exports = class ImageMaker {
             (this.options.height + 1) / (this.options.midiNoteRange + 1)
         );
 
-        this.ranges.y.lo = this.height;
+        this.ranges.y.lo = this.options.height;
 
         this.log('Note height: %d, Canvas height: %d, note range: %d',
             this.noteHeight, this.options.height / this.noteHeight, this.options.midiNoteRange
@@ -119,7 +121,7 @@ module.exports = class ImageMaker {
         const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
 
         if (notes.length === 0) {
-            this.debug('No notes to add');
+            this.debug('No notes to add around ', currentTime);
             rvImageBuffer = ImageMaker.BlankImageBuffer;
         } else {
             this.debug('Processing %d notes from DB at %d', notes.length, currentTime);
@@ -272,7 +274,14 @@ module.exports = class ImageMaker {
             return;
         }
 
-        note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
+        // note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
+        note.y = this.options.height - (note.pitch * this.noteHeight);
+        if (note.y < 0) {
+            console.log('this.options.height %d - (note.pitch %d * this.noteHeight %d)',
+                this.options.height, note.pitch, this.noteHeight
+            );
+            throw 'note.y is now negative';
+        }
 
         const hue = this.options.trackHues && this.options.trackHues[note.track] ?
             this.options.trackHues[note.track] : this.options.defaultHue;
@@ -283,7 +292,12 @@ module.exports = class ImageMaker {
 
         note.height = this.noteHeight;
 
-        note.updateForDisplay();
+        try {
+            note.updateForDisplay();
+        } catch (err) {
+            console.error('this.ranges', this.ranges);
+            throw err;
+        }
 
         return note;
     }
@@ -310,34 +324,36 @@ module.exports = class ImageMaker {
             this.ranges.y.lo = note.y;
         }
 
-        try {
-            this.ctx.fillStyle = note.colour;
-            this.ctx.fillRect(
-                Math.floor(note.x),
-                Math.floor(note.y),
-                Math.floor(note.width),
-                note.height
-            );
-            if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime) {
-                this.ctx.save();
-                this.ctx.globalAlpha = this.options.highlightCurrent.alpha;
-                this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
-                this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
-                this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
-                this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
-                this.ctx.strokeRect(
+        if (!this.options.RENDER_DISABLED) {
+            try {
+                this.ctx.fillStyle = note.colour;
+                this.ctx.fillRect(
                     Math.floor(note.x),
                     Math.floor(note.y),
                     Math.floor(note.width),
                     note.height
                 );
-                this.ctx.restore();
+                if (this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime) {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = this.options.highlightCurrent.alpha;
+                    this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
+                    this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
+                    this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
+                    this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
+                    this.ctx.strokeRect(
+                        Math.floor(note.x),
+                        Math.floor(note.y),
+                        Math.floor(note.width),
+                        note.height
+                    );
+                    this.ctx.restore();
+                }
+            } catch (e) {
+                console.error('Note:', note);
+                console.error('Range:', this.options.midiNoteRange);
+                console.error('Canvas %d x %d:', this.options.width, this.options.height);
+                throw e;
             }
-        } catch (e) {
-            console.error('Note:', note);
-            console.error('Range:', this.options.midiNoteRange);
-            console.error('Canvas %d x %d:', this.options.width, this.options.height);
-            throw e;
         }
     }
 };

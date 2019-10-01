@@ -6,6 +6,7 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
+const ImageMaker = require("./ImageMaker.mjs");
 const Integrator = require("./index");
 const Note = require("./Note.mjs");
 
@@ -17,6 +18,32 @@ beforeEach(async () => {
 afterEach(async () => {
     await Note.reset();
 });
+
+describe('Integrator', function () {
+    this.timeout(1000 * 60);
+
+    it('Y range', async () => {
+        const integrator = new Integrator({
+            // midipath: path.resolve('fixtures/4bars.mid'),
+            outputpath: path.resolve('god-bless-america.mp4'),
+            // audiopath: path.resolve('wav/god-bless-america.wav'),
+            midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
+            fps: 1,
+            createTitle: false,
+            debug: false,
+            logging: false,
+            RENDER_DISABLED: true
+        });
+
+        console.log('Start integrate');
+        await integrator.integrate();
+        console.log('Done integrate');
+
+        expect(integrator.imageMaker.options.height).not.to.be.NaN;
+        expect(integrator.imageMaker.ranges.y.lo).not.to.be.undefined;
+    });
+});
+
 
 describe('Integrator', function () {
     this.timeout(1000 * 60);

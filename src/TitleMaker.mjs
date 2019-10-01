@@ -15,6 +15,7 @@ module.exports = class Titles {
     options = {
         width: undefined,
         height: undefined,
+        border: 40,
         fg: 'white',
         bg: 'black',
         areas: {
@@ -58,30 +59,30 @@ module.exports = class Titles {
         });
 
         this.options.areas.header = {
-            x: 0,
+            x: this.options.border,
             y: 0,
-            width: this.options.width,
+            width: this.options.width - (this.options.border * 2),
             height: this.options.height / 3
         };
 
         this.options.areas.center = {
-            x: 0,
+            x: this.options.border,
             y: this.options.height / 3,
-            width: this.options.width,
+            width: this.options.width - (this.options.border * 2),
             height: this.options.height / 3
         };
 
         this.options.areas.footer = {
-            x: 0,
+            x: this.options.border,
             y: this.options.height - (this.options.height / 3),
-            width: this.options.width,
+            width: this.options.width - (this.options.border / 2),
             height: this.options.height / 3
         };
 
         this.options.areas.copyright = {
-            x: 0,
+            x: this.options.border,
             y: this.options.height - (this.options.height / 3),
-            width: this.options.width,
+            width: this.options.width - (this.options.border / 2),
             height: (this.options.height / 3) - 10
         };
     }
