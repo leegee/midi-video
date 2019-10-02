@@ -6,8 +6,9 @@ module.exports = winston.createLogger({
     transports: [
         new (winston.transports.Console)({
             level: process.env.LEVEL || 'info',
-            format: winston.format.printf(
-                info => `${info.message}`
+            format: format.combine(
+                format.splat(),
+                format.simple()
             ),
         }),
         new (winston.transports.File)({

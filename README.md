@@ -14,7 +14,7 @@
             text: {
                 title: "The Entertainer",
                 composer: 'Scott Joplin, 1920',
-                performer: 'Anymous Piano Roll'
+                performer: 'anonymous Piano Roll'
             }
         });
 
@@ -23,7 +23,7 @@
             this.logger.info('Completed with code', encoderExitStatus);
         }
         catch (e) {
-            this.logger.trace();
+            console.trace();
             this.logger.error(e);
         }
     }

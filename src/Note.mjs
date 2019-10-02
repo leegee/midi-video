@@ -112,7 +112,8 @@ module.exports = class Note {
         }
 
         if (errMsgs.length) {
-            this.logger.trace('\nBad note: ', note);
+            console.trace();
+            this.logger.error('\nBad note: ', note);
             throw new TypeError(
                 'Error' + (errMsgs.length > 1 ? 's' : '') + ':\n\t' + errMsgs.join('\n\t')
             );
