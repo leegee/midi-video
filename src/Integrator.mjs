@@ -12,10 +12,10 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Integrator {
     options = {
         RENDER_DISABLED: false,
-        midipath: null,
+        midipath: undefined,
         titleDuration: 4,
         fadeTitleDuration: 1,
-        outputpath: 'output.mp4',
+        outputpath: undefined,
         width: 1920,
         height: 1080,
         fps: 30,
@@ -68,13 +68,14 @@ module.exports = class Integrator {
         });
 
         if (!this.options.outputpath) {
-            this.options.outputpath = path.join(
-                path.dirname(this.options.midipath),
-                path.basename(
-                    this.options.midipath,
-                    path.extname(this.options.midipath)
-                ) + '.mp4'
-            );
+            this.options.outputpath =
+                path.resolve(
+                    path.dirname(this.options.midipath),
+                    path.basename(
+                        this.options.midipath,
+                        path.extname(this.options.midipath)
+                    ) + '.mp4'
+                );
         }
 
         if (this.options.midiNoteRange) {
@@ -84,8 +85,11 @@ module.exports = class Integrator {
         this.beatsOnScreen = this.options.beatsOnScreen;
 
         ['midipath', 'audiopath'].forEach(key => {
-            if (!fs.existsSync(this.options[key])) {
-                throw new Error('The input file for option "' + key + '" does not exist: ' + this.options[key]);
+            if (typeof this.options[key] !== 'undefined') {
+                this.options[key] = path.resolve(this.options[key]);
+                if (!fs.existsSync(this.options[key])) {
+                    throw new Error('The input file for option "' + key + '" does not exist: ' + this.options[key]);
+                }
             }
         });
     }
@@ -100,8 +104,8 @@ module.exports = class Integrator {
         this.logger.debug('MIDI note range: ', midiNoteRange);
         this.logger.debug('Integrator.new create ImageMaker');
 
-        const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue)
-            : ImageMaker.createColourList(this.midiFile.tracks.length, this.options.defaultHue);
+        const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue) :
+            ImageMaker.createColourList(this.midiFile.tracks.length, this.options.defaultHue);
 
         this.imageMaker = new ImageMaker({
             ...this.options,

@@ -104,9 +104,7 @@ module.exports = class MidiFile {
                         this.tracks[this.tracks.length - 1].name = event.data;
                         this.logger.verbose('Parsing track number %d named %s', trackNumber, event.data);
                     }
-                }
-
-                else {
+                } else {
                     if (event.type === MidiFile.NOTE_ON) {
                         if (event.data[1] === 0) { // No velocity === silence note
                             event.type = MidiFile.NOTE_OFF;
@@ -148,8 +146,7 @@ module.exports = class MidiFile {
                             });
                             this.tracks[trackNumber].notes.push(note);
                             delete playingNotes[event.data[0]];
-                        }
-                        catch (e) {
+                        } catch (e) {
                             this.logger.error('Error. playingNotes: ', playingNotes);
                             this.logger.error('info', {
                                 endTick: currentTick,
@@ -198,10 +195,10 @@ module.exports = class MidiFile {
 
                 if (this.options.scaleLuminosity && this.ranges.velocity.hi !== this.ranges.velocity.lo) {
                     note.luminosity =
-                        (this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc)
-                        * (note.velocity - this.ranges.velocity.lo)
-                        / (this.ranges.velocity.hi - this.ranges.velocity.lo)
-                        + this.options.colour.minLuminosityPc;
+                        (this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc) *
+                        (note.velocity - this.ranges.velocity.lo) /
+                        (this.ranges.velocity.hi - this.ranges.velocity.lo) +
+                        this.options.colour.minLuminosityPc;
                 } else {
                     note.luminosity = this.options.defaultLuminosity;
                 }
@@ -228,11 +225,9 @@ module.exports = class MidiFile {
             if (trackHues instanceof Object && trackHues[track.name]) {
                 mapped.push(trackHues[track.name]);
                 this.logger.debug('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
-            }
-            else if (trackHues instanceof Array) {
+            } else if (trackHues instanceof Array) {
                 mapped.push(trackHues[i++]);
-            }
-            else {
+            } else {
                 this.logger.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
                 mapped.push(defaultHue);
             }

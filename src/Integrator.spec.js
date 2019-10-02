@@ -6,11 +6,8 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 chai.use(require("chai-as-promised"));
 
-const ImageMaker = require("./ImageMaker.mjs");
 const Integrator = require("./index");
 const Note = require("./Note.mjs");
-
-let integrator;
 
 beforeEach(async () => {
     await Note.reset();
@@ -48,14 +45,19 @@ describe('Integrator', function () {
         const integrator = new Integrator({
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
+            largerNotes: true,
             fps: 5, // 30,
             text: {
-                title: "What'll I Do",
-                composer: 'Irving Berlin, 1923',
-                performer: 'Piano Roll by Adam Carroll'
+                title: "4 Bar Test",
+                composer: 'Random',
+                performer: 'Bitwig'
             }
         });
         expect(integrator).to.be.an.instanceOf(Integrator);
+
+        expect(integrator.options.outputpath).to.equal(
+            path.resolve('fixtures/4bars-60bpm.mp4')
+        );
 
         if (fs.existsSync(integrator.options.outputpath)) {
             fs.unlinkSync(integrator.options.outputpath);

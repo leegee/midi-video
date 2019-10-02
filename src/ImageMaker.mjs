@@ -1,7 +1,7 @@
 const Canvas = require('canvas')
 
 const appLogger = require('./appLogger.mjs');
-const Note = require("./Note.mjs"); // .debugging();
+const Note = require("./Note.mjs");
 const assertOptions = require('./assertOptions.mjs');
 
 

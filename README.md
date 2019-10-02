@@ -58,6 +58,7 @@
 
 ### Yet to do
 
+* Check note.pitch++
 * Better ffmpeg options
 * `assertOptions` to take objects
 * Double height notes offset by 50% of height

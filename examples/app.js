@@ -5,9 +5,9 @@ const App = require("../src");
 main();
 
 async function main() {
-    const integrator = new App({
+    const app = new App({
         outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
-        audiopath: 'wav/the_enterainer.wav',
+        audiopath: 'wav/the_entertainer.wav',
         midipath: 'fixtures/the_entertainer.mid',
         text: {
             title: "The Entertainer",
@@ -17,7 +17,7 @@ async function main() {
     });
 
     try {
-        const encoderExitStatus = await integrator.integrate();
+        const encoderExitStatus = await app.integrate();
         this.logger.debug('Completed with code', encoderExitStatus);
     }
     catch (e) {

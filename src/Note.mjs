@@ -107,7 +107,7 @@ module.exports = class Note {
         if (Number(note.y) < 0) {
             errMsgs.push('y is negative: ' + note.y);
         }
-        if (Number(note.pitch) < 1 || Number(note.pitch) > 126) {
+        if (Number(note.pitch) < 0 || Number(note.pitch) > 126) {
             errMsgs.push('pitch out of range 1-126: ' + note.pitch);
         }
 

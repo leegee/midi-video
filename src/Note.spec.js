@@ -32,7 +32,7 @@ describe('Note', () => {
     });
 
     it('it prevents negative y', () => {
-        expect( () => {
+        expect(() => {
             new Note({
                 startSeconds: 0,
                 endSeconds: 1,
@@ -44,8 +44,8 @@ describe('Note', () => {
         }).to.throw();
     });
 
-    it('it prevents 0 pitch', () => {
-        expect( () => {
+    it('it allows 0 pitch', () => {
+        expect(() => {
             new Note({
                 startSeconds: 0,
                 endSeconds: 1,
@@ -56,6 +56,17 @@ describe('Note', () => {
         }).to.throw();
     });
 
+    it('it prevents -1 pitch', () => {
+        expect(() => {
+            new Note({
+                startSeconds: 0,
+                endSeconds: 1,
+                pitch: -1,
+                track: 0,
+                channel: 0,
+            }).save();
+        }).to.throw();
+    });
+
 
 });
-
