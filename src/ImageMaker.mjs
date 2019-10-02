@@ -10,6 +10,7 @@ module.exports = class ImageMaker {
     static RENDER_ENDABLED;
 
     options = {
+        largerNotes: false,
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,
@@ -55,6 +56,7 @@ module.exports = class ImageMaker {
         this.logger = appLogger;
 
         assertOptions(this.options, {
+            largerNotes: 'boolean: double height notes that overlap',
             midiNoteRange: 'integer, the normalised range of possible pitches',
             secondWidth: 'integer, the number of pixels representing a second of time',
             width: 'integer, the video display  width',
@@ -70,6 +72,10 @@ module.exports = class ImageMaker {
         this.noteHeight = Math.floor(
             (this.options.height + 1) / (this.options.midiNoteRange + 1)
         );
+
+        if (this.options.largerNotes) {
+            this.noteHeight *= 2;
+        }
 
         this.ranges.y.lo = this.options.height;
 
@@ -273,8 +279,12 @@ module.exports = class ImageMaker {
             return;
         }
 
-        // note.y = this.options.height - ((note.pitch + 1) * this.noteHeight);
-        note.y = this.options.height - (note.pitch * this.noteHeight);
+        if (this.options.largerNotes) {
+            note.y = this.options.height - (note.pitch * (this.noteHeight / 2));
+        } else {
+            note.y = this.options.height - (note.pitch * this.noteHeight);
+        }
+
         if (note.y < 0) {
             this.logger.debug('this.options.height %d - (note.pitch %d * this.noteHeight %d)',
                 this.options.height, note.pitch, this.noteHeight

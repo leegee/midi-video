@@ -1,5 +1,7 @@
 const path = require('path');
 
+const smartquotes = require('smartquotes');
+
 const appLogger = require('./appLogger.mjs');
 const Canvas = require('canvas')
 const drawText = require('node-canvas-text').default;
@@ -114,7 +116,7 @@ module.exports = class Titles {
         if (this.options.composer.text) {
             drawText(
                 this.ctx,
-                this.options.composer.text,
+                smartquotes(this.options.composer.text || ''),
                 opentype.loadSync(this.options.composer.font || this.defaultFont),
                 this.options.areas.header,
                 {
@@ -132,7 +134,7 @@ module.exports = class Titles {
         if (this.options.title.text) {
             drawText(
                 this.ctx,
-                this.options.title.text,
+                smartquotes(this.options.title.text || ''),
                 opentype.loadSync(this.options.title.font || this.defaultFont),
                 this.options.areas.center,
                 {
@@ -150,7 +152,7 @@ module.exports = class Titles {
         if (this.options.performer.text) {
             drawText(
                 this.ctx,
-                this.options.performer.text,
+                smartquotes(this.options.performer.text || ''),
                 opentype.loadSync(this.options.performer.font || this.defaultFont),
                 this.options.areas.footer,
                 {
