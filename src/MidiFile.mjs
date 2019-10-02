@@ -26,7 +26,6 @@ module.exports = class MidiFile {
     };
 
     options = {
-        logging: false,
         midipath: null,
         quantizePitchBucketSize: false, // Or int
         scaleLuminosity: true,

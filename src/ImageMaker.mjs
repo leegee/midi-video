@@ -10,7 +10,6 @@ module.exports = class ImageMaker {
     static RENDER_ENDABLED;
 
     options = {
-        logging: false,
         secondWidth: undefined,
         width: undefined, // 1920,
         height: undefined, // 1080,

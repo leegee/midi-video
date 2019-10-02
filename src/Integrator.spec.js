@@ -30,14 +30,10 @@ describe('Integrator', function () {
             midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
             fps: 1,
             createTitle: false,
-            debug: false,
-            logging: false,
             RENDER_DISABLED: true
         });
 
-        this.logger.debug('Start integrate');
         await integrator.integrate();
-        this.logger.debug('Done integrate');
 
         expect(integrator.imageMaker.options.height).not.to.be.NaN;
         expect(integrator.imageMaker.ranges.y.lo).not.to.be.undefined;
@@ -50,8 +46,6 @@ describe('Integrator', function () {
 
     it('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
-            // logging: true,
-            // debug: true,
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
             fps: 5, // 30,

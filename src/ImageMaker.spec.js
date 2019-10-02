@@ -143,8 +143,6 @@ describe('ImageMaker', () => {
 
         const im = new ImageMaker({
             beatsOnScreen: 2,
-            // logging: true,
-            // debug: true,
             width: 1000,
             height: 1000,
             noteHeight: 10,

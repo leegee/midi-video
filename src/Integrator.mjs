@@ -11,7 +11,6 @@ const assertOptions = require('./assertOptions.mjs');
 module.exports = class Integrator {
     options = {
         RENDER_DISABLED: false,
-        logging: false,
         midipath: null,
         titleDuration: 4,
         fadeTitleDuration: 1,

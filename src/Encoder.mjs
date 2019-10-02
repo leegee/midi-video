@@ -30,7 +30,6 @@ module.exports = class Encoder {
         height: undefined,
         audiopath: undefined,
         outputpath: path.resolve('./output.mp4'),
-        logging: false,
         pixFmt: 'yuv420p',
         titleDuration: undefined
     };
