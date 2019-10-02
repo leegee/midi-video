@@ -17,8 +17,6 @@ module.exports = class Note {
         getUnison: undefined,
     };
     static dbh = new sqlite3.Database(':memory:');
-    static log = () => { }
-    static debug = () => { }
 
     static logging() {
         Note.logger = appLogger;

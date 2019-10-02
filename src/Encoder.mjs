@@ -10,8 +10,6 @@ const assertOptions = require('./assertOptions.mjs');
 // thx https://dzone.com/articles/creating-video-on-the-server-in-nodejs
 
 module.exports = class Encoder {
-    static log = () => { }
-    static debug = () => { }
     static doLog = false;
 
     static logging() {

@@ -8,8 +8,6 @@ const opentype = require('opentype.js');
 const assertOptions = require('./assertOptions.mjs');
 
 module.exports = class Titles {
-    log = () => { };
-    debug = () => { };
     creator = 'Video © ℗ Lee Goddard';
     defaultFont = path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf');
     completeCanvasImageData = undefined;
