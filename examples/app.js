@@ -22,6 +22,6 @@ async function main() {
     }
     catch (e) {
         console.trace();
-        this.logger.error(e);
+        console.error(e);
     }
 }
