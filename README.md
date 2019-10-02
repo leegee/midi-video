@@ -69,7 +69,8 @@
 
 ## Notes
 
-Bitwig only exports 16 channels of MIDI (good) but gives each one a track (bad).
+Bitwig gives each MIDI track its own channel, with the result that a MIDI export
+will contain a maximum of 16 tracks, meaning massive data loss on real-world arrangements.
 
 ## Bibliography
 
