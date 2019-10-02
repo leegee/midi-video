@@ -68,26 +68,18 @@ describe('Titles', function () {
 
         const onePc = 100 / ((this.options.titleDuration - this.options.fadeTitleDuration) / timeFrame);
 
-        console.log('Step size: ', onePc);
-        console.log('From ', this.options.fadeTitleDuration);
-
         let i = 0;
         for (let seconds = this.options.fadeTitleDuration; seconds <= this.options.titleDuration; seconds += timeFrame) {
             const pc = onePc * i++;
-            console.log('seconds %d pc %d', seconds, pc);
 
             const fadedTitleCanvas = titleMaker.getFadedTitleCanvas(pc);
-            console.log('fadedTitleCanvas', fadedTitleCanvas);
             const titleImageBuffer = fadedTitleCanvas.toBuffer('image/png');
 
             if (pc > 60 && pc < 70) {
                 fs.writeFileSync(savePath, titleImageBuffer);
                 expect(savePath).to.be.a.path();
-
-                throw 'stop at ' + i;
             }
         }
 
-        console.log('To ', this.options.titleDuration);
     });
 });

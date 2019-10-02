@@ -1,8 +1,8 @@
-const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
 const stream = require('stream');
 
+const appLogger = require('./appLogger.mjs');
 const FFMPEG_PATH = require('@ffmpeg-installer/ffmpeg').path;
 
 const assertOptions = require('./assertOptions.mjs');
@@ -15,9 +15,10 @@ module.exports = class Encoder {
     static doLog = false;
 
     static logging() {
+        Note.logger = appLogger;
         Note.doLog = true;
-        Note.log = console.log;
-        Note.debug = console.debug;
+        Note.logger.debug = this.logger.debug;
+        Note.logger.verbose = this.logger.verbose;
         return Note;
     }
 
@@ -41,9 +42,7 @@ module.exports = class Encoder {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.log = this.options.logging ? console.log : () => { };
-        this.debug = this.options.debug ? console.debug : () => { };
-        this.log('Encoder.new from ', this.options);
+        this.logger = appLogger;
 
         assertOptions(this.options, {
             fps: 'integer',
@@ -54,7 +53,7 @@ module.exports = class Encoder {
     }
 
     init() {
-        this.log('Encoder.init');
+        this.logger.debug('Encoder.init');
         return new Promise((resolve, reject) => {
             const args = [
                 '-y', '-f', 'image2pipe',
@@ -70,7 +69,7 @@ module.exports = class Encoder {
                     t.setMinutes(0);
                     t.setSeconds(this.options.titleDuration);
                     const audiooffset = t.toLocaleTimeString('en-GB', { hour12: false });
-                    console.log('Audio offset, after titles: [%s]', audiooffset);
+                    this.logger.debug('Audio offset, after titles: [%s]', audiooffset);
                     args.push('-itsoffset', audiooffset);
                 }
                 args.push('-i', this.options.audiopath);
@@ -81,36 +80,36 @@ module.exports = class Encoder {
                 this.options.outputpath
             );
 
-            this.log('pre-spawn ffmpeg', args);
+            this.logger.debug('pre-spawn ffmpeg', args);
             const childProcess = child_process.spawn(FFMPEG_PATH, args);
-            this.log('post-spawn ffmpeg');
+            this.logger.debug('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
                 const str = data.toString();
-                this.log(str);
+                this.logger.debug(str);
                 this.stdout += str + '\n';
             });
 
             childProcess.stderr.on('data', data => {
                 const str = data.toString();
-                this.log(str);
+                this.logger.debug(str);
                 this.stderr += str + '\n';
             });
 
             childProcess.on('error', data => {
                 const str = data.toString();
-                console.error('ERROR', str);
+                this.logger.error('ERROR', str);
                 this.stderr += str + '\n';
                 reject(str);
             });
 
             childProcess.on('exit', code => {
-                console.info('Child proc closed');
+                this.logger.info('Child proc closed');
             });
 
             childProcess.on('close', code => {
                 this.pipeOpen = false;
-                console.info(
+                this.logger.info(
                     'Encoder: closed pipe after %d images, ffmpeg exit status %d',
                     this.totalImagesAdded, code
                 );
@@ -121,10 +120,10 @@ module.exports = class Encoder {
             this.pipeOpen = true;
             this.imagesStream = new stream.PassThrough();
             this.imagesStream.on('error', () => {
-                console.error('imageStream error: ', error);
+                this.logger.error('imageStream error: ', error);
             });
             this.imagesStream.pipe(childProcess.stdin);
-            this.log('pipe connected');
+            this.logger.debug('pipe connected');
         });
     }
 
@@ -134,9 +133,9 @@ module.exports = class Encoder {
             this.encoded.fps = this.stderr.match(/\s+fps=(\S+)/s)[1];
             this.encoded.time = this.stderr.match(/\s+time=(\d{2}:\d{2}:\d{2}.\d+)/s)[1];
         } catch (err) {
-            console.error('='.repeat(100));
-            console.error(this.stderr);
-            console.error('^'.repeat(100));
+            this.logger.error('='.repeat(100));
+            this.logger.error(this.stderr);
+            this.logger.error('^'.repeat(100));
             throw err;
         }
     }
@@ -145,16 +144,16 @@ module.exports = class Encoder {
         if (!(buffer instanceof Buffer)) {
             throw new TypeError('addImage requires a Buffer, received ' + buffer);
         }
-        this.debug('Encoder.addImage adding image');
+        this.logger.verbose('Encoder.addImage adding image');
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-        this.debug('Encoder.addImage added image', this.totalImagesAdded);
+        this.logger.verbose('Encoder.addImage added image', this.totalImagesAdded);
     }
 
     async finalise() {
-        this.log('Encoder.finalise closing imageStream');
+        this.logger.debug('Encoder.finalise closing imageStream');
         this.imagesStream.end();
-        this.log('Encoder.finalise done');
+        this.logger.debug('Encoder.finalise done');
     }
 
 }

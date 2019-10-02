@@ -7,9 +7,9 @@
     ); // src contains more options
 
     app.integrate().then(() => {
-        console.log('Wrote ', app.options.outputpath);
+        this.logger.debug('Wrote ', app.options.outputpath);
     }).catch(err => {
-        console.error(err);
+        this.logger.error(err);
     })
 
 ## Constructor Options

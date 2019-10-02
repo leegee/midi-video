@@ -5,11 +5,11 @@ module.exports = (options, requiredArgs) => {
             errMsgs.push(key + ': ' + requiredArgs[key]);
         } 
         // else {
-        //     console.log('yes, key = %s; value =', key, options[key]);
+        //     this.logger.debug('yes, key = %s; value =', key, options[key]);
         // }
     });
     if (errMsgs.length) {
-        console.error('\nSupplied options: ', options);
+        this.logger.error('\nSupplied options: ', options);
         throw new TypeError(
             'Missing argument' + (errMsgs.length > 1 ? 's' : '') + ':\n\t' + errMsgs.join('\n\t')
         );

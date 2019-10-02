@@ -2,6 +2,7 @@ const fs = require('fs');
 const MidiParser = require('midi-parser-js');
 const Decimal = require('decimal.js');
 
+const appLogger = require('./appLogger.mjs');
 const Note = require('./Note.mjs');
 const assertOptions = require('./assertOptions.mjs');
 
@@ -46,7 +47,7 @@ module.exports = class MidiFile {
             };
         }
         this.options = Object.assign({}, this.options, options);
-        this.setLogging();
+        this.logger = appLogger;
 
         assertOptions(this.options, {
             midipath: 'string for input path',
@@ -58,19 +59,8 @@ module.exports = class MidiFile {
             }
         });
 
-        this.log('Logging...');
-        this.debug('Debugging...');
-    }
-
-    verbose() {
-        this.options.debug = this.options.log = true;
-        this.setLogging();
-    }
-
-    setLogging() {
-        this.debug = this.options.debug ? console.debug : MidiFile.logging ? console.debug : () => { };
-        this.log = this.options.logging || MidiFile.logging || this.options.debug ? console.log : () => { };
-        this.info = console.info;
+        this.logger.debug('Logging...');
+        this.logger.verbose('Debugging...');
     }
 
     ticksToSeconds(delta) {
@@ -78,7 +68,7 @@ module.exports = class MidiFile {
     }
 
     async parse() {
-        this.info('MidiFile.parse Beginning');
+        this.logger.info('MidiFile.parse Beginning');
         await Note.init();
         this.ranges = MidiFile.INIT_RANGES;
         let longestTrackDurationSeconds = 0;
@@ -86,7 +76,7 @@ module.exports = class MidiFile {
         const midi = MidiParser.parse(fs.readFileSync(this.options.midipath));
         const midiTimeDivision = new Decimal(midi.timeDivision);
 
-        this.debug('MIDI.timeDivision: %d', midiTimeDivision);
+        this.logger.verbose('MIDI.timeDivision: %d', midiTimeDivision);
 
         for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
             let durationSeconds = 0;
@@ -102,7 +92,7 @@ module.exports = class MidiFile {
             });
 
             midi.track[trackNumber].event.forEach(event => {
-                this.debug(trackNumber, 'EVENT', event);
+                this.logger.verbose(trackNumber, 'EVENT', event);
                 currentTick += event.deltaTime;
 
                 if (event.type === MidiFile.META) {
@@ -110,10 +100,10 @@ module.exports = class MidiFile {
                         const eventData = new Decimal(event.data)
                         this.bpm = MidiFile.SIXTY_MILLION.dividedBy(eventData);
                         this.timeFactor = MidiFile.SIXTY.dividedBy(this.bpm.times(midiTimeDivision));
-                        this.log('TEMPO CHANGE %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
+                        this.logger.debug('TEMPO CHANGE %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
                     } else if (event.metaType === 3) {
                         this.tracks[this.tracks.length - 1].name = event.data;
-                        this.debug('Parsing track number %d named %s', trackNumber, event.data);
+                        this.logger.verbose('Parsing track number %d named %s', trackNumber, event.data);
                     }
                 }
 
@@ -121,7 +111,7 @@ module.exports = class MidiFile {
                     if (event.type === MidiFile.NOTE_ON) {
                         if (event.data[1] === 0) { // No velocity === silence note
                             event.type = MidiFile.NOTE_OFF;
-                            this.debug('ZERO VELOCITY NOTE ON === NOTE OFF');
+                            this.logger.verbose('ZERO VELOCITY NOTE ON === NOTE OFF');
                         } else {
                             totalNotesOn++;
                             playingNotes[event.data[0]] = {
@@ -161,8 +151,8 @@ module.exports = class MidiFile {
                             delete playingNotes[event.data[0]];
                         }
                         catch (e) {
-                            console.error('Error. playingNotes: ', playingNotes);
-                            console.error('info', {
+                            this.logger.error('Error. playingNotes: ', playingNotes);
+                            this.logger.error('info', {
                                 endTick: currentTick,
                                 endSeconds: this.ticksToSeconds(currentTick),
                                 channel: event.channel,
@@ -180,20 +170,20 @@ module.exports = class MidiFile {
                 longestTrackDurationSeconds = durationSeconds;
             }
 
-            this.log('Track %d %s completed with %d notes, %d ticks = %d seconds',
+            this.logger.debug('Track %d %s completed with %d notes, %d ticks = %d seconds',
                 trackNumber, this.tracks[trackNumber].name, this.tracks[trackNumber].notes.length,
                 currentTick, durationSeconds
             );
-            this.log('Time factor %d, bpm %d', this.timeFactor, this.bpm);
-            this.log('Total notes on: ', totalNotesOn);
-            this.log('Total notes off: ', totalNotesOff);
+            this.logger.debug('Time factor %d, bpm %d', this.timeFactor, this.bpm);
+            this.logger.debug('Total notes on: ', totalNotesOn);
+            this.logger.debug('Total notes off: ', totalNotesOff);
         }
 
         this.tracks = this.tracks.filter(track => track.notes.length > 0);
         this.durationSeconds = longestTrackDurationSeconds;
 
-        this.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
-        this.log('MidiFile.parse found ranges: ', this.ranges);
+        this.logger.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
+        this.logger.debug('MidiFile.parse found ranges: ', this.ranges);
 
         this.tracks.forEach(track => {
             track.notes.forEach(note => {
@@ -223,7 +213,7 @@ module.exports = class MidiFile {
 
         if (this.options.fitNotesToScreen) {
             this.options.midiNoteRange = this.ranges.pitch.hi - this.ranges.pitch.lo;
-            this.log('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
+            this.logger.debug('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
                 this.options.midiNoteRange, this.ranges.pitch.hi, this.ranges.pitch.lo
             );
         }
@@ -238,13 +228,13 @@ module.exports = class MidiFile {
         this.tracks.forEach(track => {
             if (trackHues instanceof Object && trackHues[track.name]) {
                 mapped.push(trackHues[track.name]);
-                this.log('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
+                this.logger.debug('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
             }
             else if (trackHues instanceof Array) {
                 mapped.push(trackHues[i++]);
             }
             else {
-                console.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
+                this.logger.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
                 mapped.push(defaultHue);
             }
         });

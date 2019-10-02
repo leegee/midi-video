@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
+const appLogger = require('./appLogger.mjs');
 
 module.exports = class Note {
     static ready = false;
@@ -20,8 +21,7 @@ module.exports = class Note {
     static debug = () => { }
 
     static logging() {
-        Note.log = console.log;
-        Note.debug = console.debug;
+        Note.logger = appLogger;
         return Note;
     }
 
@@ -35,7 +35,7 @@ module.exports = class Note {
             return;
         }
 
-        this.log = options.logging ? console.log : Note.log;
+        this.logger = appLogger;
 
         let scheme = 'CREATE TABLE notes (\n' +
             Note.dbFields
@@ -81,15 +81,15 @@ module.exports = class Note {
             to = 0;
         }
 
-        Note.debug('Note.readRange from %d to %d', from, to);
+        Note.logger.verbose('Note.readRange from %d to %d', from, to);
 
         return new Promise((resolve, reject) => {
             const rows = [];
             Note.dbh.serialize(() => {
                 Note.statements.readRange.each(from, to).each(
-                    (err, row) => err ? console.error(err) && reject(err) : rows.push(row),
+                    (err, row) => err ? this.logger.error(err) && reject(err) : rows.push(row),
                     () => {
-                        Note.log('readRange from %d to %d: %d results', from, to, rows.length);
+                        Note.logger.debug('readRange from %d to %d: %d results', from, to, rows.length);
                         resolve(rows.map(row => new Note(row)));
                     }
                 );
@@ -114,7 +114,7 @@ module.exports = class Note {
         }
 
         if (errMsgs.length) {
-            console.trace('\nBad note: ', note);
+            this.logger.trace('\nBad note: ', note);
             throw new TypeError(
                 'Error' + (errMsgs.length > 1 ? 's' : '') + ':\n\t' + errMsgs.join('\n\t')
             );
@@ -139,7 +139,7 @@ module.exports = class Note {
     }
 
     updatePitch(newPitch) {
-        console.debug('Note.updatePitch', this, newPitch);
+        this.logger.verbose('Note.updatePitch', this, newPitch);
         this.pitch = newPitch;
 
         if (Number(this.pitch) === NaN) {
@@ -150,18 +150,18 @@ module.exports = class Note {
         }
         Note.dbh.serialize(() => {
             Note.statements.updatePitch.run(this.pitch, this.md5);
-            console.debug('Note.updatePitch ran: ', this.pitch);
+            this.logger.verbose('Note.updatePitch ran: ', this.pitch);
         });
     }
 
     updateForDisplay() {
-        Note.debug('Note.updateForDisplay', this);
+        Note.logger.verbose('Note.updateForDisplay', this);
         Note.assertValues(this);
         Note.dbh.serialize(() => {
             Note.statements.updateForDisplay.run(
                 this.x, this.y, this.width, this.height, this.colour
             );
-            Note.debug('Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour);
+            Note.logger.verbose('Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour);
         });
     }
 
@@ -169,9 +169,9 @@ module.exports = class Note {
         const rows = [];
         Note.dbh.serialize(() => {
             Note.statements.getUnison.each(from, to, from, to, pitch).each(
-                (err, row) => err ? console.error(err) && reject(err) : rows.push(row),
+                (err, row) => err ? this.logger.error(err) && reject(err) : rows.push(row),
                 () => {
-                    Note.log('getUnisonNotes at pitch %d from %d to %d: %d results', pitch, from, to, rows.length);
+                    Note.logger.debug('getUnisonNotes at pitch %d from %d to %d: %d results', pitch, from, to, rows.length);
                     resolve(rows.map(row => new Note(row)));
                 }
             );

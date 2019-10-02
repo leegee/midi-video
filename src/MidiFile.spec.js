@@ -48,7 +48,7 @@ describe('MidiFile', function () {
 
         await midiReader.parse();
 
-        expect(midiReader.tracks.length).to.equal(1);
+        expect(midiReader.tracks.length).to.equal(15);
 
         expect(Note.ready).to.be.ok;
         const notes = await Note.readRange(0, 3);

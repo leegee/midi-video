@@ -35,9 +35,9 @@ describe('Integrator', function () {
             RENDER_DISABLED: true
         });
 
-        console.log('Start integrate');
+        this.logger.debug('Start integrate');
         await integrator.integrate();
-        console.log('Done integrate');
+        this.logger.debug('Done integrate');
 
         expect(integrator.imageMaker.options.height).not.to.be.NaN;
         expect(integrator.imageMaker.ranges.y.lo).not.to.be.undefined;

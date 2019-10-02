@@ -1,5 +1,6 @@
 const path = require('path');
 
+const appLogger = require('./appLogger.mjs');
 const Canvas = require('canvas')
 const drawText = require('node-canvas-text').default;
 const opentype = require('opentype.js');
@@ -47,8 +48,7 @@ module.exports = class Titles {
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
 
-        this.log = this.options.logging ? console.log : () => { };
-        this.debug = this.options.debug ? console.debug : () => { };
+        this.logger = appLogger;
 
         assertOptions(this.options, {
             title: {
