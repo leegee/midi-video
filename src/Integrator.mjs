@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const appLogger = require('./appLogger.mjs');
 
@@ -34,7 +35,6 @@ module.exports = class Integrator {
             }
         }
     };
-    finalPath = undefined;
     totalImagesAdded = 0;
     beatsOnScreen = undefined;
     imageMaker = undefined;
@@ -77,17 +77,17 @@ module.exports = class Integrator {
             );
         }
 
-        this.finalPath = this.options.outputpath;
-
-        // if (typeof this.options.fitNotesToScreen === 'undefined' && typeof this.options.midiNoteRange === 'undefined') {
-        //     throw new TypeError('Supply either fitNotesToScreen=true or midiNoteRange=integer.');
-        // }
-
         if (this.options.midiNoteRange) {
             this.options.fitNotesToScreen = false;
         }
 
         this.beatsOnScreen = this.options.beatsOnScreen;
+
+        ['midipath', 'audiopath'].forEach(key => {
+            if (!fs.existsSync(this.options[key])) {
+                throw new Error('The input file for option "' + key + '" does not exist: ' + this.options[key]);
+            }
+        });
     }
 
     async _init() {
