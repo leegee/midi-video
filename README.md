@@ -1,20 +1,35 @@
-# Synopsis
+# `midi-video`
 
-    const App = require('./src');
+## Synopsis
 
-    const app = new App(
-        'fixtures/4bars-60bpm.mid'
-    ); // src contains more options
+    const App = require("../src");
 
-    app.integrate().then(() => {
-        this.logger.debug('Wrote ', app.options.outputpath);
-    }).catch(err => {
-        this.logger.error(err);
-    })
+    main();
+
+    async function main() {
+        const integrator = new App({
+            outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
+            audiopath: 'wav/the_enterainer.wav',
+            midipath: 'fixtures/29-Scott Joplin - The Entertainer (1920) Smythe.mid',
+            text: {
+                title: "The Entertainer",
+                composer: 'Scott Joplin, 1920',
+                performer: 'Anymous Piano Roll'
+            }
+        });
+
+        try {
+            const encoderExitStatus = await integrator.integrate();
+            this.logger.info('Completed with code', encoderExitStatus);
+        }
+        catch (e) {
+            this.logger.trace();
+            this.logger.error(e);
+        }
+    }
 
 ## Constructor Options
 
-    * `logging`: `false`
     * `midipath`: text
     * `outputpath`: 'output.mp4',
     * `width`: 1920
@@ -25,9 +40,9 @@
     * `defaultHue`: 100 - default HSL hue value for tracks otherwise uncoloured
     * `trackHues`: if supplied, should be an object mapping the MIDI track names to HSL hue values.
 
-# Status
+## Status
 
-## Completed so far
+### Completed so far
 
 * An object to render video via `ffmpeg`.
 * An object to interpret  MIDI files using `midi-parser-js`.
@@ -41,12 +56,10 @@
 * Visually represent multiple voicings of the same pitch
 * Adds title card
 
-## Yet to do
+### Yet to do
 
 * Better ffmpeg options
 * `assertOptions` to take objects
-* Fix layout bug (extra note lane at top) ?
-* Fade titles
 * Double height notes offset by 50% of height
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation

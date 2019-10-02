@@ -6,7 +6,6 @@ main();
 
 async function main() {
     const integrator = new App({
-        logger: require('winston'),
         outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
         audiopath: 'wav/the_enterainer.wav',
         midipath: 'fixtures/29-Scott Joplin - The Entertainer (1920) Smythe.mid',
