@@ -58,8 +58,7 @@
 
 ### Yet to do
 
-* Check note.pitch++
-* Better ffmpeg options
+* Option to colour by note
 * `assertOptions` to take objects
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation
@@ -85,3 +84,6 @@ will contain a maximum of 16 tracks, meaning massive data loss on real-world arr
 * https://trac.ffmpeg.org/wiki/Encode/H.264
 
 * https://www.yourclassical.org/story/2016/08/15/daily-download-ludwig-van-beethoven--symphony-no-9-ii-molto-vivace
+
+* https://kennethwoods.net/blog1/2011/11/22/beethoven-9-pontifications-part-ii-decoding-those-pesky-metronome-markings/
+* 

@@ -28,7 +28,7 @@ describe('Titles', function () {
             height: imageMaker.canvas.height,
             title: {
                 text: "What'll I Do",
-                maxSize: 500,
+                // maxSize: 100,
                 color: 'white',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Italic.ttf')
             },
@@ -39,8 +39,9 @@ describe('Titles', function () {
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             },
             performer: {
-                text: 'Piano Roll by Adam Carroll',
-                maxSize: 80,
+                text: 'Dillon Vado (Never Weather), Jonathan Fishman (Phish), Michaelle Goerlitz (Wild Mango), Nick Woodbury (SF Contemporary Music Players), Randy Schwartz (El Duo), Jon Gillick, Mikey Steczo, Sam Berman, and Sam Hancock',
+                // minSize: 8,
+                // maxSize: 12,
                 color: 'rgba(255, 255, 255, 0.7)',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             }
@@ -50,7 +51,7 @@ describe('Titles', function () {
     it('renders a title image', async () => {
         const canvas = titleMaker.getCanvas();
         const imageBuffer = canvas.toBuffer('image/png');
-        const savePath = path.resolve('temp-title.png');
+        const savePath = path.resolve('temp-title-screen.png');
         fs.writeFileSync(savePath, imageBuffer);
         expect(savePath).to.be.a.path();
     });

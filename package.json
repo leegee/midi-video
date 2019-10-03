@@ -27,6 +27,7 @@
     "midi-parser-js": "*",
     "node-canvas-text": "^1.0.2",
     "opentype.js": "^1.1.0",
+    "recursive-readdir": "^2.2.2",
     "smartquotes": "^2.3.1",
     "sqlite3": "^4.1.0",
     "winston": "^3.2.1"

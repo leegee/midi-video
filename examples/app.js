@@ -6,13 +6,13 @@ main();
 
 async function main() {
     const app = new App({
-        outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
-        audiopath: 'wav/the_entertainer.wav',
-        midipath: 'fixtures/the_entertainer.mid',
+        // outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
+        audiopath: 'fixtures/google-groove/groove/drummer1/session1/1_funk_80_beat_4-4.wav',
+        midipath: 'fixtures/google-groove/groove/drummer1/session1/1_funk_80_beat_4-4.mid',
         text: {
-            title: "The Entertainer",
-            composer: 'Scott Joplin, 1920',
-            performer: 'Anonymous Piano Roll'
+            title: "4/4 Funk",
+            composer: 'From the Google Groove Dataset',
+            performer: 'Dillon Vado (Never Weather), Jonathan Fishman (Phish), Michaelle Goerlitz (Wild Mango), Nick Woodbury (SF Contemporary Music Players), Randy Schwartz (El Duo), Jon Gillick, Mikey Steczo, Sam Berman, and Sam Hancock'
         }
     });
 

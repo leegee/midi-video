@@ -20,28 +20,51 @@ module.exports = class Titles {
         fg: 'white',
         bg: 'black',
         areas: {
-            header: { x: undefined, y: undefined, width: undefined, height: undefined },
-            center: { x: undefined, y: undefined, width: undefined, height: undefined },
-            footer: { x: undefined, y: undefined, width: undefined, height: undefined },
-            copyright: { x: undefined, y: undefined, width: undefined, height: undefined },
+            header: {
+                x: undefined,
+                y: undefined,
+                width: undefined,
+                height: undefined
+            },
+            center: {
+                x: undefined,
+                y: undefined,
+                width: undefined,
+                height: undefined
+            },
+            footer: {
+                x: undefined,
+                y: undefined,
+                width: undefined,
+                height: undefined
+            },
+            copyright: {
+                x: undefined,
+                y: undefined,
+                width: undefined,
+                height: undefined
+            },
         },
         title: {
             text: undefined,
             font: undefined,
             color: 'white',
-            maxSize: 100
+            // maxSize: 100,
+            // minSize: 8,
         },
         composer: {
             text: undefined,
             font: undefined,
             color: 'rgba(255, 255, 255, 0.7)',
-            maxSize: 30
+            // maxSize: 30,
+            // minSize: 8,
         },
         performer: {
             text: undefined,
             font: undefined,
             color: 'rgba(255, 255, 255, 0.7)',
-            maxSize: 30
+            // maxSize: 30,
+            // minSize: 8,
         },
     };
 
@@ -99,7 +122,7 @@ module.exports = class Titles {
         const ctx = fadedTitleCanvas.getContext('2d');
 
         ctx.putImageData(this.completeCanvasImageData, 0, 0);
-        
+
         ctx.globalAlpha = opacityPc / 100;
         ctx.fillStyle = this.options.bg;
         ctx.fillRect(0, 0, this.options.width, this.options.height);
@@ -114,56 +137,74 @@ module.exports = class Titles {
         this.ctx.fillRect(0, 0, this.options.width, this.options.height);
 
         if (this.options.composer.text) {
+            const args = {
+                textFillStyle: this.options.composer.color || this.options.fg,
+                minSize: this.options.composer.minSize,
+                maxSize: this.options.composer.maxSize,
+                vAlign: 'middle',
+                hAlign: 'center',
+                fitMethod: 'bottom',
+                drawRect: false
+            };
+            if (this.options.composer.minSize) {
+                args.minSize = this.options.composer.minSize;
+            }
+            if (this.options.composer.maxnSize) {
+                args.minSize = this.options.composer.maxSize;
+            }
             drawText(
                 this.ctx,
                 smartquotes(this.options.composer.text || ''),
                 opentype.loadSync(this.options.composer.font || this.defaultFont),
                 this.options.areas.header,
-                {
-                    textFillStyle: this.options.composer.color || this.options.fg,
-                    minSize: 10,
-                    maxSize: this.options.composer.maxSize,
-                    vAlign: 'middle',
-                    hAlign: 'center',
-                    fitMethod: 'bottom',
-                    drawRect: false
-                }
+                args
             );
         }
 
         if (this.options.title.text) {
+            const args = {
+                textFillStyle: this.options.title.color || this.options.fg,
+                vAlign: 'middle',
+                hAlign: 'center',
+                fitMethod: 'bottom',
+                drawRect: false
+            };
+            if (this.options.title.minSize) {
+                args.minSize = this.options.title.minSize;
+            }
+            if (this.options.title.maxnSize) {
+                args.minSize = this.options.title.maxSize;
+            }
             drawText(
                 this.ctx,
                 smartquotes(this.options.title.text || ''),
                 opentype.loadSync(this.options.title.font || this.defaultFont),
                 this.options.areas.center,
-                {
-                    textFillStyle: this.options.title.color || this.options.fg,
-                    minSize: 10,
-                    maxSize: this.options.title.maxSize,
-                    vAlign: 'middle',
-                    hAlign: 'center',
-                    fitMethod: 'bottom',
-                    drawRect: false
-                }
+                args
             );
         }
 
         if (this.options.performer.text) {
+            const args = {
+                textFillStyle: this.options.performer.color || this.options.fg,
+                vAlign: 'middle',
+                hAlign: 'center',
+                fitMethod: 'bottom',
+                drawRect: false
+            };
+            if (this.options.performer.minSize) {
+                args.minSize = this.options.performer.minSize;
+            }
+            if (this.options.performer.maxnSize) {
+                args.minSize = this.options.performer.maxSize;
+            }
+
             drawText(
                 this.ctx,
                 smartquotes(this.options.performer.text || ''),
                 opentype.loadSync(this.options.performer.font || this.defaultFont),
                 this.options.areas.footer,
-                {
-                    textFillStyle: this.options.performer.color || this.options.fg,
-                    minSize: 10,
-                    maxSize: this.options.performer.maxSize,
-                    vAlign: 'middle',
-                    hAlign: 'center',
-                    fitMethod: 'bottom',
-                    drawRect: false
-                }
+                args
             );
         }
 
@@ -171,8 +212,7 @@ module.exports = class Titles {
             this.ctx,
             `Visualisation & Video Copyright © ${new Date().getFullYear()} ff Lee Goddard. All Rights Reserved`,
             opentype.loadSync(this.defaultFont),
-            this.options.areas.copyright,
-            {
+            this.options.areas.copyright, {
                 textFillStyle: this.options.fg,
                 minSize: 10,
                 maxSize: 20,
