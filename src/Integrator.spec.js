@@ -21,9 +21,7 @@ describe('Integrator', function () {
 
     it('Y range', async () => {
         const integrator = new Integrator({
-            // midipath: path.resolve('fixtures/4bars.mid'),
             outputpath: path.resolve('god-bless-america.mp4'),
-            // audiopath: path.resolve('wav/god-bless-america.wav'),
             midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
             fps: 1,
             createTitle: false,
@@ -39,7 +37,7 @@ describe('Integrator', function () {
 
 
 describe('Integrator', function () {
-    this.timeout(1000 * 60);
+    this.timeout(1000 * 120);
 
     it('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
@@ -74,9 +72,9 @@ describe('Integrator', function () {
         ).to.be.a.path();
     });
 
-    xit('creates a video file from real world Irving Berlin MIDI', async () => {
+    it('creates a video file from real world Irving Berlin MIDI', async () => {
         const integrator = new Integrator({
-            audiopath: 'fixtures/berlin/49-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871]-110bpm.wav',
+            // audiopath: 'fixtures/berlin/49-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871]-110bpm.wav',
             midipath: 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
             text: {
                 title: "What'll I Do",

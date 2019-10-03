@@ -61,7 +61,6 @@
 * Check note.pitch++
 * Better ffmpeg options
 * `assertOptions` to take objects
-* Double height notes offset by 50% of height
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation
 * Synchronise transients to transient file
