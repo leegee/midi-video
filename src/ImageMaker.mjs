@@ -28,6 +28,7 @@ module.exports = class ImageMaker {
             shadowBlur: 10,
             lineWidth: 2 // TODO check for conflicts with note height
         },
+        noteHues: undefined,
         colour: {
             minSaturationPc: 77,
             minLuminosityPc: 20,
@@ -153,8 +154,8 @@ module.exports = class ImageMaker {
                 checkedMd5s[noteToMatch.md5] = true;
                 playing.filter(
                     noteUnderTest => noteUnderTest.md5 !== noteToMatch.md5 &&
-                        noteUnderTest.pitch === noteToMatch.pitch &&
-                        !checkedMd5s[noteUnderTest.md5]
+                    noteUnderTest.pitch === noteToMatch.pitch &&
+                    !checkedMd5s[noteUnderTest.md5]
                 ).forEach(matchingNote => {
                     checkedMd5s[matchingNote.md5] = true;
                     unisons[matchingNote.md5] = unisons[matchingNote.md5] ? unisons[matchingNote.md5].push(matchingNote) : [noteToMatch, matchingNote]
@@ -286,14 +287,20 @@ module.exports = class ImageMaker {
         }
 
         if (note.y < 0) {
-            this.logger.debug('this.options.height %d - (note.pitch %d * this.noteHeight %d)',
-                this.options.height, note.pitch, this.noteHeight
+            this.logger.error('this.options.height %d - (note.pitch %d * this.noteHeight %d) = %d',
+                this.options.height, note.pitch, this.noteHeight, note.y
             );
-            throw 'note.y is now negative';
+            throw 'note.y is negative!';
         }
 
-        const hue = this.options.trackHues && this.options.trackHues[note.track] ?
-            this.options.trackHues[note.track] : this.options.defaultHue;
+        let hue;
+        if (this.options.noteHues) {
+            hue = this.options.noteHues[note.pitch] ?
+                this.options.noteHues[note.pitch] : this.options.defaultHue;
+        } else {
+            hue = this.options.trackHues && this.options.trackHues[note.track] ?
+                this.options.trackHues[note.track] : this.options.defaultHue;
+        }
 
         const saturation = this.options.colour.minSaturationPc;
         const luminosity = note.luminosity;
@@ -328,8 +335,7 @@ module.exports = class ImageMaker {
 
         if (note.y > this.ranges.y.hi) {
             this.ranges.y.hi = note.y;
-        }
-        else if (note.y < this.ranges.y.lo) {
+        } else if (note.y < this.ranges.y.lo) {
             this.ranges.y.lo = note.y;
         }
 
