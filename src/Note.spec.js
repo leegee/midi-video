@@ -53,7 +53,7 @@ describe('Note', () => {
                 track: 0,
                 channel: 0,
             }).save();
-        }).to.throw();
+        }).not.to.throw();
     });
 
     it('it prevents -1 pitch', () => {

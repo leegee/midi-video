@@ -187,7 +187,7 @@ module.exports = class MidiFile {
                     note.pitch = note.pitch - this.ranges.pitch.lo;
                 }
                 // Make pitch index 1-based to ease drawing:
-                note.pitch++;
+                // note.pitch++;
 
                 if (this.options.quantizePitchBucketSize) {
                     note.pitch = this.quantizePitch(note.pitch);

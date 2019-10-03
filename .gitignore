@@ -5,3 +5,4 @@ src/temp.css
 temp*.png
 fixtures/berlin/desktop.ini
 fixtures/todo/
+*.log
