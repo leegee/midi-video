@@ -13,7 +13,7 @@ module.exports = class Encoder {
 
     imagesStream = undefined;
     options = {
-        createTitle: false,
+        text: undefined,
         fps: undefined,
         width: undefined,
         height: undefined,
@@ -51,7 +51,7 @@ module.exports = class Encoder {
                 '-i', '-'
             ];
             if ( this.options.audiopath ) {
-                if ( this.options.createTitle ) {
+                if ( this.options.text ) {
                     const t = new Date();
                     t.setHours( 0 );
                     t.setMinutes( 0 );

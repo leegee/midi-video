@@ -142,7 +142,7 @@ module.exports = class Integrator {
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame
         );
 
-        if (this.options.createTitle || this.options.text) {
+        if (this.options.text) {
             if (this.options.titleDuration - this.options.fadeTitleDuration < 0) {
                 throw new RangeError('this.options.titleDuration - this.options.fadeTitleDuration < 0');
             }

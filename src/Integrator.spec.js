@@ -34,7 +34,6 @@ describe('Integrator', function () {
             outputpath: path.resolve('god-bless-america.mp4'),
             midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
             fps: 1,
-            createTitle: false,
             RENDER_DISABLED: true
         });
 
