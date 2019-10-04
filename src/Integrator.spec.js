@@ -20,7 +20,25 @@ afterEach(async () => {
 describe('Integrator', function () {
     this.timeout(1000 * 60);
 
-    it('noteHues for drums', async () => {
+    it('remapPitches', async () => {
+        const integrator = new Integrator({
+            noteHues,
+            midipath: 'fixtures/drum-track.mid',
+            remapPitches: {
+                26: 1,
+                36: 2,
+                37: 3,
+                38: 4,
+                42: 5,
+                44: 6
+            }
+        });
+
+        await integrator.integrate();
+        console.log()
+    });
+
+    xit('noteHues for drums', async () => {
         const integrator = new Integrator({
             noteHues,
             midipath: 'fixtures/drum-track.mid'

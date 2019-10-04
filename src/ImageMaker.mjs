@@ -295,10 +295,10 @@ module.exports = class ImageMaker {
 
         let hue;
         if (this.options.noteHues) {
-            hue = this.options.noteHues[note.pitch] ?
+            hue = typeof this.options.noteHues[note.pitch] !== 'undefined' ?
                 this.options.noteHues[note.pitch] : this.options.defaultHue;
         } else {
-            hue = this.options.trackHues && this.options.trackHues[note.track] ?
+            hue = this.options.trackHues && typeof this.options.trackHues[note.track] !== 'undefined' ?
                 this.options.trackHues[note.track] : this.options.defaultHue;
         }
 

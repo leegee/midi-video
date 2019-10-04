@@ -55,10 +55,12 @@
 * Process tempo changes
 * Visually represent multiple voicings of the same pitch
 * Adds title card
+* Option to colour by note
+* Option to remap MIDI pitches, for solo drum tracks
 
 ### Yet to do
 
-* Option to colour by note
+* remapPitches to work with noteHues
 * `assertOptions` to take objects
 * Check `highlightCurrent` sizes do not conflict with small note heights
 * Transient annotation
