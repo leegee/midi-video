@@ -1,22 +1,22 @@
 // const path = require( 'path' );
 
-const winston = require( 'winston' );
+const winston = require('winston');
 
-module.exports = winston.createLogger( {
+module.exports = winston.createLogger({
     transports: [
-        new ( winston.transports.Console )( {
+        new(winston.transports.Console)({
             level: process.env.LEVEL || 'info',
             format: winston.format.combine(
                 winston.format.splat(),
                 winston.format.simple()
             ),
-        } ),
-        new ( winston.transports.File )( {
-            filename: 'log.log',
+        }),
+        new(winston.transports.File)({
+            filename: path.join(process.cwd, 'log.log'),
             level: 'silly'
-        } )
+        })
     ]
-} );
+});
 
 // function getStackInfo(stackIndex) {
 //     const stacklist = (new Error()).stack.split('\n').slice(3)
