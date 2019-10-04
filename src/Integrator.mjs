@@ -23,16 +23,11 @@ module.exports = class Integrator {
         defaultHue: 100,
         fitNotesToScreen: true,
         beatsOnScreen: 12,
-        createTitle: true,
+        text: undefined,
         colour: {
             minSaturationPc: 77,
             minLuminosityPc: 20,
             maxLuminosityPc: 100,
-            text: {
-                composer: '',
-                performer: '',
-                title: ''
-            }
         }
     };
     totalImagesAdded = 0;
@@ -54,7 +49,7 @@ module.exports = class Integrator {
         this.logger.debug('Create new  Integrator');
 
         if (this.options.RENDER_DISABLED) {
-            this.logger.info('*'.repeat(40), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat(40), '\n');
+            this.logger.warn('*'.repeat(40), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat(40), '\n');
         }
 
         assertOptions(this.options, {
@@ -76,6 +71,8 @@ module.exports = class Integrator {
                         path.extname(this.options.midipath)
                     ) + '.mp4'
                 );
+
+            console.info('Output will be:', this.options.outputpath);
         }
 
         if (this.options.midiNoteRange) {
@@ -107,13 +104,17 @@ module.exports = class Integrator {
         const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue) :
             ImageMaker.createColourList(this.midiFile.tracks.length, this.options.defaultHue);
 
-        this.imageMaker = new ImageMaker({
+        const imArgs = {
             ...this.options,
             midiNoteRange,
             trackHues,
             beatsOnScreen: this.beatsOnScreen,
             secondWidth: Math.floor(this.options.width / this.beatsOnScreen),
-        });
+        };
+        if (this.options.noteHues) {
+            imArgs.noteHues = this.midiFile.fitNoteHues(this.options.noteHues);
+        }
+        this.imageMaker = new ImageMaker(imArgs);
 
         await this.imageMaker.init();
 
@@ -136,13 +137,12 @@ module.exports = class Integrator {
         }
 
         const timeFrame = 1 / this.options.fps;
-        const maxTime = this.midiFile.durationSeconds + (this.beatsOnScreen / 2);
 
-        this.logger.debug('Integrator.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d, expected length %d ',
-            this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame, maxTime
+        this.logger.debug('Integrator.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d',
+            this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame
         );
 
-        if (this.options.createTitle) {
+        if (this.options.createTitle || this.options.text) {
             if (this.options.titleDuration - this.options.fadeTitleDuration < 0) {
                 throw new RangeError('this.options.titleDuration - this.options.fadeTitleDuration < 0');
             }
@@ -174,7 +174,9 @@ module.exports = class Integrator {
             }
         }
 
-        for (let currentTime = 0; currentTime <= maxTime; currentTime += timeFrame) {
+        for (
+            let currentTime = 0; currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen / 2); currentTime += timeFrame
+        ) {
             this.logger.debug('Current time = ', currentTime);
             const image = await this.imageMaker.getFrame(currentTime);
             if (!this.options.RENDER_DISABLED) {
@@ -197,19 +199,19 @@ module.exports = class Integrator {
             width: this.options.width,
             height: this.options.height,
             title: {
-                text: this.options.text.title,
+                text: this.options.text ? this.options.text.title || '' : '',
                 maxSize: 500,
                 color: 'white',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Italic.ttf')
             },
             composer: {
-                text: this.options.text.composer,
+                text: this.options.text ? this.options.text.composer || '' : '',
                 maxSize: 80,
                 color: 'rgba(255, 255, 255, 0.7)',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             },
             performer: {
-                text: this.options.text.performer,
+                text: this.options.text ? this.options.text.performer || '' : '',
                 maxSize: 80,
                 color: 'rgba(255, 255, 255, 0.7)',
                 font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')

@@ -217,6 +217,20 @@ module.exports = class MidiFile {
         return this.options.midiNoteRange;
     }
 
+    fitNoteHues(noteHues) {
+        if (this.options.fitNotesToScreen && noteHues) {
+            const replacement = {};
+            Object.keys(noteHues).forEach(
+                pitch => {
+                    replacement[pitch - this.ranges.pitch.lo] = noteHues[pitch]
+                }
+            );
+            this.logger.silly('New noteHue map: ', replacement);
+            return replacement;
+        }
+        return noteHues;
+    }
+
     mapTrackNames2Hues(trackHues, defaultHue) {
         const mapped = [];
         let i = 0;

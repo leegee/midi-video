@@ -8,6 +8,7 @@ chai.use(require("chai-as-promised"));
 
 const Integrator = require("./index");
 const Note = require("./Note.mjs");
+const noteHues = require('../src/Colours/roland-td11.mjs');
 
 beforeEach(async () => {
     await Note.reset();
@@ -19,7 +20,16 @@ afterEach(async () => {
 describe('Integrator', function () {
     this.timeout(1000 * 60);
 
-    it('Y range', async () => {
+    it('noteHues for drums', async () => {
+        const integrator = new Integrator({
+            noteHues,
+            midipath: 'fixtures/drum-track.mid'
+        });
+
+        await integrator.integrate();
+    });
+
+    xit('Y range', async () => {
         const integrator = new Integrator({
             outputpath: path.resolve('god-bless-america.mp4'),
             midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
@@ -33,13 +43,8 @@ describe('Integrator', function () {
         expect(integrator.imageMaker.options.height).not.to.be.NaN;
         expect(integrator.imageMaker.ranges.y.lo).not.to.be.undefined;
     });
-});
 
-
-describe('Integrator', function () {
-    this.timeout(1000 * 120);
-
-    it('creates a video file from simple MIDI', async () => {
+    xit('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
@@ -72,7 +77,7 @@ describe('Integrator', function () {
         ).to.be.a.path();
     });
 
-    it('creates a video file from real world Irving Berlin MIDI', async () => {
+    xit('creates a video file from real world Irving Berlin MIDI', async () => {
         const integrator = new Integrator({
             // audiopath: 'fixtures/berlin/49-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871]-110bpm.wav',
             midipath: 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
@@ -99,5 +104,5 @@ describe('Integrator', function () {
             path.resolve(integrator.options.outputpath)
         ).to.be.a.path();
     });
-});
 
+});
