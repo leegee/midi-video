@@ -1,4 +1,4 @@
-const path = require( 'path' );
+const path = require('path');
 const util = require('util');
 const winston = require('winston');
 
@@ -20,7 +20,19 @@ module.exports = winston.createLogger({
     transports: [
         new(winston.transports.Console)({
             level: process.env.LEVEL || 'info',
-            format: winston.format.combine(winston.format.splat(), winston.format.simple()),
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                utilFormatter(),
+                winston.format.colorize(),
+                winston.format.printf(({
+                    level,
+                    message,
+                    label,
+                    timestamp
+                }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
+            )
         }),
         new(winston.transports.File)({
             filename: path.join(process.cwd(), 'log.log'),
@@ -29,7 +41,7 @@ module.exports = winston.createLogger({
                 winston.format.timestamp({
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
                 }),
-                utilFormatter(), // <-- this is what changed
+                utilFormatter(),
                 winston.format.colorize(),
                 winston.format.printf(({
                     level,
