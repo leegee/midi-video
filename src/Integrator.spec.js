@@ -17,37 +17,10 @@ afterEach(async () => {
     await Note.reset();
 });
 
-describe('Integrator', function () {
+xdescribe('Integrator', function () {
     this.timeout(1000 * 60);
 
-    it('remapPitches', async () => {
-        const integrator = new Integrator({
-            noteHues,
-            midipath: 'fixtures/drum-track.mid',
-            remapPitches: {
-                26: 1,
-                36: 2,
-                37: 3,
-                38: 4,
-                42: 5,
-                44: 6
-            }
-        });
-
-        await integrator.integrate();
-        console.log()
-    });
-
-    xit('noteHues for drums', async () => {
-        const integrator = new Integrator({
-            noteHues,
-            midipath: 'fixtures/drum-track.mid'
-        });
-
-        await integrator.integrate();
-    });
-
-    xit('Y range', async () => {
+    it('Y range', async () => {
         const integrator = new Integrator({
             outputpath: path.resolve('god-bless-america.mp4'),
             midipath: path.resolve('fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid'),
@@ -61,7 +34,7 @@ describe('Integrator', function () {
         expect(integrator.imageMaker.ranges.y.lo).not.to.be.undefined;
     });
 
-    xit('creates a video file from simple MIDI', async () => {
+    it('creates a video file from simple MIDI', async () => {
         const integrator = new Integrator({
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
@@ -86,15 +59,15 @@ describe('Integrator', function () {
         const promiseResolvesWhenFileWritten = integrator.integrate();
         expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
-        const encoderExitStatus = await promiseResolvesWhenFileWritten;
-        expect(encoderExitStatus).to.equal(0);
+        const encoderEitStatus = await promiseResolvesWhenFileWritten;
+        expect(encoderEitStatus).to.equal(0);
 
         expect(
             path.resolve(integrator.options.outputpath)
         ).to.be.a.path();
     });
 
-    xit('creates a video file from real world Irving Berlin MIDI', async () => {
+    it('creates a video file from real world Irving Berlin MIDI', async () => {
         const integrator = new Integrator({
             // audiopath: 'fixtures/berlin/49-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871]-110bpm.wav',
             midipath: 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid',
@@ -114,12 +87,44 @@ describe('Integrator', function () {
         const promiseResolvesWhenFileWritten = integrator.integrate();
         expect(promiseResolvesWhenFileWritten).to.be.an.instanceOf(Promise);
 
-        const encoderExitStatus = await promiseResolvesWhenFileWritten;
-        expect(encoderExitStatus).to.equal(0);
+        const encoderEitStatus = await promiseResolvesWhenFileWritten;
+        expect(encoderEitStatus).to.equal(0);
 
         expect(
             path.resolve(integrator.options.outputpath)
         ).to.be.a.path();
+    });
+
+});
+
+
+
+describe('Integrator - drummer', function () {
+    this.timeout(1000 * 60);
+
+    it('remapPitches', async () => {
+        const integrator = new Integrator({
+            midipath: 'fixtures/drum-track.mid',
+            noteHues: {
+                1: 0, //  – red
+                2: 60, // – yellow
+                3: 120, // – green
+                4: 180, // – turquoise
+                5: 240, // – blue
+                6: 300 // – pink
+            },
+
+            remapPitches: {
+                26: 1,
+                36: 2,
+                37: 3,
+                38: 4,
+                42: 5,
+                44: 6
+            }
+        });
+
+        await integrator.integrate();
     });
 
 });

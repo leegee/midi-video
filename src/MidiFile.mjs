@@ -91,7 +91,7 @@ module.exports = class MidiFile {
 			});
 
 			midi.track[trackNumber].event.forEach(event => {
-				this.logger.verbose(trackNumber, 'EVENT', event);
+				this.logger.silly(trackNumber, 'EVENT', event);
 				currentTick += event.deltaTime;
 
 				if (event.type === MidiFile.META) {
@@ -115,12 +115,7 @@ module.exports = class MidiFile {
 								startTick: currentTick,
 								velocity: event.data[1]
 							};
-							if (!this.ranges.pitch.hi || event.data[0] > this.ranges.pitch.hi) {
-								this.ranges.pitch.hi = event.data[0];
-							}
-							if (!this.ranges.pitch.lo || event.data[0] < this.ranges.pitch.lo) {
-								this.ranges.pitch.lo = event.data[0];
-							}
+							this._setPitchRange(event.data[0]);
 							if (!this.ranges.velocity.hi || event.data[1] > this.ranges.velocity.hi) {
 								this.ranges.velocity.hi = event.data[1];
 							}
@@ -179,22 +174,43 @@ module.exports = class MidiFile {
 		this.durationSeconds = longestTrackDurationSeconds;
 
 		this.logger.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
-		this.logger.debug('MidiFile.parse found ranges: ', this.ranges);
+		this.logger.debug('MidiFile.parse found initial ranges: ', this.ranges);
+
+		let notes = {};
+
+		if (this.options.remapPitches) {
+			this.ranges.pitch.hi = 0;
+			this.ranges.pitch.lo = 127;
+			this.tracks.forEach(track => {
+				track.notes.forEach(note => {
+					if (typeof this.options.remapPitches[note.pitch] === 'undefined') {
+						throw new RangeError('options.remapPitches was supplied but found unmapped pitch, ' + note.pitch);
+					} else {
+						// const old = note.pitch;
+						note.pitch = this.options.remapPitches[note.pitch];
+						// this.logger.silly('REMAP %d to %d', old, note.pitch);
+						this._setPitchRange(note.pitch);
+					}
+
+					notes[note.pitch]++;
+				});
+			});
+
+			this.logger.debug('Notes used after remap: ', Object.keys(notes).sort());
+			notes = {};
+		}
+
 
 		this.tracks.forEach(track => {
 			track.notes.forEach(note => {
 				if (this.options.fitNotesToScreen) {
-					note.pitch = note.pitch - this.ranges.pitch.lo;
-				}
-				// Make pitch index 1-based to ease drawing:
-				// note.pitch++;
-
-				if (this.options.remapPitches && this.options.remapPitches[note.pitch]) {
-					note.pitch = this.options.remapPitches[note.pitch];
+					note.pitch = note.pitch - this.ranges.pitch.lo + 1;
+					// this.logger.silly('fitNotesToScreen made  pitch %d after - %d +1', note.pitch, this.ranges.pitch.lo);
 				}
 
 				if (this.options.quantizePitchBucketSize) {
 					note.pitch = this.quantizePitch(note.pitch);
+					// this.logger.silly('Quantized pitch is ', note.pitch);
 				}
 
 				if (this.options.scaleLuminosity && this.ranges.velocity.hi !== this.ranges.velocity.lo) {
@@ -208,6 +224,7 @@ module.exports = class MidiFile {
 				}
 
 				note.save();
+				notes[note.pitch]++;
 			});
 		});
 
@@ -218,7 +235,17 @@ module.exports = class MidiFile {
 			);
 		}
 
+		this.logger.debug('Final list of notes used: ', Object.keys(notes).sort());
 		return this.options.midiNoteRange;
+	}
+
+	_setPitchRange(pitch) {
+		if (pitch > this.ranges.pitch.hi) {
+			this.ranges.pitch.hi = pitch;
+		}
+		if (pitch < this.ranges.pitch.lo) {
+			this.ranges.pitch.lo = pitch;
+		}
 	}
 
 	fitNoteHues(noteHues) {

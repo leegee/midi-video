@@ -78,6 +78,8 @@ describe('MidiFile', function () {
         }, []);
 
         expect(uniqueNotes.sort()).to.deep.equal([1, 2, 3, 4, 5, 6]);
+
+        console.log(midiReader);
     });
 
     // it('reads simple MIDI', async () => {

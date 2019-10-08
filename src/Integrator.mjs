@@ -174,6 +174,8 @@ module.exports = class Integrator {
             }
         }
 
+        this.logger.info('Beginning main render');
+
         for (
             let currentTime = 0; currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen / 2); currentTime += timeFrame
         ) {
@@ -201,20 +203,14 @@ module.exports = class Integrator {
             title: {
                 text: this.options.text ? this.options.text.title || '' : '',
                 maxSize: 500,
-                color: 'white',
-                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Italic.ttf')
             },
             composer: {
                 text: this.options.text ? this.options.text.composer || '' : '',
                 maxSize: 80,
-                color: 'rgba(255, 255, 255, 0.7)',
-                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             },
             performer: {
                 text: this.options.text ? this.options.text.performer || '' : '',
                 maxSize: 80,
-                color: 'rgba(255, 255, 255, 0.7)',
-                font: path.resolve('fonts/Playfair_Display/PlayfairDisplay-Regular.ttf')
             }
         });
 

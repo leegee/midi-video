@@ -81,7 +81,7 @@ module.exports = class ImageMaker {
         this.ranges.y.lo = this.options.height;
 
         this.logger.debug('Note height: %d, Canvas height: %d, note range: %d',
-            this.noteHeight, this.options.height / this.noteHeight, this.options.midiNoteRange
+            this.noteHeight, this.options.height, this.options.midiNoteRange,
         );
 
         this.createBlankImage();
@@ -116,7 +116,7 @@ module.exports = class ImageMaker {
     }
 
     async getFrame(currentTime) {
-        this.logger.verbose('ImageMkaer.getFrame enter at %d for %d beats on screen', currentTime, this.options.beatsOnScreen);
+        this.logger.silly('ImageMkaer.getFrame enter at %d for %d beats on screen', currentTime, this.options.beatsOnScreen);
 
         if (typeof currentTime === 'undefined') {
             throw new TypeError('ImageMaker.getFrame requires the current time');
@@ -127,10 +127,10 @@ module.exports = class ImageMaker {
         const notes = await Note.readRange(currentTime - (this.options.beatsOnScreen / 2), currentTime + (this.options.beatsOnScreen / 2));
 
         if (notes.length === 0) {
-            this.logger.verbose('No notes to add around ', currentTime);
+            this.logger.silly('No notes to add around ', currentTime);
             rvImageBuffer = ImageMaker.BlankImageBuffer;
         } else {
-            this.logger.verbose('Processing %d notes from DB at %d', notes.length, currentTime);
+            this.logger.silly('Processing %d notes from DB at %d', notes.length, currentTime);
             this._addNotes(notes);
             this._pruneCompletedNotes(currentTime - (this.options.beatsOnScreen / 2));
             this._positionPlayingNotes(currentTime);
@@ -142,7 +142,7 @@ module.exports = class ImageMaker {
     }
 
     _markOverlaidPlayingNotes() {
-        this.logger.verbose('ImageMaker._markOverlaidPlayingNotes enter uniqueNotesPlaying: ', this.uniqueNotesPlaying);
+        this.logger.silly('ImageMaker._markOverlaidPlayingNotes enter _markOverlaidPlayingNotes: ', this.uniqueNotesPlaying);
 
         const playing = Object.values(this.endSeconds2notesPlaying)[0];
         const checkedMd5s = {};
@@ -200,8 +200,8 @@ module.exports = class ImageMaker {
                 this.uniqueNotesPlaying[note.md5] = true;
                 this.endSeconds2notesPlaying[note.endSeconds] = this.endSeconds2notesPlaying[note.endSeconds] || [];
                 this.endSeconds2notesPlaying[note.endSeconds].push(note);
-                this.logger.verbose('Added a note, unique playing notes now %d long ', Object.keys(this.uniqueNotesPlaying).length);
-            } else {
+                // this.logger.silly('Added a note, unique playing notes now %d long ', Object.keys(this.uniqueNotesPlaying).length);
+                // } else {
                 // this.logger.error('note.md5 %s already playing', note.md5);
                 // this.logger.error('Unique playing notes: ', this.uniqueNotesPlaying);
                 // this.logger.error('Tried to add notes: ', notes);
@@ -229,7 +229,7 @@ module.exports = class ImageMaker {
 
 
     _drawPlayingNotes(currentTime) {
-        this.logger.verbose('ImageMaker._drawPlayingNotes ', this.endSeconds2notesPlaying);
+        this.logger.silly('ImageMaker._drawPlayingNotes ', this.endSeconds2notesPlaying);
         for (let endSeconds in this.endSeconds2notesPlaying) {
             this.endSeconds2notesPlaying[endSeconds].forEach(note => {
                 this._drawNote(currentTime, note);
@@ -238,7 +238,7 @@ module.exports = class ImageMaker {
     }
 
     _positionPlayingNotes(currentTime) {
-        this.logger.verbose('ImageMaker.positionPlayingNotes ', currentTime);
+        this.logger.silly('ImageMaker.positionPlayingNotes ', currentTime);
         if (typeof currentTime === 'undefined') {
             throw new TypeError('ImageMaker.positionPlayingNotes requires the current time');
         }
@@ -292,6 +292,12 @@ module.exports = class ImageMaker {
             );
             throw 'note.y is negative!';
         }
+        else if (note.y >= this.options.height) {
+            this.logger.error('this.options.height %d - (note.pitch %d * this.noteHeight %d) = %d',
+                this.options.height, note.pitch, this.noteHeight, note.y
+            );
+            throw 'note.y is too big!';
+        }
 
         let hue;
         if (this.options.noteHues) {
@@ -320,10 +326,10 @@ module.exports = class ImageMaker {
 
     _drawNote(currentTime, note) {
         if (note === null) {
-            this.logger.verbose('Ignore null note');
+            this.logger.silly('Ignore null note');
             return;
         }
-        this.logger.verbose('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
+        this.logger.silly('DRAWING track %d channel %d pitch %d at x %d y %d w %d h %d, from %ds to %ds',
             note.track, note.channel, note.pitch, note.x, note.y, note.width, this.noteHeight, note.startSeconds, note.endSeconds,
             note.colour
         );

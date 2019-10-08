@@ -79,7 +79,7 @@ module.exports = class Note {
             to = 0;
         }
 
-        Note.logger.verbose('Note.readRange from %d to %d', from, to);
+        Note.logger.silly('Note.readRange from %d to %d', from, to);
 
         return new Promise((resolve, reject) => {
             const rows = [];
@@ -87,7 +87,7 @@ module.exports = class Note {
                 Note.statements.readRange.each(from, to).each(
                     (err, row) => err ? this.logger.error(err) && reject(err) : rows.push(row),
                     () => {
-                        Note.logger.debug('readRange from %d to %d: %d results', from, to, rows.length);
+                        Note.logger.silly('readRange from %d to %d: %d results', from, to, rows.length);
                         resolve(rows.map(row => new Note(row)));
                     }
                 );
@@ -138,7 +138,7 @@ module.exports = class Note {
     }
 
     updatePitch(newPitch) {
-        this.logger.verbose('Note.updatePitch', this, newPitch);
+        this.logger.silly('Note.updatePitch', this, newPitch);
         this.pitch = newPitch;
 
         if (Number(this.pitch) === NaN) {
@@ -147,20 +147,21 @@ module.exports = class Note {
         if (!this.md5) {
             throw new TypeError('No md5?');
         }
+
         Note.dbh.serialize(() => {
             Note.statements.updatePitch.run(this.pitch, this.md5);
-            this.logger.verbose('Note.updatePitch ran: ', this.pitch);
+            this.logger.silly('Note.updatePitch ran: ', this.pitch);
         });
     }
 
     updateForDisplay() {
-        Note.logger.verbose('Note.updateForDisplay', this);
+        Note.logger.silly('Note.updateForDisplay', this);
         Note.assertValues(this);
         Note.dbh.serialize(() => {
             Note.statements.updateForDisplay.run(
                 this.x, this.y, this.width, this.height, this.colour
             );
-            Note.logger.verbose('Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour);
+            Note.logger.silly('Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour);
         });
     }
 

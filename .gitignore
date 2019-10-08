@@ -5,4 +5,7 @@ src/temp.css
 temp*.png
 fixtures/berlin/desktop.ini
 fixtures/todo/
+fixtures/google-groove
 *.log
+wav/
+*.mp4
