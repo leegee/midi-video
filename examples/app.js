@@ -6,22 +6,23 @@ main();
 
 async function main() {
     const app = new App({
-        // outputpath: 'Scott_Joplin_1920_The_Entertainer.mp4',
-        audiopath: 'fixtures/google-groove/groove/drummer1/session1/1_funk_80_beat_4-4.wav',
-        midipath: 'fixtures/google-groove/groove/drummer1/session1/1_funk_80_beat_4-4.mid',
+        outputpath: 'alexanders_ragtime_band.mp4',
+        audiopath: 'wav/alexanders_ragtime_band.wav',
+        midipath: 'fixtures/todo/03-IrvgB Alexanders Ragtime Band (1911) cb Irving Berlin [3070].mid',
         text: {
-            title: "4/4 Funk",
-            composer: 'From the Google Groove Dataset',
-            performer: 'Dillon Vado (Never Weather), Jonathan Fishman (Phish), Michaelle Goerlitz (Wild Mango), Nick Woodbury (SF Contemporary Music Players), Randy Schwartz (El Duo), Jon Gillick, Mikey Steczo, Sam Berman, and Sam Hancock'
+            title: "Alexander's Ragtime Band",
+            composer: 'Irving Berlin',
+            performer: '1911'
         }
     });
 
     try {
         const encoderExitStatus = await app.integrate();
-        this.logger.debug('Completed with code', encoderExitStatus);
+        app.options.logger.debug('Completed with code', encoderExitStatus);
     }
     catch (e) {
         console.trace();
+        console.error('------------------');
         console.error(e);
     }
 }

@@ -53,7 +53,7 @@ async function processFile(base) {
 
     try {
         const encoderExitStatus = await app.integrate();
-        this.logger.debug('Completed with code', encoderExitStatus);
+        this.options.logger.debug('Completed with code', encoderExitStatus);
     } catch (e) {
         console.trace();
         console.error(e);

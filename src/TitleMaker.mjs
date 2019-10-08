@@ -71,7 +71,7 @@ module.exports = class Titles {
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
 
-        this.logger = appLogger;
+        this.options.logger = appLogger;
 
         assertOptions(this.options, {
             title: {

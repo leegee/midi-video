@@ -20,11 +20,11 @@
 
         try {
             const encoderExitStatus = await integrator.integrate();
-            this.logger.info('Completed with code', encoderExitStatus);
+            this.options.logger.info('Completed with code', encoderExitStatus);
         }
         catch (e) {
             console.trace();
-            this.logger.error(e);
+            this.options.logger.error(e);
         }
     }
 

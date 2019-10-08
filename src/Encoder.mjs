@@ -30,7 +30,7 @@ module.exports = class Encoder {
 
     constructor(options = {}) {
         this.options = Object.assign({}, this.options, options);
-        this.logger = appLogger;
+        this.options.logger = appLogger;
 
         assertOptions(this.options, {
             fps: 'integer',
@@ -41,7 +41,7 @@ module.exports = class Encoder {
     }
 
     init() {
-        this.logger.debug('Encoder.init');
+        this.options.logger.debug('Encoder.init');
         return new Promise((resolve, reject) => {
             const args = [
                 '-y', '-f', 'image2pipe',
@@ -59,7 +59,7 @@ module.exports = class Encoder {
                     const audiooffset = t.toLocaleTimeString('en-GB', {
                         hour12: false
                     });
-                    this.logger.debug('Audio offset, after titles: [%s]', audiooffset);
+                    this.options.logger.debug('Audio offset, after titles: [%s]', audiooffset);
                     args.push('-itsoffset', audiooffset);
                 }
                 args.push('-i', this.options.audiopath);
@@ -70,50 +70,50 @@ module.exports = class Encoder {
                 this.options.outputpath
             );
 
-            this.logger.debug('pre-spawn ffmpeg', args);
+            this.options.logger.debug('pre-spawn ffmpeg', args);
             const childProcess = child_process.spawn(FFMPEG_PATH, args);
-            this.logger.debug('post-spawn ffmpeg');
+            this.options.logger.debug('post-spawn ffmpeg');
 
             childProcess.stdout.on('data', data => {
                 const str = data.toString();
-                this.logger.debug(str);
+                this.options.logger.debug(str);
                 this.stdout += str + '\n';
             });
 
             childProcess.stderr.on('data', data => {
                 const str = data.toString();
-                this.logger.debug(str);
+                this.options.logger.debug(str);
                 this.stderr += str + '\n';
             });
 
             childProcess.on('error', data => {
                 const str = data.toString();
-                this.logger.error('ERROR', str);
+                this.options.logger.error('ERROR', str);
                 this.stderr += str + '\n';
                 reject(str);
             });
 
             childProcess.on('exit', code => {
-                this.logger.info('Child proc closed');
+                this.options.logger.info('Encoder: child proc exit', code);
+                this.pipeOpen = false;
             });
 
             childProcess.on('close', code => {
-                this.pipeOpen = false;
-                this.logger.info(
-                    'Encoder: closed pipe after %d images, ffmpeg exit status %d',
+                this.options.logger.info(
+                    'Encoder: child proc closed pipe after %d images, ffmpeg exit status %d',
                     this.totalImagesAdded, code
                 );
                 this.parseOutput();
                 resolve(code);
             });
 
-            this.pipeOpen = true;
             this.imagesStream = new stream.PassThrough();
             this.imagesStream.on('error', () => {
-                this.logger.error('imageStream error: ', error);
+                this.options.logger.error('imageStream error: ', error);
+                this.pipeOpen = true;
             });
             this.imagesStream.pipe(childProcess.stdin);
-            this.logger.debug('pipe connected');
+            this.options.logger.debug('Encoder pipe connected');
         });
     }
 
@@ -123,9 +123,9 @@ module.exports = class Encoder {
             this.encoded.fps = this.stderr.match(/\s+fps=(\S+)/s)[1];
             this.encoded.time = this.stderr.match(/\s+time=(\d{2}:\d{2}:\d{2}.\d+)/s)[1];
         } catch (err) {
-            this.logger.error('='.repeat(100));
-            this.logger.error(this.stderr);
-            this.logger.error('^'.repeat(100));
+            this.options.logger.error('='.repeat(100));
+            this.options.logger.error(this.stderr);
+            this.options.logger.error('^'.repeat(100));
             throw err;
         }
     }
@@ -134,18 +134,16 @@ module.exports = class Encoder {
         if (!(buffer instanceof Buffer)) {
             throw new TypeError('addImage requires a Buffer, received ' + buffer);
         }
-        this.logger.silly('Encoder.addImage adding image');
+        this.options.logger.silly('Encoder.addImage adding image');
         this.imagesStream.write(buffer, 'utf8');
         this.totalImagesAdded++;
-        this.logger.silly('Encoder.addImage added image', this.totalImagesAdded);
+        this.options.logger.silly('Encoder.addImage added image', this.totalImagesAdded);
     }
 
     async finalise() {
-        setTimeout(() => {
-            this.logger.debug('Encoder.finalise closing imageStream');
-            this.imagesStream.end();
-            this.logger.debug('Encoder.finalise done');
-        }, 500);
+        this.options.logger.debug('Encoder.finalise closing imageStream');
+        this.imagesStream.end();
+        this.options.logger.debug('Encoder.finalise done');
     }
 
 }

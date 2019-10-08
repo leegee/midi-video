@@ -34,23 +34,23 @@ module.exports = winston.createLogger({
                 }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
             )
         }),
-        new(winston.transports.File)({
-            filename: path.join(process.cwd(), 'log.log'),
-            level: 'silly',
-            format: winston.format.combine(
-                winston.format.timestamp({
-                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
-                }),
-                utilFormatter(),
-                winston.format.colorize(),
-                winston.format.printf(({
-                    level,
-                    message,
-                    label,
-                    timestamp
-                }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
-            )
-        })
+        // new(winston.transports.File)({
+        //     filename: path.join(process.cwd(), 'log.log'),
+        //     level: 'silly',
+        //     format: winston.format.combine(
+        //         winston.format.timestamp({
+        //             format: 'YYYY-MM-DD HH:mm:ss.SSS'
+        //         }),
+        //         utilFormatter(),
+        //         winston.format.colorize(),
+        //         winston.format.printf(({
+        //             level,
+        //             message,
+        //             label,
+        //             timestamp
+        //         }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
+        //     )
+        // })
     ]
 });
 

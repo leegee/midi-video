@@ -17,7 +17,7 @@ afterEach(async () => {
     await Note.reset();
 });
 
-xdescribe('Integrator', function () {
+describe('Integrator', function () {
     this.timeout(1000 * 60);
 
     it('Y range', async () => {

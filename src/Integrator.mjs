@@ -44,12 +44,12 @@ module.exports = class Integrator {
 
         this.options = Object.assign({}, this.options, options);
 
-        this.logger = appLogger;
+        this.options.logger = this.options.logger || appLogger;
 
-        this.logger.debug('Create new  Integrator');
+        this.options.logger.debug('Create new  Integrator');
 
         if (this.options.RENDER_DISABLED) {
-            this.logger.warn('*'.repeat(40), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat(40), '\n');
+            this.options.logger.warn('*'.repeat(40), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat(40), '\n');
         }
 
         assertOptions(this.options, {
@@ -92,14 +92,14 @@ module.exports = class Integrator {
     }
 
     async _init() {
-        this.logger.debug('Integrator.init enter');
+        this.options.logger.debug('Integrator.init enter');
 
         this.midiFile = new MidiFile(this.options);
 
         const midiNoteRange = await this.midiFile.parse();
 
-        this.logger.debug('MIDI note range: ', midiNoteRange);
-        this.logger.debug('Integrator.new create ImageMaker');
+        this.options.logger.debug('MIDI note range: ', midiNoteRange);
+        this.options.logger.debug('Integrator.new create ImageMaker');
 
         const trackHues = this.options.trackHues ? this.midiFile.mapTrackNames2Hues(this.options.trackHues, this.options.defaultHue) :
             ImageMaker.createColourList(this.midiFile.tracks.length, this.options.defaultHue);
@@ -118,27 +118,27 @@ module.exports = class Integrator {
 
         await this.imageMaker.init();
 
-        this.logger.debug('noteHeight: ', this.imageMaker.noteHeight);
-        this.logger.debug('FPS:', this.options.fps);
+        this.options.logger.debug('noteHeight: ', this.imageMaker.noteHeight);
+        this.options.logger.debug('FPS:', this.options.fps);
 
-        this.logger.debug('Integrator.init done');
+        this.options.logger.debug('Integrator.init done');
     }
 
     async integrate() {
-        this.logger.debug('Integrator.integrate enter');
+        this.options.logger.debug('Integrator.integrate enter');
         await this._init();
 
-        let promiseResolvesWhenFileWritten;
+        let promiseResolvesWhenImgPipeClosed;
         if (this.options.RENDER_DISABLED) {
-            promiseResolvesWhenFileWritten = Promise.resolve();
+            promiseResolvesWhenImgPipeClosed = Promise.resolve();
         } else {
             this.encoder = new Encoder(this.options);
-            promiseResolvesWhenFileWritten = this.encoder.init();
+            promiseResolvesWhenImgPipeClosed = this.encoder.init();
         }
 
         const timeFrame = 1 / this.options.fps;
 
-        this.logger.debug('Integrator.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d',
+        this.options.logger.debug('Integrator.integrate MIDI of %d seconds timeFrame for %d beats on screen: timeFrame size %d',
             this.midiFile.durationSeconds, this.beatsOnScreen, timeFrame
         );
 
@@ -151,7 +151,7 @@ module.exports = class Integrator {
             const titleCanvas = this.getTitleCanvas();
             const titleImage = titleCanvas.toBuffer('image/png');
 
-            this.logger.info('Titles: full=%d, opaque=%d, fade=%d',
+            this.options.logger.info('Titles: full=%d, opaque=%d, fade=%d',
                 this.options.titleDuration, durationOpaque, this.options.fadeTitleDuration
             );
 
@@ -174,26 +174,29 @@ module.exports = class Integrator {
             }
         }
 
-        this.logger.info('Beginning main render');
+        this.options.logger.info('Beginning main render');
 
         for (
             let currentTime = 0; currentTime <= this.midiFile.durationSeconds + (this.beatsOnScreen / 2); currentTime += timeFrame
         ) {
-            this.logger.debug('Current time = ', currentTime);
+            this.options.logger.debug('Current time = ', currentTime);
             const image = await this.imageMaker.getFrame(currentTime);
             if (!this.options.RENDER_DISABLED) {
                 this.encoder.addImage(image);
             }
         }
 
+        this.options.logger.info('Main render complete');
+
+        this.options.logger.debug('ImageMaker height %d, range: ', this.imageMaker.options.height, this.imageMaker.ranges);
+
         if (!this.options.RENDER_DISABLED) {
-            this.logger.debug('All time frames parsed: call Encoder.finalise');
+            this.options.logger.debug('All time frames parsed: call Encoder.finalise');
             this.encoder.finalise();
-            this.logger.debug('Called Encoder.finalise');
+            this.options.logger.debug('Called Encoder.finalise');
         }
 
-        this.logger.debug('ImageMaker height %d, range: ', this.imageMaker.options.height, this.imageMaker.ranges);
-        return promiseResolvesWhenFileWritten;
+        return promiseResolvesWhenImgPipeClosed;
     }
 
     getTitleCanvas() {

@@ -16,8 +16,8 @@ module.exports = class MidiFile {
 	static SIXTY = new Decimal(60);
 	static INIT_RANGES = {
 		pitch: {
-			hi: undefined,
-			lo: undefined
+			hi: 0,
+			lo: 127
 		},
 		velocity: {
 			hi: 0,
@@ -46,7 +46,7 @@ module.exports = class MidiFile {
 			};
 		}
 		this.options = Object.assign({}, this.options, options);
-		this.logger = appLogger;
+		this.options.logger = appLogger;
 
 		assertOptions(this.options, {
 			midipath: 'string for input path',
@@ -58,8 +58,8 @@ module.exports = class MidiFile {
 			}
 		});
 
-		this.logger.debug('Logging...');
-		this.logger.verbose('Debugging...');
+		this.options.logger.debug('Logging...');
+		this.options.logger.verbose('Debugging...');
 	}
 
 	ticksToSeconds(delta) {
@@ -67,7 +67,7 @@ module.exports = class MidiFile {
 	}
 
 	async parse() {
-		this.logger.info('MidiFile.parse Beginning');
+		this.options.logger.info('MidiFile.parse Beginning');
 		await Note.init();
 		this.ranges = MidiFile.INIT_RANGES;
 		let longestTrackDurationSeconds = 0;
@@ -75,7 +75,7 @@ module.exports = class MidiFile {
 		const midi = MidiParser.parse(fs.readFileSync(this.options.midipath));
 		const midiTimeDivision = new Decimal(midi.timeDivision);
 
-		this.logger.verbose('MIDI.timeDivision: %d', midiTimeDivision);
+		this.options.logger.verbose('MIDI.timeDivision: %d', midiTimeDivision);
 
 		for (let trackNumber = 0; trackNumber < midi.tracks; trackNumber++) {
 			let durationSeconds = 0;
@@ -91,7 +91,7 @@ module.exports = class MidiFile {
 			});
 
 			midi.track[trackNumber].event.forEach(event => {
-				this.logger.silly(trackNumber, 'EVENT', event);
+				this.options.logger.silly(trackNumber, 'EVENT', event);
 				currentTick += event.deltaTime;
 
 				if (event.type === MidiFile.META) {
@@ -99,16 +99,16 @@ module.exports = class MidiFile {
 						const eventData = new Decimal(event.data)
 						this.bpm = MidiFile.SIXTY_MILLION.dividedBy(eventData);
 						this.timeFactor = MidiFile.SIXTY.dividedBy(this.bpm.times(midiTimeDivision));
-						this.logger.debug('TEMPO CHANGE %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
+						this.options.logger.debug('TEMPO CHANGE %d BPM %d timeFactor', event.data, this.bpm, this.timeFactor);
 					} else if (event.metaType === 3) {
 						this.tracks[this.tracks.length - 1].name = event.data;
-						this.logger.verbose('Parsing track number %d named %s', trackNumber, event.data);
+						this.options.logger.verbose('Parsing track number %d named %s', trackNumber, event.data);
 					}
 				} else {
 					if (event.type === MidiFile.NOTE_ON) {
 						if (event.data[1] === 0) { // No velocity === silence note
 							event.type = MidiFile.NOTE_OFF;
-							this.logger.verbose('ZERO VELOCITY NOTE ON === NOTE OFF');
+							this.options.logger.verbose('ZERO VELOCITY NOTE ON === NOTE OFF');
 						} else {
 							totalNotesOn++;
 							playingNotes[event.data[0]] = {
@@ -142,8 +142,8 @@ module.exports = class MidiFile {
 							this.tracks[trackNumber].notes.push(note);
 							delete playingNotes[event.data[0]];
 						} catch (e) {
-							this.logger.error('Error. playingNotes: ', playingNotes);
-							this.logger.error('info', {
+							this.options.logger.error('Error. playingNotes: ', playingNotes);
+							this.options.logger.error('info', {
 								endTick: currentTick,
 								endSeconds: this.ticksToSeconds(currentTick),
 								channel: event.channel,
@@ -161,20 +161,20 @@ module.exports = class MidiFile {
 				longestTrackDurationSeconds = durationSeconds;
 			}
 
-			this.logger.debug('Track %d %s completed with %d notes, %d ticks = %d seconds',
+			this.options.logger.debug('Track %d %s completed with %d notes, %d ticks = %d seconds',
 				trackNumber, this.tracks[trackNumber].name, this.tracks[trackNumber].notes.length,
 				currentTick, durationSeconds
 			);
-			this.logger.debug('Time factor %d, bpm %d', this.timeFactor, this.bpm);
-			this.logger.debug('Total notes on: ', totalNotesOn);
-			this.logger.debug('Total notes off: ', totalNotesOff);
+			this.options.logger.debug('Time factor %d, bpm %d', this.timeFactor, this.bpm);
+			this.options.logger.debug('Total notes on: ', totalNotesOn);
+			this.options.logger.debug('Total notes off: ', totalNotesOff);
 		}
 
 		this.tracks = this.tracks.filter(track => track.notes.length > 0);
 		this.durationSeconds = longestTrackDurationSeconds;
 
-		this.logger.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
-		this.logger.debug('MidiFile.parse found initial ranges: ', this.ranges);
+		this.options.logger.info('MidiFile.parse populated %d tracks, leaving.', this.tracks.length);
+		this.options.logger.debug('MidiFile.parse found initial ranges: ', this.ranges);
 
 		let notes = {};
 
@@ -188,7 +188,7 @@ module.exports = class MidiFile {
 					} else {
 						// const old = note.pitch;
 						note.pitch = this.options.remapPitches[note.pitch];
-						// this.logger.silly('REMAP %d to %d', old, note.pitch);
+						// this.options.logger.silly('REMAP %d to %d', old, note.pitch);
 						this._setPitchRange(note.pitch);
 					}
 
@@ -196,7 +196,7 @@ module.exports = class MidiFile {
 				});
 			});
 
-			this.logger.debug('Notes used after remap: ', Object.keys(notes).sort());
+			this.options.logger.debug('Notes used after remap: ', Object.keys(notes).sort());
 			notes = {};
 		}
 
@@ -205,12 +205,12 @@ module.exports = class MidiFile {
 			track.notes.forEach(note => {
 				if (this.options.fitNotesToScreen) {
 					note.pitch = note.pitch - this.ranges.pitch.lo + 1;
-					// this.logger.silly('fitNotesToScreen made  pitch %d after - %d +1', note.pitch, this.ranges.pitch.lo);
+					// this.options.logger.silly('fitNotesToScreen made  pitch %d after - %d +1', note.pitch, this.ranges.pitch.lo);
 				}
 
 				if (this.options.quantizePitchBucketSize) {
 					note.pitch = this.quantizePitch(note.pitch);
-					// this.logger.silly('Quantized pitch is ', note.pitch);
+					// this.options.logger.silly('Quantized pitch is ', note.pitch);
 				}
 
 				if (this.options.scaleLuminosity && this.ranges.velocity.hi !== this.ranges.velocity.lo) {
@@ -230,12 +230,12 @@ module.exports = class MidiFile {
 
 		if (this.options.fitNotesToScreen) {
 			this.options.midiNoteRange = this.ranges.pitch.hi - this.ranges.pitch.lo;
-			this.logger.debug('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
+			this.options.logger.debug('MidiFile.fitNotesToScreen: new MIDI new range: %d (ie %d - %d)',
 				this.options.midiNoteRange, this.ranges.pitch.hi, this.ranges.pitch.lo
 			);
 		}
 
-		this.logger.debug('Final list of notes used: ', Object.keys(notes).sort());
+		this.options.logger.debug('Final list of notes used: ', Object.keys(notes).sort());
 		return this.options.midiNoteRange;
 	}
 
@@ -256,7 +256,7 @@ module.exports = class MidiFile {
 					replacement[pitch - this.ranges.pitch.lo] = noteHues[pitch]
 				}
 			);
-			this.logger.silly('New noteHue map: ', replacement);
+			this.options.logger.silly('New noteHue map: ', replacement);
 			return replacement;
 		}
 		return noteHues;
@@ -269,11 +269,11 @@ module.exports = class MidiFile {
 		this.tracks.forEach(track => {
 			if (trackHues instanceof Object && trackHues[track.name]) {
 				mapped.push(trackHues[track.name]);
-				this.logger.debug('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
+				this.options.logger.debug('Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[track.name])
 			} else if (trackHues instanceof Array) {
 				mapped.push(trackHues[i++]);
 			} else {
-				this.logger.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
+				this.options.logger.warn('Missing trackHues for track %d, named "%s"!', track.number, track.name)
 				mapped.push(defaultHue);
 			}
 		});
