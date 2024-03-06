@@ -1,7 +1,10 @@
 import path from 'path';
 
-import * as Canvas from 'canvas';
-import drawText from 'node-canvas-text';
+import Canvas from 'canvas';
+import _drawText from 'node-canvas-text';
+
+const drawText = _drawText.default;
+
 import opentype from 'opentype.js';
 import smartquotes from 'smartquotes';
 
