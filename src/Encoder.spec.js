@@ -4,6 +4,9 @@ import chai from 'chai';
 import chaiFs from 'chai-fs';
 import chaiAsPromised from 'chai-as-promised';
 
+chai.use( chaiFs );
+chai.use( chaiAsPromised );
+
 import fs from 'fs';
 
 import Encoder from "./Encoder.js";
