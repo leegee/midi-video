@@ -11,7 +11,6 @@ import assertOptions from './assertOptions.js';
 
 export default class Integrator {
     options = {
-        RENDER_DISABLED: false,
         midipath: undefined,
         titleDuration: 4,
         fadeTitleDuration: 1,
@@ -47,10 +46,6 @@ export default class Integrator {
         this.options.logger = this.options.logger || appLogger;
 
         this.options.logger.debug( 'Create new  Integrator' );
-
-        if ( this.options.RENDER_DISABLED ) {
-            this.options.logger.warn( '*'.repeat( 40 ), '\n', '* NO RENDERING TO VIDEO\n', '*'.repeat( 40 ), '\n' );
-        }
 
         assertOptions( this.options, {
             midipath: 'path to the MIDI file to parse',
@@ -129,12 +124,8 @@ export default class Integrator {
         await this._init();
 
         let promiseResolvesWhenImgPipeClosed;
-        if ( this.options.RENDER_DISABLED ) {
-            promiseResolvesWhenImgPipeClosed = Promise.resolve();
-        } else {
-            this.encoder = new Encoder( this.options );
-            promiseResolvesWhenImgPipeClosed = this.encoder.init();
-        }
+        this.encoder = new Encoder( this.options );
+        promiseResolvesWhenImgPipeClosed = this.encoder.init();
 
         const timeFrame = 1 / this.options.fps;
 
@@ -155,10 +146,8 @@ export default class Integrator {
                 this.options.titleDuration, durationOpaque, this.options.fadeTitleDuration
             );
 
-            if ( !this.options.RENDER_DISABLED ) {
-                for ( let seconds = 0; seconds <= durationOpaque; seconds += timeFrame ) {
-                    this.encoder.addImage( titleImage );
-                }
+            for ( let seconds = 0; seconds <= durationOpaque; seconds += timeFrame ) {
+                this.encoder.addImage( titleImage );
             }
 
             const onePc = 100 / ( this.options.fadeTitleDuration / timeFrame );
@@ -168,33 +157,27 @@ export default class Integrator {
                 const pc = onePc * i++;
                 const fadedTitleCanvas = this.titleMaker.getFadedTitleCanvas( pc );
                 const titleImage = fadedTitleCanvas.toBuffer( 'image/png' );
-                if ( !this.options.RENDER_DISABLED ) {
-                    this.encoder.addImage( titleImage );
-                }
+                this.encoder.addImage( titleImage );
             }
         }
 
-        this.options.logger.info( 'Beginning main render' );
+        this.options.logger.info( 'Integrator: beginning main render' );
 
         for (
             let currentTime = 0; currentTime <= this.midiFile.durationSeconds + ( this.beatsOnScreen / 2 ); currentTime += timeFrame
         ) {
             this.options.logger.debug( 'Current time = ', currentTime );
             const image = await this.imageMaker.getFrame( currentTime );
-            if ( !this.options.RENDER_DISABLED ) {
-                this.encoder.addImage( image );
-            }
+            this.encoder.addImage( image );
         }
 
-        this.options.logger.info( 'Main render complete' );
+        this.options.logger.info( 'Integrator: Main render complete' );
 
         this.options.logger.debug( 'ImageMaker height %d, range: ', this.imageMaker.options.height, this.imageMaker.ranges );
 
-        if ( !this.options.RENDER_DISABLED ) {
-            this.options.logger.debug( 'All time frames parsed: call Encoder.finalise' );
-            this.encoder.finalise();
-            this.options.logger.debug( 'Called Encoder.finalise' );
-        }
+        this.options.logger.debug( 'All time frames parsed: call Encoder.finalise' );
+        this.encoder.finalise();
+        this.options.logger.debug( 'Called Encoder.finalise' );
 
         return promiseResolvesWhenImgPipeClosed;
     }

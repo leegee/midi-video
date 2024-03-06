@@ -2,7 +2,7 @@ import path from 'path';
 import util from 'util';
 import winston from 'winston';
 
-function transform ( info, opts ) {
+function transform ( info, _opts ) {
     const args = info[ Symbol.for( 'splat' ) ];
     if ( args ) {
         info.message = util.format( info.message, ...args );
@@ -11,9 +11,7 @@ function transform ( info, opts ) {
 }
 
 function utilFormatter () {
-    return {
-        transform
-    };
+    return { transform };
 }
 
 export default winston.createLogger( {
@@ -34,23 +32,23 @@ export default winston.createLogger( {
                 } ) => `${ timestamp } ${ label || '-' } ${ level }: ${ message }` ),
             )
         } ),
-        // new(winston.transports.File)({
-        //     filename: path.join(process.cwd(), 'log.log'),
-        //     level: 'silly',
-        //     format: winston.format.combine(
-        //         winston.format.timestamp({
-        //             format: 'YYYY-MM-DD HH:mm:ss.SSS'
-        //         }),
-        //         utilFormatter(),
-        //         winston.format.colorize(),
-        //         winston.format.printf(({
-        //             level,
-        //             message,
-        //             label,
-        //             timestamp
-        //         }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
-        //     )
-        // })
+        new ( winston.transports.File )( {
+            filename: path.join( process.cwd(), 'log.log' ),
+            level: 'silly',
+            format: winston.format.combine(
+                winston.format.timestamp( {
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                } ),
+                utilFormatter(),
+                winston.format.colorize(),
+                winston.format.printf( ( {
+                    level,
+                    message,
+                    label,
+                    timestamp
+                } ) => `${ timestamp } ${ label || '-' } ${ level }: ${ message }` ),
+            )
+        } )
     ]
 } );
 

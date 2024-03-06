@@ -8,14 +8,19 @@ chai.use( chaiFs );
 
 import Integrator from "./Integrator.js";
 import Note from './Note.js';
+import appLogger from './appLogger.js';
 
 // import noteHues from '../src/Colours/roland-td11.js';
 
+let oldLogLevel;
+
 beforeEach( async () => {
+    oldLogLevel = process.env.LEVEL;
     await Note.reset();
 } );
 afterEach( async () => {
     await Note.reset();
+    process.env.LEVEL = oldLogLevel;
 } );
 
 describe( 'Integrator', function () {
@@ -26,7 +31,6 @@ describe( 'Integrator', function () {
             outputpath: path.resolve( 'whatll-i-do.mp4' ),
             midipath: path.resolve( 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid' ),
             fps: 1,
-            RENDER_DISABLED: true
         } );
 
         await integrator.integrate();
@@ -36,6 +40,8 @@ describe( 'Integrator', function () {
     } );
 
     it( 'creates a video file from simple MIDI', async () => {
+        process.env.LEVEL = 'error';
+
         const integrator = new Integrator( {
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
@@ -48,6 +54,7 @@ describe( 'Integrator', function () {
             }
         } );
         expect( integrator ).to.be.an.instanceOf( Integrator );
+        expect( integrator.options.logger ).to.be.an( 'Object' );
 
         expect( integrator.options.outputpath ).to.equal(
             path.resolve( 'fixtures/4bars-60bpm.mp4' )
@@ -61,6 +68,8 @@ describe( 'Integrator', function () {
         expect( promiseResolvesWhenFileWritten ).to.be.an.instanceOf( Promise );
 
         const encoderEitStatus = await promiseResolvesWhenFileWritten;
+
+        integrator.options.logger.info( 'encoderEitStatus=' + encoderEitStatus );
         expect( encoderEitStatus ).to.equal( 0 );
 
         expect(

@@ -136,7 +136,15 @@ export default class Encoder {
             throw new TypeError( 'addImage requires a Buffer, received ' + buffer );
         }
         this.options.logger.silly( 'Encoder.addImage adding image' );
-        this.imagesStream.write( buffer, 'utf8' );
+
+        try {
+            this.imagesStream.write( buffer, 'utf8' );
+        } catch ( e ) {
+            this.options.logger.error( 'Encoder.addImage adding image: ', e );
+            console.trace();
+            throw e;
+        }
+
         this.totalImagesAdded++;
         this.options.logger.silly( 'Encoder.addImage added image', this.totalImagesAdded );
     }

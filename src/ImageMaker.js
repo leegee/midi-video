@@ -344,37 +344,35 @@ export default class ImageMaker {
             this.ranges.y.lo = note.y;
         }
 
-        if ( !this.options.RENDER_DISABLED ) {
-            try {
-                this.ctx.fillStyle = note.colour;
-                this.ctx.fillRect(
+        try {
+            this.ctx.fillStyle = note.colour;
+            this.ctx.fillRect(
+                Math.floor( note.x ),
+                Math.floor( note.y ),
+                Math.floor( note.width ),
+                note.height
+            );
+            if ( this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime ) {
+                this.ctx.save();
+                this.ctx.globalAlpha = this.options.highlightCurrent.alpha;
+                this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
+                this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
+                this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
+                this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
+                // Scale by velocity?
+                this.ctx.strokeRect(
                     Math.floor( note.x ),
                     Math.floor( note.y ),
                     Math.floor( note.width ),
                     note.height
                 );
-                if ( this.options.highlightCurrent && note.startSeconds <= currentTime && note.endSeconds > currentTime ) {
-                    this.ctx.save();
-                    this.ctx.globalAlpha = this.options.highlightCurrent.alpha;
-                    this.ctx.strokeStyle = this.options.highlightCurrent.strokeStyle;
-                    this.ctx.shadowColor = this.options.highlightCurrent.shadowColor;
-                    this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
-                    this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
-                    // Scale by velocity?
-                    this.ctx.strokeRect(
-                        Math.floor( note.x ),
-                        Math.floor( note.y ),
-                        Math.floor( note.width ),
-                        note.height
-                    );
-                    this.ctx.restore();
-                }
-            } catch ( e ) {
-                this.options.logger.error( 'Note:', note );
-                this.options.logger.error( 'Range:', this.options.midiNoteRange );
-                this.options.logger.error( 'Canvas %d x %d:', this.options.width, this.options.height );
-                throw e;
+                this.ctx.restore();
             }
+        } catch ( e ) {
+            this.options.logger.error( 'Note:', note );
+            this.options.logger.error( 'Range:', this.options.midiNoteRange );
+            this.options.logger.error( 'Canvas %d x %d:', this.options.width, this.options.height );
+            throw e;
         }
     }
-};
+}
