@@ -23,8 +23,8 @@ describe( 'Integrator', function () {
 
     it( 'Y range', async () => {
         const integrator = new Integrator( {
-            outputpath: path.resolve( 'god-bless-america.mp4' ),
-            midipath: path.resolve( 'fixtures/berlin/16-MOD-IrvgB God Bless America (1939) cb Irving Berlin [7024].mid' ),
+            outputpath: path.resolve( 'whatll-i-do.mp4' ),
+            midipath: path.resolve( 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid' ),
             fps: 1,
             RENDER_DISABLED: true
         } );
