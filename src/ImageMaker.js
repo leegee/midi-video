@@ -361,7 +361,6 @@ export default class ImageMaker {
                     this.ctx.shadowBlur = this.options.highlightCurrent.shadowBlur;
                     this.ctx.lineWidth = this.options.highlightCurrent.lineWidth;
                     // Scale by velocity?
-                    console.log( 'note', note );
                     this.ctx.strokeRect(
                         Math.floor( note.x ),
                         Math.floor( note.y ),
