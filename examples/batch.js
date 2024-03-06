@@ -2,8 +2,8 @@
 
 import readdir from "recursive-readdir";
 
-import noteHues = from '../src/Colours/roland-td11.js');
-import App = from  "../src/index");
+import noteHues from '../src/Colours/roland-td11.js';
+import App from "../src/index";
 
 let processed = 0;
 let TODO = 1;
