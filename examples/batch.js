@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const readdir = require( "recursive-readdir" );
+import readdir from "recursive-readdir";
 
-const noteHues = require( '../src/Colours/roland-td11.js' );
-const App = require( "../src" );
+import noteHues = from '../src/Colours/roland-td11.js');
+import App = from  "../src/index");
 
 let processed = 0;
 let TODO = 1;
