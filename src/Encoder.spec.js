@@ -43,7 +43,7 @@ describe( 'Encoder', () => {
 
         let totalImagesAdded = 0;
         for ( let i = 1; i <= totalImagesToMake; i++ ) {
-            encoder.addImage( new Buffer( base64image, 'base64' ) );
+            encoder.addImage( Buffer.from( base64image, 'base64' ) );
             totalImagesAdded++;
         }
         encoder.finalise();
