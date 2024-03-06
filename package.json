@@ -5,6 +5,7 @@
   "repository": {
     "url": "https://github.com/leegee/midi-video.git"
   },
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha src/**/*.spec.js"
@@ -21,7 +22,7 @@
   "license": "UNLICENCED",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
-    "canvas": "^2.6.0",
+    "canvas": "^2.11.2",
     "decimal.js": "^10.2.0",
     "md5": "^2.2.1",
     "midi-parser-js": "*",
@@ -33,10 +34,10 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "eslint": "^6.4.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-fs": "^2.0.0",
-    "mocha": "^6.2.0"
+    "eslint": "^6.4.0",
+    "mocha": "^7.2.0"
   }
 }

@@ -1,4 +1,4 @@
-const ImageMaker = require('../ImageMaker.mjs');
+import ImageMaker from '../ImageMaker.js';
 
 const sortNames = [
     'Flauti',
@@ -37,5 +37,5 @@ const manualColours = {
 };
 
 
-module.exports = ImageMaker.createColourMap(sortNames);
+export default ImageMaker.createColourMap( sortNames );
 

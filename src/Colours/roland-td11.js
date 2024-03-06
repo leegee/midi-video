@@ -11,7 +11,7 @@
 */
 
 
-module.exports = {
+export default {
     36: 0, //  Kick Bass Drum 1 Bass(36) 88067
     0: 0,
 

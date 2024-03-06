@@ -1,39 +1,39 @@
-const path = require('path');
-const util = require('util');
-const winston = require('winston');
+import path from 'path';
+import util from 'util';
+import winston from 'winston';
 
-function transform(info, opts) {
-    const args = info[Symbol.for('splat')];
-    if (args) {
-        info.message = util.format(info.message, ...args);
+function transform ( info, opts ) {
+    const args = info[ Symbol.for( 'splat' ) ];
+    if ( args ) {
+        info.message = util.format( info.message, ...args );
     }
     return info;
 }
 
-function utilFormatter() {
+function utilFormatter () {
     return {
         transform
     };
 }
 
-module.exports = winston.createLogger({
+export default winston.createLogger( {
     transports: [
-        new(winston.transports.Console)({
+        new ( winston.transports.Console )( {
             level: process.env.LEVEL || 'info',
             format: winston.format.combine(
-                winston.format.timestamp({
+                winston.format.timestamp( {
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
-                }),
+                } ),
                 utilFormatter(),
                 winston.format.colorize(),
-                winston.format.printf(({
+                winston.format.printf( ( {
                     level,
                     message,
                     label,
                     timestamp
-                }) => `${timestamp} ${label || '-'} ${level}: ${message}`),
+                } ) => `${ timestamp } ${ label || '-' } ${ level }: ${ message }` ),
             )
-        }),
+        } ),
         // new(winston.transports.File)({
         //     filename: path.join(process.cwd(), 'log.log'),
         //     level: 'silly',
@@ -52,7 +52,7 @@ module.exports = winston.createLogger({
         //     )
         // })
     ]
-});
+} );
 
 // function getStackInfo(stackIndex) {
 //     const stacklist = (new Error()).stack.split('\n').slice(3)

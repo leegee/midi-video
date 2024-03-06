@@ -1,1 +1,1 @@
-module.exports = require('./Integrator.mjs');
+export { default } from './Integrator.js';

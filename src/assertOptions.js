@@ -1,4 +1,4 @@
-module.exports = ( options, requiredArgs ) => {
+export default ( options, requiredArgs ) => {
     let errMsgs = [];
     Object.keys( requiredArgs ).forEach( key => {
         if ( typeof options[ key ] === 'undefined' ) {
