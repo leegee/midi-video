@@ -90,7 +90,7 @@ export default class MidiFile {
 				number: trackNumber
 			} );
 
-			midi.track[ trackNumber ].event.forEach( event => {
+			for ( const event of midi.track[ trackNumber ].event ) {
 				this.options.logger.silly( trackNumber, 'EVENT', event );
 				currentTick += event.deltaTime;
 
@@ -153,7 +153,7 @@ export default class MidiFile {
 						}
 					}
 				}
-			} );
+			}
 
 			durationSeconds += this.ticksToSeconds( currentTick );
 
@@ -181,8 +181,8 @@ export default class MidiFile {
 		if ( this.options.remapPitches ) {
 			this.ranges.pitch.hi = 0;
 			this.ranges.pitch.lo = 127;
-			this.tracks.forEach( track => {
-				track.notes.forEach( note => {
+			for ( const track of this.tracks ) {
+				for ( const note of track.notes ) {
 					if ( typeof this.options.remapPitches[ note.pitch ] === 'undefined' ) {
 						throw new RangeError( 'options.remapPitches was supplied but found unmapped pitch, ' + note.pitch );
 					} else {
@@ -193,16 +193,16 @@ export default class MidiFile {
 					}
 
 					notes[ note.pitch ]++;
-				} );
-			} );
+				};
+			}
 
 			this.options.logger.debug( 'Notes used after remap: ', Object.keys( notes ).sort() );
 			notes = {};
 		}
 
 
-		this.tracks.forEach( track => {
-			track.notes.forEach( note => {
+		for ( const track of this.tracks ) {
+			for ( const note of track.notes ) {
 				if ( this.options.fitNotesToScreen ) {
 					note.pitch = note.pitch - this.ranges.pitch.lo + 1;
 					// this.options.logger.silly('fitNotesToScreen made  pitch %d after - %d +1', note.pitch, this.ranges.pitch.lo);
@@ -223,10 +223,10 @@ export default class MidiFile {
 					note.luminosity = this.options.defaultLuminosity;
 				}
 
-				note.save();
+				await note.save();
 				notes[ note.pitch ]++;
-			} );
-		} );
+			}
+		}
 
 		if ( this.options.fitNotesToScreen ) {
 			this.options.midiNoteRange = this.ranges.pitch.hi - this.ranges.pitch.lo;
@@ -251,11 +251,9 @@ export default class MidiFile {
 	fitNoteHues ( noteHues ) {
 		if ( this.options.fitNotesToScreen && noteHues ) {
 			const replacement = {};
-			Object.keys( noteHues ).forEach(
-				pitch => {
-					replacement[ pitch - this.ranges.pitch.lo ] = noteHues[ pitch ]
-				}
-			);
+			for ( const pitch of Object.keys( noteHues ) ) {
+				replacement[ pitch - this.ranges.pitch.lo ] = noteHues[ pitch ]
+			}
 			this.options.logger.silly( 'New noteHue map: ', replacement );
 			return replacement;
 		}
@@ -266,7 +264,7 @@ export default class MidiFile {
 		const mapped = [];
 		let i = 0;
 
-		this.tracks.forEach( track => {
+		for ( const track of this.tracks ) {
 			if ( trackHues instanceof Object && trackHues[ track.name ] ) {
 				mapped.push( trackHues[ track.name ] );
 				this.options.logger.debug( 'Made trackHues for track %d, named "%s": ', track.number, track.name, trackHues[ track.name ] )
@@ -276,7 +274,7 @@ export default class MidiFile {
 				this.options.logger.warn( 'Missing trackHues for track %d, named "%s"!', track.number, track.name )
 				mapped.push( defaultHue );
 			}
-		} );
+		}
 
 		return mapped;
 	}

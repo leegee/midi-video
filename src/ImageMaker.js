@@ -66,7 +66,9 @@ export default class ImageMaker {
             beatsOnScreen: 'integer representing the number of whole measures to display at one time',
         } );
 
-        [ 'midiNoteRange', 'width', 'height', 'secondWidth' ].forEach( _ => this.options[ _ ] = Math.floor( this.options[ _ ] ) );
+        for ( const _ of [ 'midiNoteRange', 'width', 'height', 'secondWidth' ] ) {
+            this.options[ _ ] = Math.floor( this.options[ _ ] );
+        }
 
         this.noteHeight = Math.floor(
             ( this.options.height + 1 ) / ( this.options.midiNoteRange + 1 )
@@ -147,33 +149,33 @@ export default class ImageMaker {
         const unisons = [];
         this.unisons = [];
 
-        playing.forEach( noteToMatch => {
+        for ( const noteToMatch of playing ) {
             if ( !checkedMd5s[ noteToMatch.md5 ] ) {
                 checkedMd5s[ noteToMatch.md5 ] = true;
-                playing.filter(
-                    noteUnderTest => noteUnderTest.md5 !== noteToMatch.md5 &&
-                        noteUnderTest.pitch === noteToMatch.pitch &&
-                        !checkedMd5s[ noteUnderTest.md5 ]
-                ).forEach( matchingNote => {
+                const matchingNotes = playing.filter( noteUnderTest =>
+                    noteUnderTest.md5 !== noteToMatch.md5 &&
+                    noteUnderTest.pitch === noteToMatch.pitch &&
+                    !checkedMd5s[ noteUnderTest.md5 ]
+                );
+                for ( const matchingNote of matchingNotes ) {
                     checkedMd5s[ matchingNote.md5 ] = true;
-                    unisons[ matchingNote.md5 ] = unisons[ matchingNote.md5 ] ? unisons[ matchingNote.md5 ].push( matchingNote ) : [ noteToMatch, matchingNote ]
-                } );
+                    unisons[ matchingNote.md5 ] = unisons[ matchingNote.md5 ] ? unisons[ matchingNote.md5 ].push( matchingNote ) : [ noteToMatch, matchingNote ];
+                }
             }
-        } );
+        }
 
-        for ( let md5 in unisons ) {
+        for ( const md5 in unisons ) {
             let offset = 0;
             let borderSize = this.noteHeight / Object.keys( unisons[ md5 ] ).length;
             this.options.logger.verbose( 'Set borderSize to ', borderSize );
 
-            unisons[ md5 ].sort( ( a, b ) => a.velocity > b.velocity ).forEach( note => {
+            for ( const note of unisons[ md5 ] ) {
                 if ( offset > 0 ) {
                     note.y += offset;
                     note.height -= Math.floor( 2 * offset );
                     note.x += offset;
                     note.width -= Math.floor( 2 * offset );
                 }
-                // offset++;
                 offset += borderSize / 2;
 
                 if ( note.height <= 0 ) {
@@ -183,13 +185,13 @@ export default class ImageMaker {
                     );
                 }
                 this.unisons[ note.md5 ] = note;
-            } );
+            }
         }
     }
 
     _addNotes ( notes ) {
         this.options.logger.verbose( 'ImageMaker._addNotes %d notes', notes.length );
-        notes.forEach( note => {
+        for ( const note of notes ) {
             if ( !note.md5 ) {
                 this.options.logger.error( 'Note: ', note );
                 throw new Error( 'Note has no md5!' );
@@ -205,18 +207,19 @@ export default class ImageMaker {
                 //  this.options.logger.error('Tried to add notes: ', notes);
                 // }
             }
-        } );
+        }
     }
 
     _pruneCompletedNotes ( maxTime ) {
-        Object.keys( this.endSeconds2notesPlaying )
+        const keysToDelete = Object.keys( this.endSeconds2notesPlaying )
             .sort()
-            .filter( t => t < maxTime )
-            .forEach( t => {
-                this.options.logger.verbose( 'DELETE at ', maxTime, this.endSeconds2notesPlaying[ t ] );
-                this.uniqueNotesPlaying[ this.endSeconds2notesPlaying[ t ].md5 ] = false;
-                delete this.endSeconds2notesPlaying[ t ];
-            } );
+            .filter( t => t < maxTime );
+
+        for ( const t of keysToDelete ) {
+            this.options.logger.verbose( 'DELETE at ', maxTime, this.endSeconds2notesPlaying[ t ] );
+            this.uniqueNotesPlaying[ this.endSeconds2notesPlaying[ t ].md5 ] = false;
+            delete this.endSeconds2notesPlaying[ t ];
+        }
     }
 
     renderToBuffer ( currentTime ) {
@@ -229,9 +232,9 @@ export default class ImageMaker {
     _drawPlayingNotes ( currentTime ) {
         this.options.logger.silly( 'ImageMaker._drawPlayingNotes ', this.endSeconds2notesPlaying );
         for ( let endSeconds in this.endSeconds2notesPlaying ) {
-            this.endSeconds2notesPlaying[ endSeconds ].forEach( note => {
+            for ( const note of this.endSeconds2notesPlaying[ endSeconds ] ) {
                 this._drawNote( currentTime, note );
-            } );
+            }
         }
     }
 
@@ -244,10 +247,10 @@ export default class ImageMaker {
         const promises = [];
 
         for ( let endSeconds in this.endSeconds2notesPlaying ) {
-            this.endSeconds2notesPlaying[ endSeconds ].forEach( note => {
+            for ( const note of this.endSeconds2notesPlaying[ endSeconds ] ) {
                 const promise = this._positionNote( currentTime, note );
                 promises.push( promise );
-            } );
+            }
         }
 
         await Promise.allSettled( promises );

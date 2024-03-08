@@ -109,10 +109,10 @@ export default class Note {
         let errMsgs = [];
 
         if ( isNaN( Number( note.x ) ) ) {
-            errMsgs.push( 'x is NaN' );
+            errMsgs.push( 'x is NaN: ' + note.x );
         }
         if ( isNaN( Number( note.y ) ) ) {
-            errMsgs.push( 'y is NaN' );
+            errMsgs.push( 'y is NaN ' + note.y );
         }
         if ( Number( note.y ) < 0 ) {
             errMsgs.push( 'y is negative: ' + note.y );
@@ -122,8 +122,8 @@ export default class Note {
         }
 
         if ( errMsgs.length ) {
-            console.trace();
             this.options.logger.error( '\nBad note: ', note );
+            console.trace();
             throw new TypeError(
                 'Error' + ( errMsgs.length > 1 ? 's' : '' ) + ':\n\t' + errMsgs.join( '\n\t' )
             );
@@ -132,7 +132,9 @@ export default class Note {
 
 
     constructor ( options ) {
-        Note.dbFields.forEach( _ => this[ _ ] = options[ _ ] );
+        for ( const _ of Note.dbFields ) {
+            this[ _ ] = options[ _ ];
+        }
         this.md5 = md5(
             Note.dbFields.map( _ => options[ _ ] )
         );

@@ -140,6 +140,8 @@ export default class Encoder {
         }
         this.options.logger.silly( 'Encoder.addImage adding image' );
 
+        console.trace();
+
         try {
             this.imagesStream.write( buffer, 'utf8' );
         }

@@ -1,13 +1,11 @@
 export default ( options, requiredArgs ) => {
     let errMsgs = [];
-    Object.keys( requiredArgs ).forEach( key => {
+    for ( const key of Object.keys( requiredArgs ) ) {
         if ( typeof options[ key ] === 'undefined' ) {
             errMsgs.push( key + ': ' + requiredArgs[ key ] );
         }
-        // else {
-        //     this.options.logger.debug('yes, key = %s; value =', key, options[key]);
-        // }
-    } );
+    }
+
     if ( errMsgs.length ) {
         console.error( '\nSupplied options: ', options );
         throw new TypeError(

@@ -41,6 +41,36 @@ describe( 'Integrator', function () {
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
             largerNotes: true,
+            fps: 5,
+        } );
+        expect( integrator ).to.be.an.instanceOf( Integrator );
+        expect( integrator.options.logger ).to.be.an( 'Object' );
+
+        expect( integrator.options.outputpath ).to.equal(
+            path.resolve( 'fixtures/4bars-60bpm.mp4' )
+        );
+
+        if ( fs.existsSync( integrator.options.outputpath ) ) {
+            fs.unlinkSync( integrator.options.outputpath );
+        }
+
+        try {
+            await integrator.integrate();
+        } catch ( e ) {
+            throw new Error( e );
+        }
+
+        expect(
+            path.resolve( integrator.options.outputpath )
+        ).to.be.a.path();
+    } );
+
+
+    it( 'simple titles', async () => {
+        const integrator = new Integrator( {
+            midipath: 'fixtures/4bars-60bpm.mid',
+            audiopath: 'fixtures/4bars-60bpm.wav',
+            largerNotes: true,
             fps: 5, // 30,
             text: {
                 title: "4 Bar Test",

@@ -76,14 +76,14 @@ export default class Integrator {
 
         this.beatsOnScreen = this.options.beatsOnScreen;
 
-        [ 'midipath', 'audiopath' ].forEach( key => {
+        for ( const key of [ 'midipath', 'audiopath' ] ) {
             if ( typeof this.options[ key ] !== 'undefined' ) {
                 this.options[ key ] = path.resolve( this.options[ key ] );
                 if ( !fs.existsSync( this.options[ key ] ) ) {
                     throw new Error( 'The input file for option "' + key + '" does not exist: ' + this.options[ key ] );
                 }
             }
-        } );
+        }
     }
 
     async _init () {
