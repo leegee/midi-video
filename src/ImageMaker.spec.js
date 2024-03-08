@@ -39,13 +39,13 @@ describe( 'ImageMaker', () => {
             channel: 0,
         };
 
-        new Note( {
+        await new Note( {
             ...noteArgs,
             track: 0,
             velocity: 100
         } ).save();
 
-        new Note( {
+        await new Note( {
             ...noteArgs,
             track: 1,
             velocity: 50
@@ -87,13 +87,13 @@ describe( 'ImageMaker', () => {
             channel: 0,
         };
 
-        new Note( {
+        await new Note( {
             ...noteArgs,
             track: 1,
             velocity: 50
         } ).save();
 
-        new Note( {
+        await new Note( {
             ...noteArgs,
             pitch: midiNoteRange - 1,
         } ).save();
@@ -131,7 +131,7 @@ describe( 'ImageMaker', () => {
         };
 
         for ( let pitch = 1; pitch < 127; pitch += 127 / 3 ) {
-            new Note( {
+            await new Note( {
                 ...noteArgs,
                 pitch,
                 velocity: pitch,

@@ -76,6 +76,8 @@ export default class Note {
     }
 
     static async readRange ( from, to ) {
+        Note.logger.silly( 'Note.readRange from %d to %d', from, to );
+
         if ( from < 0 ) {
             from = 0;
         }
@@ -83,23 +85,13 @@ export default class Note {
             to = 0;
         }
 
-        Note.logger.silly( 'Note.readRange from %d to %d', from, to );
-
-        return new Promise( ( resolve, reject ) => {
-            const rows = [];
-            Note.dbh.serialize( async () => {
-                try {
-                    await Note.statements.readRange.each( from, to, ( err, row ) => {
-                        if ( err ) {
-                            throw err;
-                        }
-                        rows.push( row );
-                    } );
-                    Note.logger.silly( 'readRange from %d to %d: %d results', from, to, rows.length );
-                    resolve( rows.map( row => new Note( row ) ) );
-                } catch ( error ) {
-                    Note.logger.error( error );
-                    reject( error );
+        return await new Promise( ( resolve, reject ) => {
+            Note.dbh.all( 'SELECT * FROM notes WHERE startSeconds BETWEEN ? AND ?', [ from, to ], ( err, rows ) => {
+                if ( err ) {
+                    Note.logger.error( 'Note.readRange error ' + err );
+                    reject( err );
+                } else {
+                    resolve( rows );
                 }
             } );
         } );
@@ -143,23 +135,20 @@ export default class Note {
     async save () {
         Note.assertValues( this );
         const values = Note.dbFields.map( field => this[ field ] );
+        Note.logger.silly( 'Note.save ', Note.statements.insert, values );
 
-        try {
-            await new Promise( ( resolve, reject ) => {
-                Note.dbh.serialize( () => {
-                    Note.statements.insert.run( values, error => {
-                        if ( error ) {
-                            reject( error );
-                        } else {
-                            resolve();
-                        }
-                    } );
+        await new Promise( ( resolve, reject ) => {
+            Note.dbh.serialize( () => {
+                Note.statements.insert.run( values, error => {
+                    if ( error ) {
+                        Note.logger.error( 'Error occurred while saving note:', error );
+                        reject( error );
+                    } else {
+                        resolve();
+                    }
                 } );
             } );
-        } catch ( error ) {
-            Note.logger.error( 'Error occurred while saving note:', error );
-            throw error; // Re-throw the error to propagate it to the caller
-        }
+        } );
     }
 
     async updatePitch ( newPitch ) {
@@ -221,19 +210,18 @@ export default class Note {
     async getUnisonNotes ( pitch, from, to ) {
         return new Promise( ( resolve, reject ) => {
             const rows = [];
-            Note.dbh.serialize( () => {
-                Note.statements.getUnison.each( from, to, from, to, pitch, ( err, row ) => {
-                    if ( err ) {
-                        this.options.logger.error( err );
-                        reject( err );
-                    } else {
-                        rows.push( row );
-                    }
-                }, () => {
-                    Note.logger.debug( 'getUnisonNotes at pitch %d from %d to %d: %d results', pitch, from, to, rows.length );
-                    resolve( rows.map( row => new Note( row ) ) );
-                } );
+            Note.statements.getUnison.each( from, to, from, to, pitch, ( err, row ) => {
+                if ( err ) {
+                    this.options.logger.error( err );
+                    reject( err );
+                } else {
+                    rows.push( row );
+                }
+            }, () => {
+                Note.logger.debug( 'getUnisonNotes at pitch %d from %d to %d: %d results', pitch, from, to, rows.length );
+                resolve( rows.map( row => new Note( row ) ) );
             } );
         } );
     }
+
 }

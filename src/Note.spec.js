@@ -14,7 +14,7 @@ describe( 'Note', () => {
         await Note.reset();
     } );
 
-    it( 'saves to memory db', async () => {
+    it.only( 'saves to memory db', async () => {
         expect( Note.dbh ).to.not.be.null;
         await Note.init();
         expect( Note.statements.insert ).not.to.be.undefined;
@@ -25,10 +25,25 @@ describe( 'Note', () => {
             endSeconds: 2.999999,
             pitch: 77,
             channel: 0,
-            track: 0
+            track: 0,
+            velocity: 99,
+            width: 10,
+            height: 10,
+            colour: 1,
+            luminosity: 1,
+            x: 1,
+            y: 1,
         } );
 
-        note.save();
+        await note.save();
+
+        Note.dbh.all( 'SELECT * FROM notes', ( err, rows ) => {
+            if ( err ) {
+                console.error( 'Error retrieving data from the notes table:', err );
+            } else {
+                console.log( 'Inserted data:', rows );
+            }
+        } );
 
         const notes = await Note.readRange( 0, 3 );
         expect( notes.length ).to.equal( 1 );
