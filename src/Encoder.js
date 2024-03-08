@@ -65,6 +65,7 @@ export default class Encoder {
                 }
                 args.push( '-i', this.options.audiopath );
             }
+
             args.push(
                 '-vcodec', 'mpeg4',
                 '-shortest',
@@ -77,35 +78,35 @@ export default class Encoder {
 
             childProcess.stdout.on( 'data', data => {
                 const str = data.toString();
-                this.options.logger.debug( str );
+                this.options.logger.debug( 'FFMPEG STDOUT ' + str );
                 this.stdout += str + '\n';
             } );
 
             childProcess.stderr.on( 'data', data => {
                 const str = data.toString();
-                this.options.logger.debug( str );
+                this.options.logger.warn( 'FFMPEG STDERR ' + str );
                 this.stderr += str + '\n';
             } );
 
             childProcess.on( 'error', data => {
                 const str = data.toString();
-                this.options.logger.error( 'Encoder: ERROR', str );
+                this.options.logger.error( 'Encoder: FFMPEG ERROR', str );
                 this.stderr += str + '\n';
                 reject( str );
             } );
 
             childProcess.on( 'exit', code => {
-                this.options.logger.info( 'Encoder: child proc exit', code );
+                this.options.logger.info( 'Encoder: FFMPEG child proc exit', code );
                 this.pipeOpen = false;
             } );
 
             childProcess.on( 'close', code => {
                 this.options.logger.info(
-                    'Encoder: child proc closed pipe after %d images, ffmpeg exit status %d',
+                    'Encoder: FFMPEG child proc closed pipe after %d images, ffmpeg exit status %d',
                     this.totalImagesAdded, code
                 );
                 this.parseOutput();
-                this.options.logger.info( 'Encoder: child proc close handler resolving with code ', code )
+                this.options.logger.info( 'Encoder: FFMPEG child proc close handler resolving with code ', code )
                 resolve( code );
             } );
 
@@ -115,11 +116,12 @@ export default class Encoder {
                 this.pipeOpen = true;
             } );
             this.imagesStream.pipe( childProcess.stdin );
-            this.options.logger.info( 'Encoder: pipe connected' );
+            this.options.logger.info( 'Encoder: image pipe connected to FFMPEG child proc' );
         } );
     }
 
     parseOutput () {
+        this.options.logger.info( 'Encoder.parseOutput Enter' );
         try {
             this.encoded.frame = Number( this.stderr.match( /frame=\s*(\d+)/s )[ 1 ] );
             this.encoded.fps = this.stderr.match( /\s+fps=(\S+)/s )[ 1 ];

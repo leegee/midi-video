@@ -59,7 +59,11 @@ describe( 'Integrator', function () {
             fs.unlinkSync( integrator.options.outputpath );
         }
 
-        await integrator.integrate();
+        try {
+            await integrator.integrate();
+        } catch ( e ) {
+            throw new Error( e );
+        }
 
         expect(
             path.resolve( integrator.options.outputpath )

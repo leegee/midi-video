@@ -75,7 +75,7 @@ export default class Note {
         Note.ready = true;
     }
 
-    static readRange ( from, to ) {
+    static async readRange ( from, to ) {
         if ( from < 0 ) {
             from = 0;
         }
@@ -87,14 +87,20 @@ export default class Note {
 
         return new Promise( ( resolve, reject ) => {
             const rows = [];
-            Note.dbh.serialize( () => {
-                Note.statements.readRange.each( from, to ).each(
-                    ( err, row ) => err ? this.options.logger.error( err ) && reject( err ) : rows.push( row ),
-                    () => {
-                        Note.logger.silly( 'readRange from %d to %d: %d results', from, to, rows.length );
-                        resolve( rows.map( row => new Note( row ) ) );
-                    }
-                );
+            Note.dbh.serialize( async () => {
+                try {
+                    await Note.statements.readRange.each( from, to, ( err, row ) => {
+                        if ( err ) {
+                            throw err;
+                        }
+                        rows.push( row );
+                    } );
+                    Note.logger.silly( 'readRange from %d to %d: %d results', from, to, rows.length );
+                    resolve( rows.map( row => new Note( row ) ) );
+                } catch ( error ) {
+                    Note.logger.error( error );
+                    reject( error );
+                }
             } );
         } );
     }
@@ -132,53 +138,100 @@ export default class Note {
         );
     }
 
-    save () {
-        const values = [];
+    async save () {
         Note.assertValues( this );
-        Note.dbFields.forEach( _ => values.push( this[ _ ] ) );
-        Note.dbh.serialize( () => {
-            Note.statements.insert.run( values );
-        } );
+        const values = Note.dbFields.map( field => this[ field ] );
+
+        try {
+            await new Promise( ( resolve, reject ) => {
+                Note.dbh.serialize( () => {
+                    Note.statements.insert.run( values, error => {
+                        if ( error ) {
+                            reject( error );
+                        } else {
+                            resolve();
+                        }
+                    } );
+                } );
+            } );
+        } catch ( error ) {
+            Note.logger.error( 'Error occurred while saving note:', error );
+            throw error; // Re-throw the error to propagate it to the caller
+        }
     }
 
-    updatePitch ( newPitch ) {
+    async updatePitch ( newPitch ) {
         this.options.logger.silly( 'Note.updatePitch', this, newPitch );
         this.pitch = newPitch;
 
-        if ( Number( this.pitch ) === NaN ) {
+        if ( isNaN( Number( this.pitch ) ) ) {
             throw new TypeError( 'pitch is NaN' );
         }
         if ( !this.md5 ) {
             throw new TypeError( 'No md5?' );
         }
 
-        Note.dbh.serialize( () => {
-            Note.statements.updatePitch.run( this.pitch, this.md5 );
-            this.options.logger.silly( 'Note.updatePitch ran: ', this.pitch );
-        } );
+        try {
+            await new Promise( ( resolve, reject ) => {
+                Note.dbh.serialize( () => {
+                    Note.statements.updatePitch.run( this.pitch, this.md5, error => {
+                        if ( error ) {
+                            reject( error );
+                        } else {
+                            this.options.logger.silly( 'Note.updatePitch ran: ', this.pitch );
+                            resolve();
+                        }
+                    } );
+                } );
+            } );
+        } catch ( error ) {
+            this.options.logger.error( 'Error occurred while updating pitch:', error );
+            throw error; // Re-throw the error to propagate it to the caller
+        }
     }
 
-    updateForDisplay () {
+    async updateForDisplay () {
         Note.logger.silly( 'Note.updateForDisplay', this );
         Note.assertValues( this );
-        Note.dbh.serialize( () => {
-            Note.statements.updateForDisplay.run(
-                this.x, this.y, this.width, this.height, this.colour
-            );
-            Note.logger.silly( 'Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour );
-        } );
+
+        try {
+            await new Promise( ( resolve, reject ) => {
+                Note.dbh.serialize( () => {
+                    Note.statements.updateForDisplay.run(
+                        this.x, this.y, this.width, this.height, this.colour,
+                        error => {
+                            if ( error ) {
+                                reject( error );
+                            } else {
+                                Note.logger.silly( 'Note.updateForDisplay ran: ', this.x, this.y, this.width, this.height, this.colour );
+                                resolve();
+                            }
+                        }
+                    );
+                } );
+            } );
+        } catch ( error ) {
+            Note.logger.error( 'Error occurred while updating display:', error );
+            throw error; // Re-throw the error to propagate it to the caller
+        }
     }
 
-    getUnisonNotes ( pitch, from, to ) {
-        const rows = [];
-        Note.dbh.serialize( () => {
-            Note.statements.getUnison.each( from, to, from, to, pitch ).each(
-                ( err, row ) => err ? this.options.logger.error( err ) && reject( err ) : rows.push( row ),
-                () => {
+    async getUnisonNotes ( pitch, from, to ) {
+        return new Promise( ( resolve, reject ) => {
+            const rows = [];
+            Note.dbh.serialize( () => {
+                Note.statements.getUnison.each( from, to, from, to, pitch, ( err, row ) => {
+                    if ( err ) {
+                        this.options.logger.error( err );
+                        reject( err );
+                    } else {
+                        rows.push( row );
+                    }
+                }, () => {
                     Note.logger.debug( 'getUnisonNotes at pitch %d from %d to %d: %d results', pitch, from, to, rows.length );
                     resolve( rows.map( row => new Note( row ) ) );
-                }
-            );
+                } );
+            } );
         } );
     }
 }

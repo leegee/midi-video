@@ -131,7 +131,7 @@ export default class ImageMaker {
             this.options.logger.silly( 'Processing %d notes from DB at %d', notes.length, currentTime );
             this._addNotes( notes );
             this._pruneCompletedNotes( currentTime - ( this.options.beatsOnScreen / 2 ) );
-            this._positionPlayingNotes( currentTime );
+            await this._positionPlayingNotes( currentTime );
             this._markOverlaidPlayingNotes();
             rvImageBuffer = this.renderToBuffer( currentTime );
         }
@@ -188,7 +188,7 @@ export default class ImageMaker {
     }
 
     _addNotes ( notes ) {
-        this.options.logger.verbose( 'ImageMaker.addNotes %d notes', notes.length );
+        this.options.logger.verbose( 'ImageMaker._addNotes %d notes', notes.length );
         notes.forEach( note => {
             if ( !note.md5 ) {
                 this.options.logger.error( 'Note: ', note );
@@ -235,20 +235,25 @@ export default class ImageMaker {
         }
     }
 
-    _positionPlayingNotes ( currentTime ) {
+    async _positionPlayingNotes ( currentTime ) {
         this.options.logger.silly( 'ImageMaker.positionPlayingNotes ', currentTime );
         if ( typeof currentTime === 'undefined' ) {
             throw new TypeError( 'ImageMaker.positionPlayingNotes requires the current time' );
         }
 
+        const promises = [];
+
         for ( let endSeconds in this.endSeconds2notesPlaying ) {
             this.endSeconds2notesPlaying[ endSeconds ].forEach( note => {
-                this._positionNote( currentTime, note );
+                const promise = this._positionNote( currentTime, note );
+                promises.push( promise );
             } );
         }
+
+        await Promise.allSettled( promises );
     }
 
-    _positionNote ( currentTime, note ) {
+    async _positionNote ( currentTime, note ) {
         if ( typeof currentTime === 'undefined' ) {
             throw new TypeError( 'ImageMaker._positionNote requires the current time' );
         }
@@ -313,7 +318,7 @@ export default class ImageMaker {
         note.height = this.noteHeight;
 
         try {
-            note.updateForDisplay();
+            await note.updateForDisplay();
         } catch ( err ) {
             this.options.logger.error( 'this.ranges', this.ranges );
             throw err;

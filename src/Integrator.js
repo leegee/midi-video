@@ -177,7 +177,7 @@ export default class Integrator {
 
         this.options.logger.debug( 'All time frames parsed: call Encoder.finalise' );
         this.encoder.finalise();
-        this.options.logger.debug( 'Called Encoder.finalise' );
+        this.options.logger.debug( 'Called Encoder.finalise. All done.' );
 
         return promiseResolvesWhenImgPipeClosed;
     }
