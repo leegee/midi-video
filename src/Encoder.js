@@ -136,7 +136,7 @@ export default class Encoder {
 
     addImage ( buffer ) {
         if ( !( buffer instanceof Buffer ) ) {
-            throw new TypeError( 'addImage requires a Buffer, received ' + buffer );
+            throw new TypeError( 'Encoder.addImage requires a Buffer, received ' + buffer );
         }
         this.options.logger.silly( 'Encoder.addImage adding image' );
 
@@ -153,7 +153,7 @@ export default class Encoder {
         this.options.logger.silly( 'Encoder.addImage added image', this.totalImagesAdded );
     }
 
-    async finalise () {
+    finalise () {
         this.options.logger.info( 'Encoder.finalise calling imageStream.end' );
         this.imagesStream.end();
         this.options.logger.info( 'Encoder.finalise done' );
