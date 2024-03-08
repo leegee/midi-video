@@ -8,6 +8,7 @@ import Note from "./Note.js"; // .debugging();
 
 describe( 'Note', () => {
     beforeEach( async () => {
+        await Note.init();
         await Note.reset();
     } );
     afterEach( async () => {
@@ -16,7 +17,6 @@ describe( 'Note', () => {
 
     it.only( 'saves to memory db', async () => {
         expect( Note.dbh ).to.not.be.null;
-        await Note.init();
         expect( Note.statements.insert ).not.to.be.undefined;
         expect( Note.ready ).to.be.ok;
 
@@ -37,13 +37,18 @@ describe( 'Note', () => {
 
         await note.save();
 
-        Note.dbh.all( 'SELECT * FROM notes', ( err, rows ) => {
-            if ( err ) {
-                console.error( 'Error retrieving data from the notes table:', err );
-            } else {
-                console.log( 'Inserted data:', rows );
-            }
+        const rows = await new Promise( ( resolve, reject ) => {
+            Note.dbh.all( 'SELECT * FROM notes', ( err, rows ) => {
+                if ( err ) {
+                    console.error( 'Error retrieving data from the notes table:', err );
+                    reject( err );
+                } else {
+                    resolve( rows );
+                }
+            } );
         } );
+
+        expect( rows.length ).to.equal( 1 );
 
         const notes = await Note.readRange( 0, 3 );
         expect( notes.length ).to.equal( 1 );
