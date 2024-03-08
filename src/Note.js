@@ -108,10 +108,10 @@ export default class Note {
     static assertValues ( note ) {
         let errMsgs = [];
 
-        if ( Number( note.x ) === NaN ) {
+        if ( isNaN( Number( note.x ) ) ) {
             errMsgs.push( 'x is NaN' );
         }
-        if ( Number( note.y ) === NaN ) {
+        if ( isNaN( Number( note.y ) ) ) {
             errMsgs.push( 'y is NaN' );
         }
         if ( Number( note.y ) < 0 ) {
