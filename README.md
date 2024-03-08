@@ -1,5 +1,7 @@
 # `midi-video`
 
+Currently porting and updating.
+
 ## Synopsis
 
     const App = require("../src");
