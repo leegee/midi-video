@@ -11,12 +11,25 @@ function transform ( info, _opts ) {
 }
 
 function utilFormatter () {
-    return { transform };
+    return {
+        transform: info => {
+            const args = info[ Symbol.for( 'splat' ) ];
+            if ( args ) {
+                info.message = util.format( info.message, ...args );
+            }
+            if ( info.level === 'error' ) {
+                const stack = ( new Error() ).stack;
+                info.stack = stack;
+            }
+            return info;
+        }
+    };
 }
+
 
 export default winston.createLogger( {
     transports: [
-        new ( winston.transports.Console )( {
+        new winston.transports.Console( {
             level: process.env.LEVEL || 'info',
             format: winston.format.combine(
                 winston.format.timestamp( {
@@ -24,15 +37,15 @@ export default winston.createLogger( {
                 } ),
                 utilFormatter(),
                 winston.format.colorize(),
-                winston.format.printf( ( {
-                    level,
-                    message,
-                    label,
-                    timestamp
-                } ) => `${ timestamp } ${ label || '-' } ${ level }: ${ message }` ),
+                winston.format.printf( ( { level, message, label, timestamp, stack } ) => {
+                    if ( stack ) {
+                        return `${ timestamp } ${ label || '-' } ${ level }: ${ message }\n${ stack }`;
+                    }
+                    return `${ timestamp } ${ label || '-' } ${ level }: ${ message }`;
+                } ),
             )
         } ),
-        new ( winston.transports.File )( {
+        new winston.transports.File( {
             filename: path.join( process.cwd(), 'log.log' ),
             level: 'silly',
             format: winston.format.combine(
@@ -40,29 +53,29 @@ export default winston.createLogger( {
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
                 } ),
                 utilFormatter(),
-                winston.format.colorize(),
-                winston.format.printf( ( {
-                    level,
-                    message,
-                    label,
-                    timestamp
-                } ) => `${ timestamp } ${ label || '-' } ${ level }: ${ message }` ),
+                winston.format.printf( ( { level, message, label, timestamp, stack } ) => {
+                    if ( stack ) {
+                        return `${ timestamp } ${ label || '-' } ${ level }: ${ message }\n${ stack }`;
+                    }
+                    return `${ timestamp } ${ label || '-' } ${ level }: ${ message }`;
+                } ),
             )
         } )
     ]
 } );
 
-// function getStackInfo(stackIndex) {
-//     const stacklist = (new Error()).stack.split('\n').slice(3)
+
+// function getStackInfo ( stackIndex ) {
+//     const stacklist = ( new Error() ).stack.split( '\n' ).slice( 3 )
 
 //     const stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/gi;
 //     const stackReg2 = /at\s+()(.*):(\d*):(\d*)/gi;
 
-//     const s = stacklist[stackIndex] || stacklist[0];
-//     const sp = stackReg.exec(s) || stackReg2.exec(s);
+//     const s = stacklist[ stackIndex ] || stacklist[ 0 ];
+//     const sp = stackReg.exec( s ) || stackReg2.exec( s );
 
-//     if (sp && sp.length === 5) {
-//         return sp[1] + ' ' + path.relative(__dirname, sp[2]) + ' ' + sp[3];
+//     if ( sp && sp.length === 5 ) {
+//         return sp[ 1 ] + ' ' + path.relative( __dirname, sp[ 2 ] ) + ' ' + sp[ 3 ];
 //         //   return {
 //         //     method: sp[1],
 //         //     relativePath: path.relative(__dirname, sp[2]),

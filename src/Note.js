@@ -115,8 +115,7 @@ export default class Note {
 
         if ( errMsgs.length ) {
             this.options.logger.error( 'Bad note: ', note );
-            this.options.logger.error( errMsgs.join( "/n" ) );
-            console.trace();
+            this.options.logger.error( errMsgs.join( "\n" ) );
             throw new TypeError(
                 'Error' + ( errMsgs.length > 1 ? 's' : '' ) + ':\n\t' + errMsgs.join( '\n\t' )
             );
