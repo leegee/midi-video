@@ -8,6 +8,18 @@ chai.use( chaiFs );
 import ImageMaker from "./ImageMaker.js";
 import Note from './Note.js';
 
+const noteArgs = {
+    startSeconds: 0,
+    endSeconds: 1,
+    pitch: 1,
+    track: 0,
+    channel: 0,
+    x: 0,
+    y: 0,
+    velocity: 10,
+};
+
+
 describe( 'ImageMaker', () => {
     it( 'get', async () => {
         const imageMaker = new ImageMaker( {
@@ -31,19 +43,7 @@ describe( 'ImageMaker', () => {
 
         const midiNoteRange = 10;
 
-        const noteArgs = {
-            startSeconds: 0,
-            endSeconds: 1,
-            pitch: 1,
-            track: 0,
-            channel: 0,
-        };
-
-        await new Note( {
-            ...noteArgs,
-            track: 0,
-            velocity: 100
-        } ).save();
+        await new Note( { ...noteArgs, velocity: 100 } ).save();
 
         await new Note( {
             ...noteArgs,
@@ -78,14 +78,6 @@ describe( 'ImageMaker', () => {
         await Note.init();
 
         const midiNoteRange = 10;
-
-        const noteArgs = {
-            startSeconds: 0,
-            endSeconds: 1,
-            pitch: 1,
-            track: 0,
-            channel: 0,
-        };
 
         await new Note( {
             ...noteArgs,
@@ -124,11 +116,6 @@ describe( 'ImageMaker', () => {
         await Note.init();
 
         const midiNoteRange = 127;
-
-        const noteArgs = {
-            track: 0,
-            channel: 0,
-        };
 
         for ( let pitch = 1; pitch < 127; pitch += 127 / 3 ) {
             await new Note( {
