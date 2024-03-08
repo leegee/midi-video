@@ -73,7 +73,7 @@ describe( 'Note', () => {
     } );
 
     it( 'it allows 0 pitch', async () => {
-        expect( () => {
+        expect( async () => {
             await new Note( {
                 ...NEW_NOTE_ARGS,
                 pitch: 0,
