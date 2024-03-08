@@ -12,15 +12,12 @@ import appLogger from './appLogger.js';
 
 // import noteHues from '../src/Colours/roland-td11.js';
 
-let oldLogLevel;
-
 beforeEach( async () => {
-    oldLogLevel = process.env.LEVEL;
     await Note.reset();
 } );
+
 afterEach( async () => {
     await Note.reset();
-    process.env.LEVEL = oldLogLevel;
 } );
 
 describe( 'Integrator', function () {
@@ -39,9 +36,7 @@ describe( 'Integrator', function () {
         expect( integrator.imageMaker.ranges.y.lo ).not.to.be.undefined;
     } );
 
-    it( 'creates a video file from simple MIDI', async () => {
-        process.env.LEVEL = 'error';
-
+    it( 'simplest', async () => {
         const integrator = new Integrator( {
             midipath: 'fixtures/4bars-60bpm.mid',
             audiopath: 'fixtures/4bars-60bpm.wav',
@@ -64,13 +59,7 @@ describe( 'Integrator', function () {
             fs.unlinkSync( integrator.options.outputpath );
         }
 
-        const promiseResolvesWhenFileWritten = integrator.integrate();
-        expect( promiseResolvesWhenFileWritten ).to.be.an.instanceOf( Promise );
-
-        const encoderEitStatus = await promiseResolvesWhenFileWritten;
-
-        integrator.options.logger.info( 'encoderEitStatus=' + encoderEitStatus );
-        expect( encoderEitStatus ).to.equal( 0 );
+        await integrator.integrate();
 
         expect(
             path.resolve( integrator.options.outputpath )

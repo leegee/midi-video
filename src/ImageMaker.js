@@ -222,7 +222,6 @@ export default class ImageMaker {
     renderToBuffer ( currentTime ) {
         this.createBlankImage();
         this._drawPlayingNotes( currentTime );
-        // cf https://github.com/Automattic/node-canvas#canvastobuffer
         return this.canvas.toBuffer( 'image/png' );
     }
 

@@ -40,6 +40,7 @@
 
 ### Completed so far
 
+* Integration tests, some unit tests
 * An object to render video via `ffmpeg`.
 * An object to interpret  MIDI files using `midi-parser-js`.
 * An object to store and render via `node-canvas`
@@ -56,6 +57,7 @@
 
 ### Yet to do
 
+* Unit tests with mocks
 * remapPitches to work with noteHues
 * `assertOptions` to take objects
 * Check `highlightCurrent` sizes do not conflict with small note heights

@@ -57,11 +57,11 @@ export default class Encoder {
                     t.setHours( 0 );
                     t.setMinutes( 0 );
                     t.setSeconds( this.options.titleDuration );
-                    const audiooffset = t.toLocaleTimeString( 'en-GB', {
+                    const audioOffset = t.toLocaleTimeString( 'en-GB', {
                         hour12: false
                     } );
-                    this.options.logger.debug( 'Audio offset, after titles: [%s]', audiooffset );
-                    args.push( '-itsoffset', audiooffset );
+                    this.options.logger.debug( 'Audio offset, after titles: [%s]', audioOffset );
+                    args.push( '-itsoffset', audioOffset );
                 }
                 args.push( '-i', this.options.audiopath );
             }
@@ -71,9 +71,9 @@ export default class Encoder {
                 this.options.outputpath
             );
 
-            this.options.logger.debug( 'pre-spawn ffmpeg', args );
+            this.options.logger.info( 'Encoder: pre-spawn ffmpeg', args );
             const childProcess = child_process.spawn( FFMPEG_PATH, args );
-            this.options.logger.debug( 'post-spawn ffmpeg' );
+            this.options.logger.info( 'Encoder: post-spawn ffmpeg' );
 
             childProcess.stdout.on( 'data', data => {
                 const str = data.toString();
@@ -89,7 +89,7 @@ export default class Encoder {
 
             childProcess.on( 'error', data => {
                 const str = data.toString();
-                this.options.logger.error( 'ERROR', str );
+                this.options.logger.error( 'Encoder: ERROR', str );
                 this.stderr += str + '\n';
                 reject( str );
             } );
@@ -105,16 +105,17 @@ export default class Encoder {
                     this.totalImagesAdded, code
                 );
                 this.parseOutput();
+                this.options.logger.info( 'Encoder: child proc close handler resolving with code ', code )
                 resolve( code );
             } );
 
             this.imagesStream = new stream.PassThrough();
             this.imagesStream.on( 'error', () => {
-                this.options.logger.error( 'imageStream error: ', error );
+                this.options.logger.error( 'Encoder: imageStream error: ', error );
                 this.pipeOpen = true;
             } );
             this.imagesStream.pipe( childProcess.stdin );
-            this.options.logger.debug( 'Encoder pipe connected' );
+            this.options.logger.info( 'Encoder: pipe connected' );
         } );
     }
 
@@ -139,7 +140,8 @@ export default class Encoder {
 
         try {
             this.imagesStream.write( buffer, 'utf8' );
-        } catch ( e ) {
+        }
+        catch ( e ) {
             this.options.logger.error( 'Encoder.addImage adding image: ', e );
             console.trace();
             throw e;
@@ -150,9 +152,9 @@ export default class Encoder {
     }
 
     async finalise () {
-        this.options.logger.debug( 'Encoder.finalise closing imageStream' );
+        this.options.logger.info( 'Encoder.finalise calling imageStream.end' );
         this.imagesStream.end();
-        this.options.logger.debug( 'Encoder.finalise done' );
+        this.options.logger.info( 'Encoder.finalise done' );
     }
 
 }
