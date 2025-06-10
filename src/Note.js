@@ -100,6 +100,24 @@ export default class Note {
     static assertValues ( note ) {
         let errMsgs = [];
 
+        if ( Number( note.pitch ) < 0 || Number( note.pitch ) > 126 ) {
+            errMsgs.push( 'pitch out of range 1-126: ' + note.pitch );
+        }
+
+        if ( errMsgs.length ) {
+            this.options.logger.error( 'Bad note: ', note );
+            console.trace( 'Trace Note errors:' + errMsgs.join( "\n" ) );
+            this.options.logger.error( errMsgs.join( "\n" ) );
+            throw new TypeError(
+                'Error' + ( errMsgs.length > 1 ? 's' : '' ) + ':\n\t' + errMsgs.join( '\n\t' )
+            );
+        }
+    }
+
+
+    static assertLayoutValues ( note ) {
+        let errMsgs = [];
+
         if ( isNaN( Number( note.x ) ) ) {
             errMsgs.push( 'x is NaN: ' + note.x );
         }
@@ -109,19 +127,16 @@ export default class Note {
         if ( Number( note.y ) < 0 ) {
             errMsgs.push( 'y is negative: ' + note.y );
         }
-        if ( Number( note.pitch ) < 0 || Number( note.pitch ) > 126 ) {
-            errMsgs.push( 'pitch out of range 1-126: ' + note.pitch );
-        }
 
         if ( errMsgs.length ) {
             this.options.logger.error( 'Bad note: ', note );
+            console.trace( 'Trace Note errors:' + errMsgs.join( "\n" ) );
             this.options.logger.error( errMsgs.join( "\n" ) );
             throw new TypeError(
                 'Error' + ( errMsgs.length > 1 ? 's' : '' ) + ':\n\t' + errMsgs.join( '\n\t' )
             );
         }
     }
-
 
     constructor ( options ) {
         for ( const _ of Note.dbFields ) {
@@ -184,6 +199,7 @@ export default class Note {
     async updateForDisplay () {
         Note.logger.silly( 'Note.updateForDisplay', this );
         Note.assertValues( this );
+        Note.assertLayoutValues( this );
 
         try {
             await new Promise( ( resolve, reject ) => {

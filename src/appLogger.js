@@ -17,10 +17,10 @@ function utilFormatter () {
             if ( args ) {
                 info.message = util.format( info.message, ...args );
             }
-            if ( info.level === 'error' ) {
-                const stack = ( new Error() ).stack;
-                info.stack = stack;
-            }
+            // if ( info.level === 'error' ) {
+            //     const stack = ( new Error() ).stack;
+            //     info.stack = stack;
+            // }
             return info;
         }
     };

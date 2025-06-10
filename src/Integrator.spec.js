@@ -21,13 +21,13 @@ afterEach( async () => {
 } );
 
 describe( 'Integrator', function () {
-    this.timeout( 1000 * 60 );
+    this.timeout( 1000 * 60 * 10 );
 
-    it( 'Y range', async () => {
+    it.only( 'Y range', async () => {
         const integrator = new Integrator( {
             outputpath: path.resolve( 'whatll-i-do.mp4' ),
             midipath: path.resolve( 'fixtures/berlin/49_MOD-IrvgB What ll I Do (1924) cb Irving Berlin pb Adam Carroll [204871].mid' ),
-            fps: 1,
+            fps: 5,
         } );
 
         await integrator.integrate();

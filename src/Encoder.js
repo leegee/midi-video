@@ -84,7 +84,7 @@ export default class Encoder {
 
             childProcess.stderr.on( 'data', data => {
                 const str = data.toString();
-                this.options.logger.warn( 'FFMPEG STDERR ' + str );
+                this.options.logger.silly( 'FFMPEG STDERR ' + str );
                 this.stderr += str + '\n';
             } );
 
@@ -139,8 +139,6 @@ export default class Encoder {
             throw new TypeError( 'Encoder.addImage requires a Buffer, received ' + buffer );
         }
         this.options.logger.silly( 'Encoder.addImage adding image' );
-
-        console.trace();
 
         try {
             this.imagesStream.write( buffer, 'utf8' );

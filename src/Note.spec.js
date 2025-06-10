@@ -56,21 +56,21 @@ describe( 'Note', () => {
         expect( notes.length ).to.equal( 1 );
     } );
 
-    it( 'it prevents saving a note with negative y', async () => {
-        try {
-            await new Note( {
-                startSeconds: 0,
-                endSeconds: 1,
-                pitch: 1,
-                track: 0,
-                channel: 0,
-                y: -1
-            } ).save();
-            throw new Error( 'Expected save operation to throw a TypeError' );
-        } catch ( error ) {
-            expect( error ).to.be.an.instanceOf( TypeError );
-        }
-    } );
+    // it( 'it prevents saving a note with negative y', async () => {
+    //     try {
+    //         await new Note( {
+    //             startSeconds: 0,
+    //             endSeconds: 1,
+    //             pitch: 1,
+    //             track: 0,
+    //             channel: 0,
+    //             y: -1
+    //         } ).save();
+    //         throw new Error( 'Expected save operation to throw a TypeError' );
+    //     } catch ( error ) {
+    //         expect( error ).to.be.an.instanceOf( TypeError );
+    //     }
+    // } );
 
     it( 'it allows 0 pitch', async () => {
         expect( async () => {

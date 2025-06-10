@@ -261,6 +261,10 @@ export default class ImageMaker {
             throw new TypeError( 'ImageMaker._positionNote requires the current time' );
         }
 
+        if ( !( note instanceof Note ) ) {
+            throw new TypeError( 'ImageMaker._positionNote requires a note' );
+        }
+
         note.x = ( ( note.startSeconds - currentTime ) * this.options.secondWidth ) +
             ( this.options.width / 2 );
 
@@ -321,9 +325,10 @@ export default class ImageMaker {
         note.height = this.noteHeight;
 
         try {
-            await note.updateForDisplay();
+            const actualNote = new Note( note );
+            await actual.updateForDisplay();
         } catch ( err ) {
-            this.options.logger.error( 'this.ranges', this.ranges );
+            this.options.logger.error( 'Failed to updateForDisplay: ' + err.toString() );
             throw err;
         }
 

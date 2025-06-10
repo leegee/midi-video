@@ -215,10 +215,10 @@ export default class MidiFile {
 
 				if ( this.options.scaleLuminosity && this.ranges.velocity.hi !== this.ranges.velocity.lo ) {
 					note.luminosity =
-						( this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc ) *
-						( note.velocity - this.ranges.velocity.lo ) /
-						( this.ranges.velocity.hi - this.ranges.velocity.lo ) +
-						this.options.colour.minLuminosityPc;
+						( this.options.colour.maxLuminosityPc - this.options.colour.minLuminosityPc )
+						* ( note.velocity - this.ranges.velocity.lo )
+						/ ( this.ranges.velocity.hi - this.ranges.velocity.lo )
+						+ this.options.colour.minLuminosityPc;
 				} else {
 					note.luminosity = this.options.defaultLuminosity;
 				}
