@@ -1,8 +1,8 @@
 # `midi-video`
 
-Currently porting and updating.
-
 ## Synopsis
+
+See [./examples/](./examples/).
 
     const App = require("../src");
 
