@@ -1,6 +1,6 @@
 {
   "name": "midi-video",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Creates a piano-roll video of MIDI data",
   "repository": {
     "url": "https://github.com/leegee/midi-video.git"

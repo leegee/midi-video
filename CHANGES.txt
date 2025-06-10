@@ -1,0 +1,5 @@
+0.0.3 - 2025-06 - revised render loop timing to account for JS rounding errors
+
+0.0.2 - 2024-03 - ES6
+
+0.0.1 - 2019-09 - Init
