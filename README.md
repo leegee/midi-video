@@ -1,5 +1,7 @@
 # `midi-video`
 
+![./screenshot.png](./screenshot.png)
+
 ## Synopsis
 
 See [./examples/](./examples/).
